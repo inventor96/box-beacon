@@ -3,6 +3,7 @@ namespace app\http\controllers;
 
 use app\http\routing\middleware\Throttle;
 use app\models\User;
+use mako\gatekeeper\Gatekeeper;
 use mako\http\routing\attributes\Middleware;
 
 class Auth extends ControllerBase
@@ -44,7 +45,13 @@ class Auth extends ControllerBase
 		if ($result === true) {
 			return $this->redirectResponse('dashboard:home');
 		} else {
-			$this->session->putFlash('error', "We don't recognize that email or password. Please try again.");
+			$this->session->putFlash('error', match ($result) {
+				Gatekeeper::LOGIN_INCORRECT => "We don't recognize that email or password. Please try again.",
+				Gatekeeper::LOGIN_ACTIVATING => 'Your account has not been activated. Please check your email for the activation link.',
+				Gatekeeper::LOGIN_BANNED => 'Your account has been banned. Please contact support.',
+				Gatekeeper::LOGIN_LOCKED => 'You have made too many failed login attempts. Please wait a while before trying again.',
+				default => "There was an error logging you in. Please try again later.",
+			});
 			return $this->redirectResponse('auth:login');
 		}
 	}
