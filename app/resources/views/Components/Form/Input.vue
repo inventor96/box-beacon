@@ -27,6 +27,11 @@ const props = defineProps({
 		required: false,
 		default: '',
 	},
+	error: {
+		type: String,
+		required: false,
+		default: null,
+	},
 	noMb: {
 		type: Boolean,
 		required: false,
@@ -49,11 +54,15 @@ function onInput(event) {
 			:name="props.name ?? props.id"
 			:type="props.type"
 			class="form-control"
+			:class="{'is-invalid': props.error}"
 			:placeholder="props.label"
 			:value="props.modelValue"
 			@input="onInput"
 			v-bind="$attrs"
 		/>
 		<label :for="props.id">{{ props.label }}</label>
+	</div>
+	<div v-if="props.error" class="invalid-feedback d-block">
+		{{ props.error }}
 	</div>
 </template>
