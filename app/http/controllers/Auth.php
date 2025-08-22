@@ -2,8 +2,8 @@
 namespace app\http\controllers;
 
 use app\http\routing\middleware\Throttle;
+use app\models\User;
 use mako\http\routing\attributes\Middleware;
-use mako\validator\exceptions\ValidationException;
 
 class Auth extends ControllerBase
 {
@@ -44,7 +44,6 @@ class Auth extends ControllerBase
 		if ($result === true) {
 			return $this->redirectResponse('dashboard:home');
 		} else {
-			//throw new ValidationException(["We don't recognize that email or password. Please try again."]);
 			$this->session->putFlash('error', "We don't recognize that email or password. Please try again.");
 			return $this->redirectResponse('auth:login');
 		}
@@ -55,6 +54,35 @@ class Auth extends ControllerBase
 	 */
 	public function logout() {
 		$this->gatekeeper->logout();
+		return $this->redirectResponse('auth:login');
+	}
+
+	public function signup() {
+		// no need to be here if they're already logged in
+		if ($this->gatekeeper->isLoggedIn()) {
+			return $this->redirectResponse('dashboard:home');
+		}
+		return $this->view->render('Pages/Auth/Signup');
+	}
+
+	public function signupAction(User $user) {
+		// no need to be here if they're already logged in
+		if ($this->gatekeeper->isLoggedIn()) {
+			return $this->redirectResponse('dashboard:home');
+		}
+
+		// validate values
+		$post = $this->getValidatedInput([
+			'first_name' => ['required'],
+			'last_name' => ['required'],
+			'email' => ['required', 'email'],
+			'password' => ['required', 'min_length(8)'],
+			'confirm_password' => ['required', 'match("password")'],
+		]);
+
+		// attempt the signup
+		$user->createOrUpdateFrom($post, $this->gatekeeper);
+		$this->session->putFlash('success', 'Your account has been created successfully. You can now log in.');
 		return $this->redirectResponse('auth:login');
 	}
 }

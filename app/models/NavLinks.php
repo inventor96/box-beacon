@@ -39,6 +39,7 @@ class NavLinks {
 		// guest
 		if ($this->user === null) {
 			return [
+				$this->nav->createFromRoute('Sign Up', 'auth:signup'),
 				$this->nav->createFromRoute('Log In', 'auth:login'),
 			];
 		}

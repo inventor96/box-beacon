@@ -12,3 +12,5 @@ $routes->get('/', [Dashboard::class, 'home'], 'dashboard:home');
 $routes->get('/login', [Auth::class, 'login'], 'auth:login');
 $routes->post('/login', [Auth::class, 'loginAction'], 'auth:loginAction');
 $routes->get('/logout', [Auth::class, 'logout'], 'auth:logout');
+$routes->get('/signup', [Auth::class, 'signup'], 'auth:signup');
+$routes->post('/signup', [Auth::class, 'signupAction'], 'auth:signupAction');
