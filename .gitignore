@@ -1,0 +1,14 @@
+.DS_Store
+.php_cs.cache
+.php-cs-fixer.cache
+.phpunit.cache
+.phpunit.result.cache
+/.idea
+/vendor
+composer.lock
+composer.phar
+node_modules/
+public/hot
+.vite/
+/app/config/*/*.php
+.vscode/
