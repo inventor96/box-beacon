@@ -33,13 +33,17 @@ abstract class ControllerBase extends Controller {
 		// shared data
 		$this->view->autoAssign('*', function() use ($app, $nav, $session) {
 			$navlinks = new NavLinks($nav, $this->getUser());
+			$time = (string)$this->request->server->get('REQUEST_TIME_FLOAT');
+			$success = $session->getFlash('success');
+			$warning = $session->getFlash('warning');
+			$error = $session->getFlash('error');
 			return [
 				'_env' => $app->getEnvironment(),
 				'_left_navlinks' => $navlinks->generateLeftLinks(),
 				'_right_navlinks' => $navlinks->generateRightLinks(),
-				'_container_success' => $session->getFlash('success'),
-				'_container_warning' => $session->getFlash('warning'),
-				'_container_error' => $session->getFlash('error'),
+				'_container_success' => $success ? [$time => $success] : [],
+				'_container_warning' => $warning ? [$time => $warning] : [],
+				'_container_error' => $error ? [$time => $error] : [],
 			];
 		});
 	}

@@ -17,16 +17,16 @@ const props = defineProps({
 		default: () => []
 	},
 	_container_error: {
-		type: [String, Array],
-		default: null
+		type: Array,
+		default: () => []
 	},
 	_container_warning: {
-		type: [String, Array],
-		default: null
+		type: Array,
+		default: () => []
 	},
 	_container_success: {
-		type: [String, Array],
-		default: null
+		type: Array,
+		default: () => []
 	}
 });
 </script>
@@ -72,20 +72,23 @@ const props = defineProps({
 	<div id="container" class="container pb-5">
 		<!-- page alerts -->
 		<Alert
-			v-if="props._container_error"
-			:msgs="props._container_error"
+			v-for="(msg, index) in props._container_error"
+			:key="index"
+			:msgs="msg"
 			type="danger"
 			:timeout="0"
 		/>
 		<Alert
-			v-if="props._container_warning"
-			:msgs="props._container_warning"
+			v-for="(msg, index) in props._container_warning"
+			:key="index"
+			:msgs="msg"
 			type="warning"
 			:timeout="0"
 		/>
 		<Alert
-			v-if="props._container_success"
-			:msgs="props._container_success"
+			v-for="(msg, index) in props._container_success"
+			:key="index"
+			:msgs="msg"
 			type="success"
 		/>
 

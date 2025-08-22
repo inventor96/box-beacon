@@ -4,6 +4,7 @@ namespace app\models;
 use InvalidArgumentException;
 use mako\database\midgard\ResultSet;
 use mako\chrono\Time;
+use mako\database\exceptions\DatabaseException;
 use mako\database\midgard\relations\ManyToMany;
 use mako\gatekeeper\adapters\Adapter;
 use mako\gatekeeper\entities\group\Group;
@@ -116,15 +117,15 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 				// excluded foreign key fields get processed here
 
 				// create a new user
-				$user = $gatekeeper->createUser($fields['email'], $fields['username'], $fields['password'] ?? '', false, $extras);
+				$user = $gatekeeper->createUser($fields['email'], $fields['email'], $fields['password'] ?? '', false, $extras);
 			}
 			/** @var self $user */
-		} catch (PDOException $e) {
+		} catch (DatabaseException $e) {
 			// convert exceptions as needed
-			if (strpos($e->getMessage(), "Duplicate entry '{$fields['username']}' for key 'username'") !== false) {
-				throw new ValidationException(["A user already exists with the username '{$fields['username']}'."], '', 0, $e);
+			if (strpos($e->getMessage(), "Duplicate entry '{$fields['email']}' for key 'username'") !== false) {
+				throw new ValidationException(['email' => "A user already exists with the email '{$fields['email']}'."], '', 0, $e);
 			} elseif (strpos($e->getMessage(), "Duplicate entry '{$fields['email']}' for key 'email'") !== false) {
-				throw new ValidationException(["A user already exists with the email '{$fields['email']}'."], '', 0, $e);
+				throw new ValidationException(['email' => "A user already exists with the email '{$fields['email']}'."], '', 0, $e);
 			}
 			throw $e;
 		}

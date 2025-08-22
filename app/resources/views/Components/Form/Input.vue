@@ -48,21 +48,23 @@ function onInput(event) {
 </script>
 
 <template>
-	<div class="form-floating" :class="{'mb-3': !props.noMb}">
-		<input
-			:id="props.id"
-			:name="props.name ?? props.id"
-			:type="props.type"
-			class="form-control"
-			:class="{'is-invalid': props.error}"
-			:placeholder="props.label"
-			:value="props.modelValue"
-			@input="onInput"
-			v-bind="$attrs"
-		/>
-		<label :for="props.id">{{ props.label }}</label>
-	</div>
-	<div v-if="props.error" class="invalid-feedback d-block">
-		{{ props.error }}
+	<div :class="{'mb-3': !props.noMb}">
+		<div class="form-floating">
+			<input
+				:id="props.id"
+				:name="props.name ?? props.id"
+				:type="props.type"
+				class="form-control"
+				:class="{'is-invalid': props.error}"
+				:placeholder="props.label"
+				:value="props.modelValue"
+				@input="onInput"
+				v-bind="$attrs"
+			/>
+			<label :for="props.id">{{ props.label }}</label>
+		</div>
+		<div v-if="props.error" class="invalid-feedback d-block">
+			{{ props.error }}
+		</div>
 	</div>
 </template>

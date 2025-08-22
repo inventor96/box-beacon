@@ -26,7 +26,7 @@ return
 	 * User model
 	 * ---------------------------------------------------------
 	 */
-	'user_model' => mako\gatekeeper\entities\user\User::class,
+	'user_model' => app\models\User::class,
 
 	/*
 	 * ---------------------------------------------------------
