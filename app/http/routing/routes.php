@@ -14,3 +14,4 @@ $routes->post('/login', [Auth::class, 'loginAction'], 'auth:loginAction');
 $routes->get('/logout', [Auth::class, 'logout'], 'auth:logout');
 $routes->get('/signup', [Auth::class, 'signup'], 'auth:signup');
 $routes->post('/signup', [Auth::class, 'signupAction'], 'auth:signupAction');
+$routes->get('/activate/{token}', [Auth::class, 'activate'], 'auth:activate');

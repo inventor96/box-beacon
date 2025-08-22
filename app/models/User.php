@@ -167,7 +167,7 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 	public function sendWelcomeEmail(Email $email) {
 		$token = $this->generateActionToken();
 		$this->save();
-		return $email->sendTemplate([EmailUser::fromUser($this)], 'Welcome to Box Beacon', 'welcome', [
+		return $email->sendTemplate([EmailUser::fromUser($this)], 'Welcome to Box Beacon!', 'welcome', [
 			'first_name' => $this->first_name,
 			'token' => $token,
 		]);

@@ -2,6 +2,7 @@
 namespace app\http\controllers;
 
 use app\http\routing\middleware\Throttle;
+use app\models\Email;
 use app\models\User;
 use mako\gatekeeper\Gatekeeper;
 use mako\http\routing\attributes\Middleware;
@@ -72,7 +73,7 @@ class Auth extends ControllerBase
 		return $this->view->render('Pages/Auth/Signup');
 	}
 
-	public function signupAction(User $user) {
+	public function signupAction(User $user, Email $email) {
 		// no need to be here if they're already logged in
 		if ($this->gatekeeper->isLoggedIn()) {
 			return $this->redirectResponse('dashboard:home');
@@ -88,8 +89,21 @@ class Auth extends ControllerBase
 		]);
 
 		// attempt the signup
-		$user->createOrUpdateFrom($post, $this->gatekeeper);
-		$this->session->putFlash('success', 'Your account has been created successfully. You can now log in.');
+		$u = $user->createOrUpdateFrom($post, $this->gatekeeper);
+		$u->sendWelcomeEmail($email);
+		$this->session->putFlash('success', 'Your account has been created! Please check your email for the activation link.');
 		return $this->redirectResponse('auth:login');
+	}
+
+	public function activate(string $token) {
+		// activate the user account
+		$result = $this->gatekeeper->activateUser($token);
+		if ($result === true) {
+			$this->session->putFlash('success', 'Your account has been activated! You can now log in.');
+			return $this->redirectResponse('auth:login');
+		} else {
+			$this->session->putFlash('error', 'Invalid activation token.');
+			return $this->redirectResponse('auth:login');
+		}
 	}
 }

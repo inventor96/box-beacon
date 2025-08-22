@@ -2,7 +2,7 @@
 import Input from '@/Components/Form/Input.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
-import { Form } from '@inertiajs/vue3';
+import { Form, Link } from '@inertiajs/vue3';
 
 </script>
 
@@ -20,4 +20,6 @@ import { Form } from '@inertiajs/vue3';
 		<Switch id="remember" label="Remember Me" :model-value="true" :error="errors.remember" />
 		<button class="btn btn-primary" type="submit">Login</button>
 	</Form>
+	<p>Don't have an account? <Link href="/signup">Let's get you signed up!</Link></p>
+	<p>Forgot your password? <Link href="/forgot">Reset it here.</Link></p>
 </template>
