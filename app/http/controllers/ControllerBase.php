@@ -37,9 +37,9 @@ abstract class ControllerBase extends Controller {
 				'_env' => $app->getEnvironment(),
 				'_left_navlinks' => $navlinks->generateLeftLinks(),
 				'_right_navlinks' => $navlinks->generateRightLinks(),
-				'_container_success' => $session->getFlash('container_success'),
-				'_container_warning' => $session->getFlash('container_warning'),
-				// _container_error is populated by the InputValidation middleware
+				'_container_success' => $session->getFlash('success'),
+				'_container_warning' => $session->getFlash('warning'),
+				'_container_error' => $session->getFlash('error'),
 			];
 		});
 	}

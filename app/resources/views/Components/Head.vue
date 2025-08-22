@@ -10,7 +10,7 @@ const props = defineProps({
 });
 
 const pageTitle = computed(() => {
-	return props.title ? `${props.title} | Emergency Response Communications` : 'Emergency Response Communications';
+	return props.title ? `${props.title} | Box Beacon` : 'Box Beacon';
 });
 </script>
 

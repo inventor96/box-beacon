@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
 			</ul>
 		</template>
 		<template v-else>
-			{{ Array.isArray(props.msgs) ? props.msgs[0] : (typeof props.msgs === 'object' ? Object.values(props.msgs)[0] : '') }}
+			{{ Array.isArray(props.msgs) ? props.msgs[0] : (typeof props.msgs === 'object' ? Object.values(props.msgs)[0] : props.msgs) }}
 		</template>
 		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 	</div>
