@@ -23,7 +23,7 @@ class Auth extends ControllerBase
 	public function login() {
 		// no need to be here if they're already logged in
 		if ($this->gatekeeper->isLoggedIn()) {
-			return $this->redirectResponse('dashboard:home');
+			return $this->safeRedirectResponse('dashboard:home');
 		}
 		return $this->view->render('Pages/Auth/Login');
 	}
@@ -32,7 +32,7 @@ class Auth extends ControllerBase
 	public function loginAction() {
 		// no need to be here if they're already logged in
 		if ($this->gatekeeper->isLoggedIn()) {
-			return $this->redirectResponse('dashboard:home');
+			return $this->safeRedirectResponse('dashboard:home');
 		}
 
 		// validate values
@@ -45,7 +45,7 @@ class Auth extends ControllerBase
 		// attempt the login
 		$result = $this->gatekeeper->login($post['email'], $post['password'], !!$post['remember']);
 		if ($result === true) {
-			return $this->redirectResponse('dashboard:home');
+			return $this->safeRedirectResponse('dashboard:home');
 		} else {
 			$this->session->putFlash('error', match ($result) {
 				Gatekeeper::LOGIN_INCORRECT => "We don't recognize that email or password. Please try again.",
@@ -54,7 +54,7 @@ class Auth extends ControllerBase
 				Gatekeeper::LOGIN_LOCKED => 'You have made too many failed login attempts. Please wait a while before trying again.',
 				default => "There was an error logging you in. Please try again later.",
 			});
-			return $this->redirectResponse('auth:login');
+			return $this->safeRedirectResponse('auth:login');
 		}
 	}
 
@@ -63,13 +63,13 @@ class Auth extends ControllerBase
 	 */
 	public function logout() {
 		$this->gatekeeper->logout();
-		return $this->redirectResponse('auth:login');
+		return $this->safeRedirectResponse('auth:login');
 	}
 
 	public function signup() {
 		// no need to be here if they're already logged in
 		if ($this->gatekeeper->isLoggedIn()) {
-			return $this->redirectResponse('dashboard:home');
+			return $this->safeRedirectResponse('dashboard:home');
 		}
 		return $this->view->render('Pages/Auth/Signup');
 	}
@@ -77,7 +77,7 @@ class Auth extends ControllerBase
 	public function signupAction(User $user, Email $email) {
 		// no need to be here if they're already logged in
 		if ($this->gatekeeper->isLoggedIn()) {
-			return $this->redirectResponse('dashboard:home');
+			return $this->safeRedirectResponse('dashboard:home');
 		}
 
 		// validate values
@@ -93,7 +93,7 @@ class Auth extends ControllerBase
 		$u = $user->createOrUpdateFrom($post, $this->gatekeeper);
 		$u->sendWelcomeEmail($email);
 		$this->session->putFlash('success', 'Your account has been created! Please check your email for the activation link.');
-		return $this->redirectResponse('auth:login');
+		return $this->safeRedirectResponse('auth:login');
 	}
 
 	public function activate(string $token) {
@@ -101,10 +101,10 @@ class Auth extends ControllerBase
 		$result = $this->gatekeeper->activateUser($token);
 		if ($result === true) {
 			$this->session->putFlash('success', 'Your account has been activated! You can now log in.');
-			return $this->redirectResponse('auth:login');
+			return $this->safeRedirectResponse('auth:login');
 		} else {
 			$this->session->putFlash('error', 'Invalid activation token.');
-			return $this->redirectResponse('auth:login');
+			return $this->safeRedirectResponse('auth:login');
 		}
 	}
 
@@ -137,7 +137,7 @@ class Auth extends ControllerBase
 
 		// go home
 		$this->session->putFlash('success', 'If you have an account, you will receive an email shortly.');
-		return $this->redirectResponse('auth:login');
+		return $this->safeRedirectResponse('auth:login');
 	}
 
 	public function resetPassword(string $token) {
@@ -161,7 +161,7 @@ class Auth extends ControllerBase
 		// check token
 		if ($user === null) {
 			$this->session->putFlash('error', 'Invalid password reset token.');
-			return $this->redirectResponse('auth:login');
+			return $this->safeRedirectResponse('auth:login');
 		}
 
 		// update password
