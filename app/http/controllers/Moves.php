@@ -7,7 +7,7 @@ class Moves extends ControllerBase
 {
 	public function home(Move $move)
 	{
-		$moves = $move->all();
+		$moves = $this->getUser()->moves()->all();
 		return $this->view->render('Pages/Moves/Home', [
 			'moves' => $moves,
 		]);
@@ -24,10 +24,13 @@ class Moves extends ControllerBase
 	{
 		$post = $this->getValidatedInput($move->getValidatorSpec());
 		if ($id === 'new') {
-			$move->requireAndAssign($post)->save();
+			$record = $move->requireAndAssign($post);
+			$record->save();
+			$this->getUser()->moves()->link($record);
 			$this->session->putFlash('success', 'Move created successfully.');
 		} else {
-			$move->getInstanceOrThrow($id)->requireAndAssign($post)->save();
+			$record = $move->getInstanceOrThrow($id)->requireAndAssign($post);
+			$record->save();
 			$this->session->putFlash('success', 'Move updated successfully.');
 		}
 		return $this->safeRedirectResponse('moves:home');

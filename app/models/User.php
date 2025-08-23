@@ -57,13 +57,6 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 	];
 
 	/**
-	 * @codeCoverageIgnore
-	 */
-	public function groups(): ManyToMany {
-		return $this->manyToMany(Group::class);
-	}
-
-	/**
 	 * @inheritDoc
 	 * @codeCoverageIgnore
 	 */
@@ -75,6 +68,11 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 			'email' => ['required', 'email'],
 			'groups' => ['array'],
 		];
+	}
+
+	public function moves()
+	{
+		return $this->manyToMany(Move::class);
 	}
 
 	/**

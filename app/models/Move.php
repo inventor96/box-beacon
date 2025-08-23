@@ -34,4 +34,9 @@ class Move extends ORM implements ValidatorSpecInterface
 			'name' => ['required'],
 		];
 	}
+
+	public function users()
+	{
+		return $this->manyToMany(User::class);
+	}
 }

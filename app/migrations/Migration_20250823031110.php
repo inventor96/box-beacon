@@ -19,10 +19,10 @@ class Migration_20250823031110 extends Migration
 		$this->getConnection()->query
 		(<<<SQL
 		CREATE TABLE moves (
-			`id` INT PRIMARY KEY AUTO_INCREMENT,
-			`name` VARCHAR(255) NOT NULL,
-			`created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-			`updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+			`id` int(11) unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+			`name` varchar(255) NOT NULL,
+			`created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			`updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 		);
 		SQL);
 	}
