@@ -1,7 +1,42 @@
 <?php
 namespace app\http\controllers;
 
+use app\models\Move;
+
 class Moves extends ControllerBase
 {
-	// Controller code here
+	public function home(Move $move)
+	{
+		$moves = $move->all();
+		return $this->view->render('Pages/Moves/Home', [
+			'moves' => $moves,
+		]);
+	}
+
+	public function view(Move $move, int|string $id)
+	{
+		return $this->view->render('Pages/Moves/Edit', [
+			'move' => $id === 'new' ? null : $move->getInstanceOrThrow($id),
+		]);
+	}
+
+	public function updateAction(Move $move, int|string $id)
+	{
+		$post = $this->getValidatedInput($move->getValidatorSpec());
+		if ($id === 'new') {
+			$move->requireAndAssign($post)->save();
+			$this->session->putFlash('success', 'Move created successfully.');
+		} else {
+			$move->getInstanceOrThrow($id)->requireAndAssign($post)->save();
+			$this->session->putFlash('success', 'Move updated successfully.');
+		}
+		return $this->safeRedirectResponse('moves:home');
+	}
+
+	public function deleteAction(Move $move, int|string $id)
+	{
+		$move->getInstanceOrThrow($id)->delete();
+		$this->session->putFlash('success', 'Move deleted successfully.');
+		return $this->safeRedirectResponse('moves:home');
+	}
 }

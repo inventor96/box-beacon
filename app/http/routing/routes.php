@@ -39,6 +39,5 @@ $routes->delete('/boxes/{id}', [Boxes::class, 'delete'], 'boxes:delete');
 // moves
 $routes->get('/moves', [Moves::class, 'home'], 'moves:home');
 $routes->get('/moves/{id}', [Moves::class, 'view'], 'moves:view');
-$routes->post('/moves', [Moves::class, 'create'], 'moves:create');
-$routes->put('/moves/{id}', [Moves::class, 'update'], 'moves:update');
-$routes->delete('/moves/{id}', [Moves::class, 'delete'], 'moves:delete');
+$routes->post('/moves/{id}', [Moves::class, 'updateAction'], 'moves:updateAction');
+$routes->delete('/moves/{id}', [Moves::class, 'deleteAction'], 'moves:deleteAction');
