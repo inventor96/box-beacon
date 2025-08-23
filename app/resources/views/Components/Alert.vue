@@ -30,9 +30,7 @@ function handleClosed() {
 
 onMounted(() => {
 	// if timeout not already set, default timeout to 10000 unless it's a danger or warning type
-	if (props.timeout === null && (props.type !== 'danger' && props.type !== 'warning')) {
-		props.timeout = 10000;
-	}
+	const timeout = (props.timeout === null && (props.type !== 'danger' && props.type !== 'warning')) ? 10000 : props.timeout;
 
 	alertInstance = Alert.getOrCreateInstance(alert.value);
 
@@ -40,11 +38,11 @@ onMounted(() => {
 	alert.value.addEventListener('closed.bs.alert', handleClosed);
 
 	// dismiss alert after timeout
-	if (props.timeout > 0) {
+	if (timeout > 0) {
 		timeoutId = setTimeout(() => {
 			alertInstance.close();
 			// handleClosed will be called by the event listener
-		}, props.timeout);
+		}, timeout);
 	}
 });
 
