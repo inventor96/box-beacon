@@ -17,15 +17,15 @@ const props = defineProps({
 		default: () => []
 	},
 	_container_error: {
-		type: Array,
+		type: [Array, Object],
 		default: () => []
 	},
 	_container_warning: {
-		type: Array,
+		type: [Array, Object],
 		default: () => []
 	},
 	_container_success: {
-		type: Array,
+		type: [Array, Object],
 		default: () => []
 	}
 });
