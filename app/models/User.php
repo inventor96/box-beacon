@@ -35,6 +35,7 @@ use PDOException;
 class User extends GatekeeperUser implements ValidatorSpecInterface {
 	use AutoIdRelationTrait;
 	use AssignRequireTrait;
+	use OrmInstanceGetTrait;
 
 	protected array $cast = [
 		'last_fail_at' => 'date',

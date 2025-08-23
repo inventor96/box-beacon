@@ -56,7 +56,9 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 				</td>
 				<td class="align-middle">{{ user.email }}</td>
 				<td class="align-middle text-end">
-					<button v-if="user.id !== props.user.id" class="btn btn-danger" @click="removeUser(user.id)">Remove</button>
+					<Form v-if="user.id !== props.user.id" :action="`/moves/${move.id}/users/${user.id}`" method="delete" class="m-0">
+						<button type="submit" class="btn btn-danger">Remove</button>
+					</Form>
 				</td>
 			</tr>
 			<tr v-else>

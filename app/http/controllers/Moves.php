@@ -3,6 +3,7 @@ namespace app\http\controllers;
 
 use app\models\Move;
 use app\models\MoveInvite;
+use app\models\User;
 use mako\gatekeeper\repositories\user\UserRepository;
 
 class Moves extends ControllerBase
@@ -86,6 +87,14 @@ class Moves extends ControllerBase
 			$this->session->putFlash('success', $post['email'] . ' has been invited to the move.');
 			return $this->safeRedirectResponse('moves:edit', ['id' => $id]);
 		}
+	}
+
+	public function deleteUser(User $user, Move $move, int $move_id, int $user_id)
+	{
+		$u = $user->getInstanceOrThrow($user_id);
+		$move->getInstanceOrThrow($move_id)->users()->unlink($u);
+		$this->session->putFlash('success', 'Participant removed successfully.');
+		return $this->safeRedirectResponse('moves:edit', ['id' => $move_id]);
 	}
 
 	public function deleteInviteAction(MoveInvite $invite, int $move_id, int $invite_id)

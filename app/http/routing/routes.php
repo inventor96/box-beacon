@@ -43,4 +43,5 @@ $routes->post('/moves/{id}', [Moves::class, 'editAction'], 'moves:editAction');
 $routes->delete('/moves/{id}', [Moves::class, 'deleteAction'], 'moves:deleteAction');
 $routes->get('/moves/{id}/users/new', [Moves::class, 'addUser'], 'moves:addUser');
 $routes->post('/moves/{id}/users/new', [Moves::class, 'addUserAction'], 'moves:addUserAction');
+$routes->delete('/moves/{move_id}/users/{user_id}', [Moves::class, 'deleteUser'], 'moves:deleteUser');
 $routes->delete('/moves/{move_id}/invites/{invite_id}', [Moves::class, 'deleteInviteAction'], 'moves:deleteInviteAction');
