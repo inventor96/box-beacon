@@ -88,11 +88,11 @@ class Moves extends ControllerBase
 		}
 	}
 
-	public function deleteInviteAction(MoveInvite $invite, int $id)
+	public function deleteInviteAction(MoveInvite $invite, int $move_id, int $invite_id)
 	{
-		$invite = $invite->getInstanceOrThrow($id);
+		$invite = $invite->getInstanceOrThrow($invite_id);
 		$invite->delete();
 		$this->session->putFlash('success', 'Invitation deleted successfully.');
-		return $this->safeRedirectResponse('moves:edit', ['id' => $invite->move_id]);
+		return $this->safeRedirectResponse('moves:edit', ['id' => $move_id]);
 	}
 }

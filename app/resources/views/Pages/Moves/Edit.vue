@@ -39,7 +39,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 
 	<hr class="mt-5">
 	<h2>Participants</h2>
-	<Link v-if="move" :href="`/moves/${move.id}/add-user`" class="btn btn-primary mb-3">Add Participant</Link>
+	<Link v-if="move" :href="`/moves/${move.id}/users/new`" class="btn btn-primary mb-3">Add Participant</Link>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
@@ -77,7 +77,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 				<tr v-for="invite in move.moveInvites" :key="invite.id">
 					<td class="align-middle">{{ invite.email }}</td>
 					<td class="align-middle text-end">
-						<Form :action="`/moves/invite/${invite.id}`" method="delete" class="m-0">
+						<Form :action="`/moves/${move.id}/invites/${invite.id}`" method="delete" class="m-0">
 							<button type="submit" class="btn btn-danger">Remove</button>
 						</Form>
 					</td>

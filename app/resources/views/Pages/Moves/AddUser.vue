@@ -17,7 +17,7 @@ const props = defineProps({
 	<h1>Add Participant</h1>
 	<p>Add a participant to the move.</p>
 	<Form
-		:action="`/moves/${move.id}/add-user`"
+		:action="`/moves/${move.id}/users/new`"
 		method="post"
 		#default="{ errors }"
 	>
