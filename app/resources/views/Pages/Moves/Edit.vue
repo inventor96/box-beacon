@@ -1,7 +1,7 @@
 <script setup>
 import Input from '@/Components/Form/Input.vue';
 import Head from '@/Components/Head.vue';
-import { Form } from '@inertiajs/vue3';
+import { Form, Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -39,6 +39,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 
 	<hr class="mt-5">
 	<h2>Participants</h2>
+	<Link v-if="move" :href="`/moves/${move.id}/add-user`" class="btn btn-primary mb-3">Add Participant</Link>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
@@ -51,7 +52,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 			<tr v-if="move && move.users?.length" v-for="user in move.users" :key="user.id">
 				<td class="align-middle">
 					{{ user.first_name }} {{ user.last_name }}
-					<span class="badge bg-secondary">You</span>
+					<span v-if="user.id === props.user.id" class="badge bg-secondary">You</span>
 				</td>
 				<td class="align-middle">{{ user.email }}</td>
 				<td class="align-middle text-end">
@@ -63,5 +64,4 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 			</tr>
 		</tbody>
 	</table>
-
 </template>
