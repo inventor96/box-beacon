@@ -5,11 +5,11 @@ use mako\database\midgard\ORM;
 
 /**
  * @property int $id
- * @property string $name
+ * @property Move $move
+ * @property string $email
  * @property Time $created_at
- * @property Time $updated_at
  */
-class Move extends ORM implements ValidatorSpecInterface
+class MoveInvite extends ORM implements ValidatorSpecInterface
 {
 	use AutoIdRelationTrait;
 	use AssignRequireTrait;
@@ -17,31 +17,25 @@ class Move extends ORM implements ValidatorSpecInterface
 
 	protected array $cast = [
 		'created_at' => 'date',
-		'updated_at' => 'date',
 	];
 
 	protected array $assignable = [
-		'name',
+		'email',
 	];
 
 	protected array $required_fields = [
-		'name',
+		'email',
 	];
 
 	public function getValidatorSpec(): array
 	{
 		return [
-			'name' => ['required'],
+			'email' => ['required', 'email'],
 		];
 	}
 
-	public function users()
+	public function move()
 	{
-		return $this->manyToMany(User::class);
-	}
-
-	public function moveInvites()
-	{
-		return $this->hasMany(MoveInvite::class);
+		return $this->belongsTo(Move::class);
 	}
 }

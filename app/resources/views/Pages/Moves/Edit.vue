@@ -64,4 +64,25 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 			</tr>
 		</tbody>
 	</table>
+	<div v-if="move && move.moveInvites?.length">
+		<h3>Pending Invitations</h3>
+		<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Email</th>
+					<th class="text-end">Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="invite in move.moveInvites" :key="invite.id">
+					<td class="align-middle">{{ invite.email }}</td>
+					<td class="align-middle text-end">
+						<Form :action="`/moves/invite/${invite.id}`" method="delete" class="m-0">
+							<button type="submit" class="btn btn-danger">Remove</button>
+						</Form>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </template>
