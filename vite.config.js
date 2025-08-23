@@ -31,4 +31,16 @@ export default defineConfig({
         outDir: 'public/build',
         assetsDir: 'assets',
     },
+    css: {
+        preprocessorOptions: {
+            scss: {
+                silenceDeprecations: [
+                    'import',
+                    'mixed-decls',
+                    'color-functions',
+                    'global-builtin',
+                ],
+            },
+        },
+    },
 });
