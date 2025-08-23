@@ -5,6 +5,7 @@ use app\http\routing\middleware\Throttle;
 use app\models\Email;
 use app\models\User;
 use mako\gatekeeper\Gatekeeper;
+use mako\gatekeeper\repositories\user\UserRepository;
 use mako\http\routing\attributes\Middleware;
 
 class Auth extends ControllerBase
@@ -105,5 +106,70 @@ class Auth extends ControllerBase
 			$this->session->putFlash('error', 'Invalid activation token.');
 			return $this->redirectResponse('auth:login');
 		}
+	}
+
+	public function forgotPassword() {
+		return $this->view->render('Pages/Auth/ForgotPassword');
+	}
+
+	#[Middleware(Throttle::class)]
+	public function forgotPasswordAction(Email $mail) {
+		// validate values
+		$post = $this->getValidatedInput([
+			'email' => ['required', 'email'],
+		]);
+
+		// find user
+		/** @var UserRepository */
+		$repo = $this->gatekeeper->getUserRepository();
+		/** @var ?User */
+		$user = $repo->getByEmail($post['email']);
+		if ($user !== null) {
+			// check for alternative account states
+			if (!$user->isActivated()) {
+				// send activation email
+				$user->sendWelcomeEmail($mail);
+			} else {
+				// send reset email
+				$user->sendPasswordResetEmail($mail);
+			}
+		}
+
+		// go home
+		$this->session->putFlash('success', 'If you have an account, you will receive an email shortly.');
+		return $this->redirectResponse('auth:login');
+	}
+
+	public function resetPassword(string $token) {
+		return $this->view->render('Pages/Auth/ResetPassword', ['token' => $token]);
+	}
+
+	#[Middleware(Throttle::class)]
+	public function resetPasswordAction(string $token) {
+		// validate values
+		$post = $this->getValidatedInput([
+			'password' => ['required', 'min_length(8)'],
+			'confirm_password' => ['required', 'match("password")'],
+		]);
+
+		// find user
+		/** @var UserRepository */
+		$repo = $this->gatekeeper->getUserRepository();
+		/** @var ?User */
+		$user = $repo->getByActionToken($token);
+
+		// check token
+		if ($user === null) {
+			$this->session->putFlash('error', 'Invalid password reset token.');
+			return $this->redirectResponse('auth:login');
+		}
+
+		// update password
+		$user->setPassword($post['password']);
+		$user->generateActionToken();
+		$user->save();
+
+		$this->session->putFlash('success', "You're password has been reset! Log in now with your username and new password.");
+		return $this->safeRedirectResponse('auth:login');
 	}
 }

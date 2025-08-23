@@ -1,7 +1,7 @@
 <script setup>
 import Input from '@/Components/Form/Input.vue';
 import Head from '@/Components/Head.vue';
-import { Form } from '@inertiajs/vue3';
+import { Form, Link } from '@inertiajs/vue3';
 
 </script>
 
@@ -61,4 +61,5 @@ import { Form } from '@inertiajs/vue3';
 			Sign Up
 		</button>
 	</Form>
+	<p>Already have an account? <Link href="/login">Log in here.</Link></p>
 </template>
