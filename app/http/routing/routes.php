@@ -10,10 +10,11 @@ use app\http\controllers\Moves;
 /** @var \mako\application\Application $app */
 /** @var \mako\syringe\Container $container */
 
-// dashboard
+#region dashboard
 $routes->get('/', [Dashboard::class, 'home'], 'dashboard:home');
+#endregion
 
-// authentication
+#region authentication
 $routes->get('/login', [Auth::class, 'login'], 'auth:login');
 $routes->post('/login', [Auth::class, 'loginAction'], 'auth:loginAction');
 $routes->get('/logout', [Auth::class, 'logout'], 'auth:logout');
@@ -24,19 +25,22 @@ $routes->get('/forgot', [Auth::class, 'forgotPassword'], 'auth:forgotPassword');
 $routes->post('/forgot', [Auth::class, 'forgotPasswordAction'], 'auth:forgotPasswordAction');
 $routes->get('/reset/{token}', [Auth::class, 'resetPassword'], 'auth:resetPassword');
 $routes->post('/reset/{token}', [Auth::class, 'resetPasswordAction'], 'auth:resetPasswordAction');
+#endregion
 
-// account
+#region account
 $routes->get('/account', [Account::class, 'home'], 'account:home');
 $routes->put('/account', [Account::class, 'update'], 'account:update');
+#endregion
 
-// boxes
-$routes->get('/boxes', [Boxes::class, 'home'], 'boxes:home');
-$routes->get('/boxes/{id}', [Boxes::class, 'view'], 'boxes:view');
-$routes->post('/boxes', [Boxes::class, 'create'], 'boxes:create');
-$routes->put('/boxes/{id}', [Boxes::class, 'update'], 'boxes:update');
-$routes->delete('/boxes/{id}', [Boxes::class, 'delete'], 'boxes:delete');
+#region boxes
+$routes->get('/moves/{move_id}/boxes', [Boxes::class, 'home'], 'boxes:home');
+$routes->get('/moves/{move_id}/boxes/{id}', [Boxes::class, 'view'], 'boxes:view');
+$routes->post('/moves/{move_id}/boxes', [Boxes::class, 'create'], 'boxes:create');
+$routes->put('/moves/{move_id}/boxes/{id}', [Boxes::class, 'update'], 'boxes:update');
+$routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'delete'], 'boxes:delete');
+#endregion
 
-// moves
+#region moves
 $routes->get('/moves', [Moves::class, 'home'], 'moves:home');
 $routes->post('/moves/{id}/set-active', [Moves::class, 'setActive'], 'moves:setActive');
 $routes->get('/moves/{id}', [Moves::class, 'edit'], 'moves:edit');
@@ -46,3 +50,4 @@ $routes->get('/moves/{id}/users/new', [Moves::class, 'addUser'], 'moves:addUser'
 $routes->post('/moves/{id}/users/new', [Moves::class, 'addUserAction'], 'moves:addUserAction');
 $routes->delete('/moves/{move_id}/users/{user_id}', [Moves::class, 'deleteUser'], 'moves:deleteUser');
 $routes->delete('/moves/{move_id}/invites/{invite_id}', [Moves::class, 'deleteInviteAction'], 'moves:deleteInviteAction');
+#endregion

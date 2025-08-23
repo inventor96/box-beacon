@@ -30,12 +30,16 @@ class NavLinkFactory {
 	 *
 	 * @param string $name
 	 * @param string $route_name
+	 * @param array $params
+	 * @param array $query
+	 * @param string $separator
+	 * @param bool $language
 	 * @return NavLink
 	 */
-	public function createFromRoute(string $name, string $route_name): NavLink {
+	public function createFromRoute(string $name, string $route_name, array $params = [], array $query = [], string $separator = '&', bool $language = true): NavLink {
 		return $this->create(
 			$name,
-			$this->builder->toRoute($route_name),
+			$this->builder->toRoute($route_name, $params, $query, $separator, $language),
 			$this->request->getRoute()->getName() === $route_name
 		);
 	}
@@ -44,7 +48,7 @@ class NavLinkFactory {
 	 * Creates a dropdown navlink using route names.
 	 *
 	 * @param string $name
-	 * @param array $dropdowns In the format [ ['<name>', '<route_name>'], ... ]
+	 * @param array $dropdowns In the format [ ['<name>', '<route_name>', '<params>', '<query>', '<separator>', '<language>'], ... ]
 	 * @return NavLink
 	 */
 	public function createDropdownFromRoutes(string $name, array $dropdowns): NavLink {
@@ -52,7 +56,7 @@ class NavLinkFactory {
 		$root->dropdown(
 			...array_map(
 				function($d) {
-					return $this->createFromRoute($d[0], $d[1]);
+					return $this->createFromRoute(...$d);
 				},
 			$dropdowns)
 		);

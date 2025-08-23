@@ -21,6 +21,7 @@ use mako\validator\exceptions\ValidationException;
  * @property string $password In hashed form
  * @property string $first_name
  * @property string $last_name
+ * @property ?int $active_move_id
  * @property string $action_token
  * @property string $access_token
  * @property int $activated

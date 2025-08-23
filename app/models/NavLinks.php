@@ -2,13 +2,10 @@
 namespace app\models;
 
 class NavLinks {
-	protected ?User $user;
-	protected NavLinkFactory $nav;
-
-	public function __construct(NavLinkFactory $nav, ?User $user) {
-		$this->nav = $nav;
-		$this->user = $user;
-	}
+	public function __construct(
+		protected NavLinkFactory $nav,
+		protected ?User $user,
+	) {}
 
 	/**
 	 * Generate the navbar links to show on the left side of the navbar
@@ -23,7 +20,7 @@ class NavLinks {
 
 		// logged in
 		$links = [
-			$this->nav->createFromRoute('Boxes', 'boxes:home'),
+			$this->nav->createFromRoute('Boxes', 'boxes:home', ['move_id' => $this->user->active_move_id ?? 0]),
 			$this->nav->createFromRoute('Moves', 'moves:home'),
 		];
 
