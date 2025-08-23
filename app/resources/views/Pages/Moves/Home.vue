@@ -25,7 +25,7 @@ const props = defineProps({
 		<tbody>
 			<tr v-if="moves.length" v-for="move in moves" :key="move.id">
 				<td class="align-middle">{{ move.name }}</td>
-				<td>
+				<td class="align-middle">
 					<div class="hstack gap-1 justify-content-end">
 						<a :href="`/moves/${move.id}`" class="btn btn-secondary">View/Edit</a>
 						<Form :action="`/moves/${move.id}`" method="delete" class="m-0">

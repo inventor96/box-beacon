@@ -16,7 +16,8 @@ class Moves extends ControllerBase
 	public function view(Move $move, int|string $id)
 	{
 		return $this->view->render('Pages/Moves/Edit', [
-			'move' => $id === 'new' ? null : $move->getInstanceOrThrow($id),
+			'move' => $id === 'new' ? null : $move->getInstanceOrThrow($id)->including('users')->first()->toArray(),
+			'user' => $this->getUser(),
 		]);
 	}
 

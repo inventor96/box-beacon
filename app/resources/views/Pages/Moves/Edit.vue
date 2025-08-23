@@ -5,9 +5,15 @@ import { Form } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps({
-	move: Object,
-	required: false,
-	default: null,
+	move: {
+		type: Object,
+		required: false,
+		default: null
+	},
+	user: {
+		type: Object,
+		required: true,
+	},
 });
 
 const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
@@ -25,9 +31,37 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 		<Input
 			id="name"
 			label="Name"
+			:model-value="props.move?.name"
 			:errors="errors.name"
 		/>
 		<button type="submit" class="btn btn-primary">{{ props.move ? 'Update Move' : 'Create Move' }}</button>
 	</Form>
+
+	<hr class="mt-5">
+	<h2>Participants</h2>
+	<table class="table table-striped table-hover">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Email</th>
+				<th class="text-end">Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-if="move && move.users?.length" v-for="user in move.users" :key="user.id">
+				<td class="align-middle">
+					{{ user.first_name }} {{ user.last_name }}
+					<span class="badge bg-secondary">You</span>
+				</td>
+				<td class="align-middle">{{ user.email }}</td>
+				<td class="align-middle text-end">
+					<button v-if="user.id !== props.user.id" class="btn btn-danger" @click="removeUser(user.id)">Remove</button>
+				</td>
+			</tr>
+			<tr v-else>
+				<td colspan="3" class="text-center">No participants yet!</td>
+			</tr>
+		</tbody>
+	</table>
 
 </template>

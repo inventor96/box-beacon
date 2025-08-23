@@ -56,6 +56,21 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 		'last_name',
 	];
 
+	protected array $protected = [
+		'created_at',
+		'updated_at',
+		'ip',
+		'username',
+		'password',
+		'action_token',
+		'access_token',
+		'activated',
+		'banned',
+		'failed_attempts',
+		'last_fail_at',
+		'locked_until',
+	];
+
 	/**
 	 * @inheritDoc
 	 * @codeCoverageIgnore
