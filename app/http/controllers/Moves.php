@@ -15,7 +15,7 @@ class Moves extends ControllerBase
 		]);
 	}
 
-	public function view(Move $move, int|string $id)
+	public function edit(Move $move, int|string $id)
 	{
 		return $this->view->render('Pages/Moves/Edit', [
 			'move' => $id === 'new' ? null : $move->getInstanceOrThrow($id)->including(['users', 'moveInvites'])->first(),
@@ -23,7 +23,7 @@ class Moves extends ControllerBase
 		]);
 	}
 
-	public function updateAction(Move $move, int|string $id)
+	public function editAction(Move $move, int|string $id)
 	{
 		$post = $this->getValidatedInput($move->getValidatorSpec());
 		if ($id === 'new') {
@@ -76,7 +76,7 @@ class Moves extends ControllerBase
 
 			// back to move view
 			$this->session->putFlash('success', 'Participant added successfully!');
-			return $this->safeRedirectResponse('moves:view', ['id' => $id]);
+			return $this->safeRedirectResponse('moves:edit', ['id' => $id]);
 		} else {
 			// invite new user to move
 			$invite->requireAndAssign($post);
@@ -84,7 +84,7 @@ class Moves extends ControllerBase
 
 			// back to move view
 			$this->session->putFlash('success', $post['email'] . ' has been invited to the move.');
-			return $this->safeRedirectResponse('moves:view', ['id' => $id]);
+			return $this->safeRedirectResponse('moves:edit', ['id' => $id]);
 		}
 	}
 
@@ -93,6 +93,6 @@ class Moves extends ControllerBase
 		$invite = $invite->getInstanceOrThrow($id);
 		$invite->delete();
 		$this->session->putFlash('success', 'Invitation deleted successfully.');
-		return $this->safeRedirectResponse('moves:view', ['id' => $invite->move_id]);
+		return $this->safeRedirectResponse('moves:edit', ['id' => $invite->move_id]);
 	}
 }

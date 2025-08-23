@@ -38,8 +38,8 @@ $routes->delete('/boxes/{id}', [Boxes::class, 'delete'], 'boxes:delete');
 
 // moves
 $routes->get('/moves', [Moves::class, 'home'], 'moves:home');
-$routes->get('/moves/{id}', [Moves::class, 'view'], 'moves:view');
-$routes->post('/moves/{id}', [Moves::class, 'updateAction'], 'moves:updateAction');
+$routes->get('/moves/{id}', [Moves::class, 'edit'], 'moves:edit');
+$routes->post('/moves/{id}', [Moves::class, 'editAction'], 'moves:editAction');
 $routes->delete('/moves/{id}', [Moves::class, 'deleteAction'], 'moves:deleteAction');
 $routes->get('/moves/{id}/add-user', [Moves::class, 'addUser'], 'moves:addUser');
 $routes->post('/moves/{id}/add-user', [Moves::class, 'addUserAction'], 'moves:addUserAction');
