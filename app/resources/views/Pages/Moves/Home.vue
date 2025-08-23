@@ -3,7 +3,8 @@ import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
-	moves: Array
+	moves: Array,
+	active_move_id: Number,
 });
 </script>
 
@@ -24,9 +25,15 @@ const props = defineProps({
 		</thead>
 		<tbody>
 			<tr v-if="moves.length" v-for="move in moves" :key="move.id">
-				<td class="align-middle">{{ move.name }}</td>
+				<td class="align-middle">
+					{{ move.name }}
+					<span v-if="move.id === active_move_id" class="badge bg-success">Current</span>
+				</td>
 				<td class="align-middle">
 					<div class="hstack gap-1 justify-content-end">
+						<Form v-if="move.id !== active_move_id" :action="`/moves/${move.id}/set-active`" method="post" class="m-0">
+							<button type="submit" class="btn btn-primary">Set as Current Move</button>
+						</Form>
 						<a :href="`/moves/${move.id}`" class="btn btn-secondary">View/Edit</a>
 						<Form :action="`/moves/${move.id}`" method="delete" class="m-0">
 							<button type="submit" class="btn btn-danger">Delete</button>

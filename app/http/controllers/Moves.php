@@ -8,12 +8,22 @@ use mako\gatekeeper\repositories\user\UserRepository;
 
 class Moves extends ControllerBase
 {
-	public function home(Move $move)
+	public function home()
 	{
 		$moves = $this->getUser()->moves()->all();
 		return $this->view->render('Pages/Moves/Home', [
 			'moves' => $moves,
+			'active_move_id' => $this->getUser()->active_move_id,
 		]);
+	}
+
+	public function setActive(Move $move, int $id)
+	{
+		$m = $move->getInstanceOrThrow($id);
+		$this->getUser()->active_move_id = $id;
+		$this->getUser()->save();
+		$this->session->putFlash('success', $m->name . ' is now your current move.');
+		return $this->safeRedirectResponse('moves:home');
 	}
 
 	public function edit(Move $move, int|string $id)

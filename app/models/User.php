@@ -5,13 +5,11 @@ use InvalidArgumentException;
 use mako\database\midgard\ResultSet;
 use mako\chrono\Time;
 use mako\database\exceptions\DatabaseException;
-use mako\database\midgard\relations\ManyToMany;
 use mako\gatekeeper\adapters\Adapter;
 use mako\gatekeeper\entities\group\Group;
 use mako\gatekeeper\entities\user\User as GatekeeperUser;
 use mako\gatekeeper\Gatekeeper;
 use mako\validator\exceptions\ValidationException;
-use PDOException;
 
 /**
  * @property int $id
