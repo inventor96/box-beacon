@@ -15,11 +15,14 @@ const props = defineProps({
 	<h1>Boxes</h1>
 	<p>View and manage your boxes.</p>
 
-	<select>
-		<option v-for="move in moves" :key="move.id" :value="move.id">
-			{{ move.name }}
-		</option>
-	</select>
+	<div class="input-group mb-3">
+		<span class="input-group-text bg-secondary-subtle">Viewing Move:</span>
+		<select class="form-select">
+			<option v-for="move in moves" :key="move.id" :value="move.id">
+				{{ move.name }}
+			</option>
+		</select>
+	</div>
 
 	<table class="table table-striped table-hover">
 		<thead>
