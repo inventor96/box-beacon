@@ -24,6 +24,7 @@ class Boxes extends ControllerBase
 
 		// render the page
 		return $this->view->render('Pages/Boxes/Home', [
+			'active_move_id' => $this->getUser()->active_move_id,
 			'move_id' => $move_id,
 			'moves' => $this->getUser()->moves()->all(),
 			'boxes' => [],

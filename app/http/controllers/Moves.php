@@ -23,7 +23,7 @@ class Moves extends ControllerBase
 		$this->getUser()->active_move_id = $id;
 		$this->getUser()->save();
 		$this->session->putFlash('success', $m->name . ' is now your current move.');
-		return $this->safeRedirectResponse('moves:home');
+		return $this->redirectSamePage('moves:home');
 	}
 
 	public function edit(Move $move, int|string $id)

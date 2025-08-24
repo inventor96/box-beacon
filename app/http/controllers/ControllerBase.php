@@ -82,6 +82,27 @@ abstract class ControllerBase extends Controller {
 	}
 
 	/**
+	 * Causes the browser to refresh/redirect to the page that initiated the request.
+	 *
+	 * @param mixed $default The default value to use if no referrer is found.
+	 * @return Redirect
+	 */
+	protected function redirectSamePage(string $fallbackLocation, array $routeParams = [], array $queryParams = [], string $separator = '&', $language = true): Redirect {
+		// use referrer if available
+		if (!empty($location = $this->request->getReferrer())) {
+			return $this->redirectResponse($location)->seeOther();
+		}
+
+		// require fallback location
+		if (empty($fallbackLocation)) {
+			throw new InvalidArgumentException("A fallback location is required if no referrer is found.");
+		}
+
+		// use fallback
+		return $this->redirectResponse($fallbackLocation, $routeParams, $queryParams, $separator, $language)->seeOther();
+	}
+
+	/**
 	 * Fetches and validates the request's input. The input is pulled from the request's POST fields by default.
 	 *
 	 * @param array|ValidatorSpecInterface $rules The list of rules to validate against, or an object implementing the `ValidatorSpecInterface`.
