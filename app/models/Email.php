@@ -1,7 +1,7 @@
 <?php
 namespace app\models;
 
-use app\adapters\EmailSenderInterface;
+use app\interfaces\EmailSenderInterface;
 use mako\config\Config;
 use mako\view\ViewFactory;
 

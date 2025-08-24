@@ -1,5 +1,5 @@
 <?php
-namespace app\adapters;
+namespace app\interfaces;
 
 use app\models\Mail;
 

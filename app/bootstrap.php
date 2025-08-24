@@ -5,7 +5,7 @@
  * @var \mako\syringe\Container       $container
  */
 
-use app\adapters\EmailSenderInterface;
+use app\interfaces\EmailSenderInterface;
 use app\adapters\PHPMailerAdapter;
 use app\validator\rules\Boolean;
 use app\view\renderers\TemplateAddon;

@@ -1,6 +1,7 @@
 <?php
 namespace app\adapters;
 
+use app\interfaces\EmailSenderInterface;
 use app\models\Mail;
 use mako\config\Config;
 use PHPMailer\PHPMailer\PHPMailer;

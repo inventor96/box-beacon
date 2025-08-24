@@ -1,5 +1,5 @@
 <?php
-namespace app\models;
+namespace app\traits;
 
 use mako\database\midgard\relations\BelongsTo;
 use mako\database\midgard\relations\Relation;

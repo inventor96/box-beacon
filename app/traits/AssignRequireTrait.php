@@ -1,5 +1,5 @@
 <?php
-namespace app\models;
+namespace app\traits;
 
 use mako\validator\exceptions\ValidationException;
 

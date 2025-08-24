@@ -1,6 +1,10 @@
 <?php
 namespace app\models;
 
+use app\interfaces\ValidatorSpecInterface;
+use app\traits\AssignRequireTrait;
+use app\traits\AutoIdRelationTrait;
+use app\traits\OrmInstanceGetTrait;
 use mako\database\midgard\ORM;
 use mako\database\midgard\ResultSet;
 use mako\database\midgard\traits\TimestampedTrait;
