@@ -5,6 +5,7 @@ use app\interfaces\ValidatorSpecInterface;
 use app\traits\AssignRequireTrait;
 use app\traits\AutoIdRelationTrait;
 use app\traits\OrmInstanceGetTrait;
+use mako\chrono\Time;
 use mako\database\midgard\ORM;
 use mako\database\midgard\ResultSet;
 use mako\database\midgard\traits\TimestampedTrait;
@@ -26,8 +27,6 @@ class Move extends ORM implements ValidatorSpecInterface
 	use TimestampedTrait;
 
 	protected array $cast = [
-		'created_at' => 'date',
-		'updated_at' => 'date',
 	];
 
 	protected array $assignable = [

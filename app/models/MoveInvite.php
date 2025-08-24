@@ -5,6 +5,7 @@ use app\interfaces\ValidatorSpecInterface;
 use app\traits\AssignRequireTrait;
 use app\traits\AutoIdRelationTrait;
 use app\traits\OrmInstanceGetTrait;
+use mako\chrono\Time;
 use mako\database\midgard\ORM;
 use mako\database\midgard\traits\TimestampedTrait;
 
@@ -23,7 +24,6 @@ class MoveInvite extends ORM implements ValidatorSpecInterface
 	use TimestampedTrait;
 
 	protected array $cast = [
-		'created_at' => 'date',
 	];
 
 	protected array $assignable = [

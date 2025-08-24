@@ -5,6 +5,7 @@ use app\interfaces\ValidatorSpecInterface;
 use app\traits\AssignRequireTrait;
 use app\traits\AutoIdRelationTrait;
 use app\traits\OrmInstanceGetTrait;
+use mako\chrono\Time;
 use mako\database\midgard\ORM;
 use mako\database\midgard\traits\TimestampedTrait;
 
@@ -27,8 +28,6 @@ class Box extends ORM implements ValidatorSpecInterface
 	protected array $cast = [
 		'heavy' => 'bool',
 		'fragile' => 'bool',
-		'created_at' => 'date',
-		'updated_at' => 'date',
 	];
 
 	protected array $assignable = [
