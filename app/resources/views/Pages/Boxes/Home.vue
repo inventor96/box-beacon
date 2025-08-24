@@ -1,12 +1,19 @@
 <script setup>
 import Head from '@/Components/Head.vue';
-import { Form } from '@inertiajs/vue3';
+import { Form, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
 	move_id: Number,
 	moves: Array,
 	boxes: Array,
 });
+
+const moveId = ref(props.move_id);
+
+function viewMove() {
+	router.get(`/moves/${moveId.value}/boxes`);
+}
 </script>
 
 <template>
@@ -17,7 +24,7 @@ const props = defineProps({
 
 	<div class="input-group mb-3">
 		<span class="input-group-text bg-secondary-subtle">Viewing Move:</span>
-		<select class="form-select">
+		<select class="form-select" v-model="moveId" @change="viewMove">
 			<option v-for="move in moves" :key="move.id" :value="move.id">
 				{{ move.name }}
 			</option>
