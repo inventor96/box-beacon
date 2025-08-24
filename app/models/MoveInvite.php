@@ -2,18 +2,21 @@
 namespace app\models;
 
 use mako\database\midgard\ORM;
+use mako\database\midgard\traits\TimestampedTrait;
 
 /**
  * @property int $id
  * @property Move $move
  * @property string $email
  * @property Time $created_at
+ * @property Time $updated_at
  */
 class MoveInvite extends ORM implements ValidatorSpecInterface
 {
 	use AutoIdRelationTrait;
 	use AssignRequireTrait;
 	use OrmInstanceGetTrait;
+	use TimestampedTrait;
 
 	protected array $cast = [
 		'created_at' => 'date',
