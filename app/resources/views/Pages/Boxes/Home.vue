@@ -46,6 +46,7 @@ function viewMove() {
 		<thead>
 			<tr>
 				<th>#</th>
+				<th>Tags</th>
 				<th class="text-end">Actions</th>
 			</tr>
 		</thead>
@@ -54,7 +55,13 @@ function viewMove() {
 				<th class="align-middle">
 					{{ box.number }}
 				</th>
-				<td class="align-middle">
+				<td>
+					<div class="d-flex gap-1 flex-wrap">
+						<span v-if="box.heavy" class="badge bg-secondary">Heavy</span>
+						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
+					</div>
+				</td>
+				<td>
 					<div class="hstack gap-1 justify-content-end">
 						<a :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">View/Edit</a>
 						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0">
