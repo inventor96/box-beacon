@@ -1,4 +1,5 @@
 <script setup>
+import BoxNumber from '@/Components/BoxNumber.vue';
 import Input from '@/Components/Form/Input.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
@@ -29,7 +30,10 @@ const title = computed(() => (props.box ? 'Edit Box' : 'Add Box'));
 		method="post"
 		#default="{ errors }"
 	>
-		<h2 class="text-center">Box #{{ props.box ? props.box.number : '---' }}</h2>
+		<h2 class="text-center">
+			Box #
+			<BoxNumber :number="props.box?.number ?? '---'" />
+		</h2>
 		<Switch
 			id="heavy"
 			label="Heavy"

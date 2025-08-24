@@ -1,4 +1,5 @@
 <script setup>
+import BoxNumber from '@/Components/BoxNumber.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -51,9 +52,9 @@ function viewMove() {
 			</tr>
 		</thead>
 		<tbody>
-			<tr v-if="boxes.length" v-for="box in boxes" :key="box.id">
-				<th class="align-middle">
-					{{ box.number }}
+			<tr v-if="boxes.length" v-for="box in boxes" :key="box.id" class="align-middle">
+				<th>
+					<BoxNumber :number="box.number" />
 				</th>
 				<td>
 					<div class="d-flex gap-1 flex-wrap">
