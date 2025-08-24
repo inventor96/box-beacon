@@ -1,6 +1,6 @@
 <script setup>
 import Head from '@/Components/Head.vue';
-import { Form, router } from '@inertiajs/vue3';
+import { Form, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -41,22 +41,23 @@ function viewMove() {
 		</div>
 	</Form>
 
+	<Link :href="`/moves/${moveId}/boxes/new`" class="btn btn-success mb-2">Add Box</Link>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
-				<th>Name</th>
+				<th>#</th>
 				<th class="text-end">Actions</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr v-if="boxes.length" v-for="box in boxes" :key="box.id">
-				<td class="align-middle">
-					{{ box.name }}
-				</td>
+				<th class="align-middle">
+					{{ box.number }}
+				</th>
 				<td class="align-middle">
 					<div class="hstack gap-1 justify-content-end">
-						<a :href="`/boxes/${box.id}`" class="btn btn-secondary">View/Edit</a>
-						<Form :action="`/boxes/${box.id}`" method="delete" class="m-0">
+						<a :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">View/Edit</a>
+						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0">
 							<button type="submit" class="btn btn-danger">Delete</button>
 						</Form>
 					</div>

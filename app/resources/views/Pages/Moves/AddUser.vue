@@ -24,7 +24,7 @@ const props = defineProps({
 		<Input
 			id="email"
 			label="Email"
-			:errors="errors.email"
+			:error="errors.email"
 		/>
 		<button type="submit" class="btn btn-primary">Add Participant</button>
 	</Form>

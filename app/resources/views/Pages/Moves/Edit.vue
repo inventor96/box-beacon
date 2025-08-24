@@ -32,7 +32,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 			id="name"
 			label="Name"
 			:model-value="props.move?.name"
-			:errors="errors.name"
+			:error="errors.name"
 		/>
 		<button type="submit" class="btn btn-primary">{{ props.move ? 'Update Move' : 'Create Move' }}</button>
 	</Form>

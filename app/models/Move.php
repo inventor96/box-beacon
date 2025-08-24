@@ -10,6 +10,7 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property string $name
  * @property User $user
  * @property MoveInvite[]|ResultSet $moveInvites
+ * @property Box[]|ResultSet $boxes
  * @property Time $created_at
  * @property Time $updated_at
  */
@@ -48,5 +49,10 @@ class Move extends ORM implements ValidatorSpecInterface
 	public function moveInvites()
 	{
 		return $this->hasMany(MoveInvite::class);
+	}
+
+	public function boxes()
+	{
+		return $this->hasMany(Box::class);
 	}
 }

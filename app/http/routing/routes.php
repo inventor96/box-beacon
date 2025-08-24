@@ -34,10 +34,9 @@ $routes->put('/account', [Account::class, 'update'], 'account:update');
 
 #region boxes
 $routes->get('/moves/{move_id}/boxes', [Boxes::class, 'home'], 'boxes:home');
-$routes->get('/moves/{move_id}/boxes/{id}', [Boxes::class, 'view'], 'boxes:view');
-$routes->post('/moves/{move_id}/boxes', [Boxes::class, 'create'], 'boxes:create');
-$routes->put('/moves/{move_id}/boxes/{id}', [Boxes::class, 'update'], 'boxes:update');
-$routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'delete'], 'boxes:delete');
+$routes->get('/moves/{move_id}/boxes/{id}', [Boxes::class, 'edit'], 'boxes:edit');
+$routes->post('/moves/{move_id}/boxes/{id}', [Boxes::class, 'editAction'], 'boxes:editAction');
+$routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'deleteAction'], 'boxes:deleteAction');
 #endregion
 
 #region moves
