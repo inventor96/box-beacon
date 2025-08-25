@@ -1,8 +1,9 @@
 <script setup>
 import ColorSquare from '@/Components/ColorSquare.vue';
 import Head from '@/Components/Head.vue';
+import MoveSwitcher from '@/Components/MoveSwitcher.vue';
 import { Form, Link, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
 	active_move_id: Number,
@@ -16,19 +17,14 @@ const props = defineProps({
 	},
 });
 
-const fromRooms = computed(() =>
-	props.rooms.filter((room) => room.location === 'from')
-);
-
-const toRooms = computed(() =>
-	props.rooms.filter((room) => room.location === 'to')
-);
-
+// move switcher
+const activeMoveId = ref(props.active_move_id);
 const moveId = ref(props.move_id);
+watch(moveId, (newVal) => router.get(`/moves/${newVal}/rooms`), { immediate: false });
 
-function viewMove() {
-	router.get(`/moves/${moveId.value}/rooms`);
-}
+// separate lists
+const fromRooms = computed(() => props.rooms.filter((room) => room.location === 'from'));
+const toRooms = computed(() => props.rooms.filter((room) => room.location === 'to'));
 </script>
 
 <template>
@@ -37,23 +33,11 @@ function viewMove() {
 	<h1>Rooms</h1>
 	<p>View and manage your rooms.</p>
 
-	<Form :action="`/moves/${moveId}/set-active`" method="post" class="m-0">
-		<div class="input-group mb-3">
-			<span class="input-group-text bg-secondary-subtle">Move:</span>
-			<select class="form-select" v-model="moveId" @change="viewMove">
-				<option v-for="move in moves" :key="move.id" :value="move.id">
-					{{ move.name }}
-				</option>
-			</select>
-			<button
-				v-if="moveId !== props.active_move_id"
-				class="btn btn-primary"
-				type="submit"
-			>
-				Set as Current Move
-			</button>
-		</div>
-	</Form>
+	<MoveSwitcher
+		:moves="props.moves"
+		v-model:activeMoveId="activeMoveId"
+		v-model:moveId="moveId"
+	/>
 
 	<Link :href="`/moves/${moveId}/rooms/new`" class="btn btn-success mb-2">Add Room</Link>
 

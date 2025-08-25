@@ -1,8 +1,9 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
 import Head from '@/Components/Head.vue';
+import MoveSwitcher from '@/Components/MoveSwitcher.vue';
 import { Form, Link, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
 	active_move_id: Number,
@@ -11,11 +12,10 @@ const props = defineProps({
 	boxes: Array,
 });
 
+// move switcher
+const activeMoveId = ref(props.active_move_id);
 const moveId = ref(props.move_id);
-
-function viewMove() {
-	router.get(`/moves/${moveId.value}/boxes`);
-}
+watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: false });
 </script>
 
 <template>
@@ -24,23 +24,11 @@ function viewMove() {
 	<h1>Boxes</h1>
 	<p>View and manage your boxes.</p>
 
-	<Form :action="`/moves/${moveId}/set-active`" method="post" class="m-0">
-		<div class="input-group mb-3">
-			<span class="input-group-text bg-secondary-subtle">Move:</span>
-			<select class="form-select" v-model="moveId" @change="viewMove">
-				<option v-for="move in moves" :key="move.id" :value="move.id">
-					{{ move.name }}
-				</option>
-			</select>
-			<button
-				v-if="moveId !== props.active_move_id"
-				class="btn btn-primary"
-				type="submit"
-			>
-				Set as Current Move
-			</button>
-		</div>
-	</Form>
+	<MoveSwitcher
+		:moves="props.moves"
+		v-model:activeMoveId="activeMoveId"
+		v-model:moveId="moveId"
+	/>
 
 	<Link :href="`/moves/${moveId}/boxes/new`" class="btn btn-success mb-2">Add Box</Link>
 	<table class="table table-striped table-hover">
