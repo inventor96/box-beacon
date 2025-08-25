@@ -2,6 +2,7 @@
 import { Dropdown } from 'bootstrap' // used by navbar
 import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
+import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
 	_env: {
@@ -40,7 +41,7 @@ const props = defineProps({
 	<!-- navigation bar -->
 	<nav id="navbar" data-bs-theme="dark" class="navbar navbar-expand-lg bg-primary mb-3 shadow">
 		<div class="container">
-			<a class="navbar-brand fw-semibold" href="/">Box Beacon</a>
+			<Link class="navbar-brand fw-semibold" href="/">Box Beacon</Link>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>

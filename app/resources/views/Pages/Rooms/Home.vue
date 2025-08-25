@@ -85,7 +85,7 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 						<td>{{ room.name }}</td>
 						<td>
 							<div class="hstack gap-1 justify-content-end">
-								<a :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">View/Edit</a>
+								<Link :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">View/Edit</Link>
 								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0">
 									<button type="submit" class="btn btn-danger">Delete</button>
 								</Form>

@@ -34,7 +34,7 @@ const props = defineProps({
 						<Form v-if="move.id !== props.active_move_id" :action="`/moves/${move.id}/set-active`" method="post" class="m-0">
 							<button type="submit" class="btn btn-primary">Set as Current Move</button>
 						</Form>
-						<a :href="`/moves/${move.id}`" class="btn btn-secondary">View/Edit</a>
+					<Link :href="`/moves/${move.id}`" class="btn btn-secondary">View/Edit</Link>
 						<Form :action="`/moves/${move.id}`" method="delete" class="m-0">
 							<button type="submit" class="btn btn-danger">Delete</button>
 						</Form>
