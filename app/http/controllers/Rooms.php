@@ -36,11 +36,16 @@ class Rooms extends ControllerBase
 	public function edit(Move $move, Room $room, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
-		return $this->view->render('Pages/Rooms/Edit', [
+		$return = $this->view->render('Pages/Rooms/Edit', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move' => $m,
-			'room' => $id === 'new' ? null : $room->getInstanceOrThrow($id),
+			'room' => ($r = $id === 'new' ? null : $room->getInstanceOrThrow($id)), // get valid room instance if not new
 		]);
+
+		// note location tab for back button
+		$this->session->putFlash('location_tab', $r?->location ?? 'from');
+
+		return $return;
 	}
 
 	public function editAction(Move $move, Room $room, int $move_id, int|string $id)

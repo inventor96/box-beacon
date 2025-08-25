@@ -1,9 +1,6 @@
 <script setup>
-import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
 import Input from '@/Components/Form/Input.vue';
-import Select from '@/Components/Form/Select.vue';
-import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -30,6 +27,7 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 <template>
 	<Head :title="title" />
 
+	<Link :href="`/moves/${move.id}/rooms`" class="mb-3">&lt; Back to Rooms</Link>
 	<h1>{{ title }}</h1>
 	<Form
 		:action="`/moves/${move.id}/rooms/${props.room ? props.room.id : 'new'}`"

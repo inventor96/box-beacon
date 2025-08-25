@@ -22,6 +22,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 <template>
 	<Head :title="title" />
 
+	<Link href="/moves" class="mb-3">&lt; Back to Moves</Link>
 	<h1>{{ title }}</h1>
 	<Form
 		:action="`/moves/${props.move ? props.move.id : 'new'}`"

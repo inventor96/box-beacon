@@ -32,6 +32,7 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 <template>
 	<Head :title="title" />
 
+	<Link :href="`/moves/${move.id}/boxes`" class="mb-3">&lt; Back to Boxes</Link>
 	<h1>{{ title }}</h1>
 	<Form
 		:action="`/moves/${move.id}/boxes/${props.box ? props.box.id : 'new'}`"
