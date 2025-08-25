@@ -6,10 +6,22 @@ import { Form, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
-	active_move_id: Number,
-	move_id: Number,
-	moves: Array,
-	rooms: Array,
+	active_move_id: {
+		type: Number,
+		required: true,
+	},
+	move_id: {
+		type: Number,
+		required: true,
+	},
+	moves: {
+		type: Array,
+		required: true,
+	},
+	rooms: {
+		type: Array,
+		required: true,
+	},
 	location: {
 		type: String,
 		required: false,

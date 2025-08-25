@@ -15,6 +15,8 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property-read int $number
  * @property bool $heavy
  * @property bool $fragile
+ * @property Room $fromRoom
+ * @property Room $toRoom
  * @property Time $created_at
  * @property Time $updated_at
  */
@@ -33,6 +35,8 @@ class Box extends ORM implements ValidatorSpecInterface
 	protected array $assignable = [
 		'heavy',
 		'fragile',
+		'from_room_id',
+		'to_room_id',
 	];
 
 	protected array $required_fields = [
@@ -44,6 +48,8 @@ class Box extends ORM implements ValidatorSpecInterface
 			//'number' => ['required', 'integer'],
 			'heavy' => ['required', 'boolean'],
 			'fragile' => ['required', 'boolean'],
+			'from_room_id' => ['optional', 'exists("rooms", "id")'],
+			'to_room_id' => ['optional', 'exists("rooms", "id")'],
 		];
 	}
 
@@ -70,5 +76,15 @@ class Box extends ORM implements ValidatorSpecInterface
 	public function move()
 	{
 		return $this->belongsTo(Move::class);
+	}
+
+	public function fromRoom()
+	{
+		return $this->belongsTo(Room::class, 'from_room_id');
+	}
+
+	public function toRoom()
+	{
+		return $this->belongsTo(Room::class, 'to_room_id');
 	}
 }

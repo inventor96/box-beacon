@@ -1,6 +1,6 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
-import Input from '@/Components/Form/Input.vue';
+import Select from '@/Components/Form/Select.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
@@ -16,9 +16,17 @@ const props = defineProps({
 		required: false,
 		default: null,
 	},
+	rooms: {
+		type: Array,
+		required: true,
+	},
 });
 
 const title = computed(() => (props.box ? 'Edit Box' : 'Add Box'));
+
+// separate lists
+const fromRooms = computed(() => props.rooms.filter((room) => room.location === 'from'));
+const toRooms = computed(() => props.rooms.filter((room) => room.location === 'to'));
 </script>
 
 <template>
@@ -34,6 +42,28 @@ const title = computed(() => (props.box ? 'Edit Box' : 'Add Box'));
 			Box #
 			<BoxNumber :number="props.box?.number ?? '---'" />
 		</h2>
+		<Select
+			id="from_room_id"
+			label="From Room"
+			placeholder="Choose one..."
+			:model-value="props.box?.from_room_id"
+			:error="errors.from_room_id"
+		>
+			<option v-for="value in fromRooms" :key="value.id" :value="value.id">
+				{{ value.name }}
+			</option>
+		</Select>
+		<Select
+			id="to_room_id"
+			label="To Room"
+			placeholder="Choose one..."
+			:model-value="props.box?.to_room_id"
+			:error="errors.to_room_id"
+		>
+			<option v-for="value in toRooms" :key="value.id" :value="value.id">
+				{{ value.name }}
+			</option>
+		</Select>
 		<Switch
 			id="heavy"
 			label="Heavy"

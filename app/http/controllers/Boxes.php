@@ -28,7 +28,7 @@ class Boxes extends ControllerBase
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move_id' => $move_id,
 			'moves' => $this->getUser()->moves()->all(),
-			'boxes' => $m->boxes()->all(),
+			'boxes' => $m->boxes()->including(['fromRoom', 'toRoom'])->all(),
 		]);
 	}
 
@@ -38,6 +38,7 @@ class Boxes extends ControllerBase
 		return $this->view->render('Pages/Boxes/Edit', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move' => $m,
+			'rooms' => $m->rooms()->all(),
 			'box' => $id === 'new' ? null : $box->getInstanceOrThrow($id),
 		]);
 	}

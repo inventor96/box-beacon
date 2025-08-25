@@ -36,6 +36,8 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 			<tr>
 				<th>Box #</th>
 				<th>Tags</th>
+				<th>From Room</th>
+				<th>To Room</th>
 				<th class="text-end">Actions</th>
 			</tr>
 		</thead>
@@ -50,6 +52,8 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
 					</div>
 				</td>
+				<td>{{ box.fromRoom?.name ?? '---' }}</td>
+				<td>{{ box.toRoom?.name ?? '---' }}</td>
 				<td>
 					<div class="hstack gap-1 justify-content-end">
 						<a :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">View/Edit</a>
