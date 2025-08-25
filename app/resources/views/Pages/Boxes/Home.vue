@@ -1,5 +1,6 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
+import ColorSquare from '@/Components/ColorSquare.vue';
 import Head from '@/Components/Head.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
 import { Form, Link, router } from '@inertiajs/vue3';
@@ -52,8 +53,18 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
 					</div>
 				</td>
-				<td>{{ box.fromRoom?.name ?? '---' }}</td>
-				<td>{{ box.toRoom?.name ?? '---' }}</td>
+				<td>
+					<div class="hstack gap-2">
+						<ColorSquare :color="box.fromRoom?.color ?? '#ffffff'" />
+						{{ box.fromRoom?.name ?? '---' }}
+					</div>
+				</td>
+				<td>
+					<div class="hstack gap-2">
+						<ColorSquare :color="box.toRoom?.color ?? '#ffffff'" />
+						{{ box.toRoom?.name ?? '---' }}
+					</div>
+				</td>
 				<td>
 					<div class="hstack gap-1 justify-content-end">
 						<Link :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">View/Edit</Link>
