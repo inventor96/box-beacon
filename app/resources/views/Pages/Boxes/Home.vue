@@ -46,7 +46,7 @@ function viewMove() {
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
-				<th>#</th>
+				<th>Box #</th>
 				<th>Tags</th>
 				<th class="text-end">Actions</th>
 			</tr>
@@ -72,7 +72,7 @@ function viewMove() {
 				</td>
 			</tr>
 			<tr v-else>
-				<td colspan="2" class="text-center">No boxes yet!</td>
+				<td colspan="3" class="text-center">No boxes yet!</td>
 			</tr>
 		</tbody>
 	</table>

@@ -1,10 +1,10 @@
 <?php
 namespace app\http\controllers;
 
+use app\interfaces\ValidatorSpecInterface;
 use app\models\NavLinkFactory;
 use app\models\NavLinks;
 use app\models\User;
-use app\models\ValidatorSpecInterface;
 use InvalidArgumentException;
 use mako\application\Application;
 use mako\gatekeeper\adapters\Session as GKSession;

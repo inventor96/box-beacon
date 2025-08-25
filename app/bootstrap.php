@@ -8,6 +8,7 @@
 use app\interfaces\EmailSenderInterface;
 use app\adapters\PHPMailerAdapter;
 use app\validator\rules\Boolean;
+use app\validator\rules\HexColor;
 use app\view\renderers\TemplateAddon;
 use mako\validator\ValidatorFactory;
 use mako\view\ViewFactory;
@@ -19,7 +20,9 @@ define('DT_FMT_DISPLAY', 'D, j M Y g:i:s a T');
 
 // validation extensions
 $validator = $container->get(ValidatorFactory::class)
-	->extend('boolean', Boolean::class);
+	->extend('boolean', Boolean::class)
+	->extend('hex_color', HexColor::class)
+;
 
 // email sender
 $container->register(EmailSenderInterface::class, PHPMailerAdapter::class);

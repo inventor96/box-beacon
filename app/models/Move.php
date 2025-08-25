@@ -1,6 +1,7 @@
 <?php
 namespace app\models;
 
+use app\enums\RoomLocation;
 use app\interfaces\ValidatorSpecInterface;
 use app\traits\AssignRequireTrait;
 use app\traits\AutoIdRelationTrait;
@@ -16,6 +17,9 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property User $user
  * @property MoveInvite[]|ResultSet $moveInvites
  * @property Box[]|ResultSet $boxes
+ * @property Room[]|ResultSet $rooms
+ * @property Room[]|ResultSet $fromRooms
+ * @property Room[]|ResultSet $toRooms
  * @property Time $created_at
  * @property Time $updated_at
  */
@@ -57,5 +61,22 @@ class Move extends ORM implements ValidatorSpecInterface
 	public function boxes()
 	{
 		return $this->hasMany(Box::class);
+	}
+
+	public function rooms()
+	{
+		return $this->hasMany(Room::class);
+	}
+
+	public function fromRooms()
+	{
+		return $this->hasMany(Room::class)
+			->where('location', '=', RoomLocation::FROM);
+	}
+
+	public function toRooms()
+	{
+		return $this->hasMany(Room::class)
+			->where('location', '=', RoomLocation::TO);
 	}
 }

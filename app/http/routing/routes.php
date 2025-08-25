@@ -5,6 +5,7 @@ use app\http\controllers\Auth;
 use app\http\controllers\Boxes;
 use app\http\controllers\Dashboard;
 use app\http\controllers\Moves;
+use app\http\controllers\Rooms;
 
 /** @var \mako\http\routing\Routes $routes */
 /** @var \mako\application\Application $app */
@@ -49,4 +50,11 @@ $routes->get('/moves/{id}/users/new', [Moves::class, 'addUser'], 'moves:addUser'
 $routes->post('/moves/{id}/users/new', [Moves::class, 'addUserAction'], 'moves:addUserAction');
 $routes->delete('/moves/{move_id}/users/{user_id}', [Moves::class, 'deleteUser'], 'moves:deleteUser');
 $routes->delete('/moves/{move_id}/invites/{invite_id}', [Moves::class, 'deleteInviteAction'], 'moves:deleteInviteAction');
+#endregion
+
+#region rooms
+$routes->get('/moves/{move_id}/rooms', [Rooms::class, 'home'], 'rooms:home');
+$routes->get('/moves/{move_id}/rooms/{id}', [Rooms::class, 'edit'], 'rooms:edit');
+$routes->post('/moves/{move_id}/rooms/{id}', [Rooms::class, 'editAction'], 'rooms:editAction');
+$routes->delete('/moves/{move_id}/rooms/{id}', [Rooms::class, 'deleteAction'], 'rooms:deleteAction');
 #endregion
