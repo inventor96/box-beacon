@@ -14,7 +14,7 @@ const props = defineProps({
 	<h1>Moves</h1>
 	<p>View and manage your moves.</p>
 
-	<Link href="/moves/new" class="btn btn-primary mb-3">Create Move</Link>
+	<Link href="/moves/new" class="btn btn-success mb-3">Create Move</Link>
 
 	<table class="table table-striped table-hover">
 		<thead>

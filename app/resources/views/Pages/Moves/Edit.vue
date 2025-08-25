@@ -40,7 +40,7 @@ const title = computed(() => (props.move ? 'Edit Move' : 'Create Move'));
 
 	<hr class="mt-5">
 	<h2>Participants</h2>
-	<Link v-if="move" :href="`/moves/${move.id}/users/new`" class="btn btn-primary mb-3">Add Participant</Link>
+	<Link v-if="move" :href="`/moves/${move.id}/users/new`" class="btn btn-success mb-3">Add Participant</Link>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
