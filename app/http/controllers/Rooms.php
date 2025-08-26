@@ -3,25 +3,15 @@ namespace app\http\controllers;
 
 use app\models\Room;
 use app\models\Move;
+use app\traits\MoveSwitcherTrait;
 
 class Rooms extends ControllerBase
 {
+	use MoveSwitcherTrait;
+
 	public function home(Move $move, int $move_id)
 	{
-		// ensure the move_id is invalid (e.g. someone deleted it)
-		$m = $move->getInstance($move_id);
-		if ($m === null) {
-			$m = $this->getUser()->moves()->first();
-
-			// if they don't have any moves, redirect them to the moves page
-			if ($m === null) {
-				$this->session->putFlash('warning', 'Please create a move before managing rooms.');
-				return $this->safeRedirectResponse('moves:home');
-			}
-
-			// redirect to active move, or first move
-			return $this->safeRedirectResponse('rooms:home', ['move_id' => $this->getUser()->active_move_id ?? $m->id]);
-		}
+		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
 
 		// render the page
 		return $this->view->render('Pages/Rooms/Home', [

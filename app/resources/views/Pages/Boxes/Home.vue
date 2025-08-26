@@ -75,7 +75,7 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 				</td>
 			</tr>
 			<tr v-else>
-				<td colspan="3" class="text-center">No boxes yet!</td>
+				<td colspan="5" class="text-center">No boxes yet!</td>
 			</tr>
 		</tbody>
 	</table>
