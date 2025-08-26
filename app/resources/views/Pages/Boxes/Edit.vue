@@ -46,10 +46,10 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 		<Select
 			id="from_room_id"
 			label="From Room"
-			placeholder="Choose one..."
 			:model-value="props.box?.from_room_id"
 			:error="errors.from_room_id"
 		>
+			<option value="">Unassigned</option>
 			<option v-for="value in fromRooms" :key="value.id" :value="value.id">
 				{{ value.name }}
 			</option>
@@ -57,10 +57,10 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 		<Select
 			id="to_room_id"
 			label="To Room"
-			placeholder="Choose one..."
 			:model-value="props.box?.to_room_id"
 			:error="errors.to_room_id"
 		>
+			<option value="">Unassigned</option>
 			<option v-for="value in toRooms" :key="value.id" :value="value.id">
 				{{ value.name }}
 			</option>

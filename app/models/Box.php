@@ -7,6 +7,7 @@ use app\traits\AutoIdRelationTrait;
 use app\traits\OrmInstanceGetTrait;
 use mako\chrono\Time;
 use mako\database\midgard\ORM;
+use mako\database\midgard\traits\NullableTrait;
 use mako\database\midgard\traits\TimestampedTrait;
 
 /**
@@ -26,6 +27,7 @@ class Box extends ORM implements ValidatorSpecInterface
 	use AssignRequireTrait;
 	use OrmInstanceGetTrait;
 	use TimestampedTrait;
+	use NullableTrait;
 
 	protected array $cast = [
 		'heavy' => 'bool',
@@ -40,6 +42,11 @@ class Box extends ORM implements ValidatorSpecInterface
 	];
 
 	protected array $required_fields = [
+	];
+
+	protected array $nullable = [
+		'from_room_id',
+		'to_room_id',
 	];
 
 	public function getValidatorSpec(): array
