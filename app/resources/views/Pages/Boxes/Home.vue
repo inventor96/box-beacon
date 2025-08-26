@@ -31,7 +31,9 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 		v-model:moveId="moveId"
 	/>
 
-	<Link :href="`/moves/${moveId}/boxes/new`" class="btn btn-success mb-2">Add Box</Link>
+	<Form :action="`/moves/${moveId}/boxes/new`" method="post" class="mb-2">
+		<button type="submit" class="btn btn-success">Add a Box</button>
+	</Form>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>

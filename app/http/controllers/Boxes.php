@@ -22,6 +22,13 @@ class Boxes extends ControllerBase
 		]);
 	}
 
+	public function newAction(Move $move, Box $box, int $move_id)
+	{
+		$m = $move->getInstanceOrThrow($move_id);
+		$b = $m->boxes()->create($box);
+		return $this->safeRedirectResponse('boxes:edit', ['move_id' => $move_id, 'id' => $b->id]);
+	}
+
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
