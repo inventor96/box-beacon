@@ -60,3 +60,12 @@ $bootstrap-icons-font-dir: "/assets/fonts";
 @import "bootstrap-icons/font/bootstrap-icons";
 
 // custom styles
+.border-dashed {
+	border-style: dashed !important;
+}
+
+@media print {
+	.no-page-break {
+		page-break-inside: avoid;
+	}
+}

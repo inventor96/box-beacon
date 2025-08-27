@@ -5,6 +5,7 @@ use app\http\controllers\Auth;
 use app\http\controllers\Boxes;
 use app\http\controllers\Dashboard;
 use app\http\controllers\Moves;
+use app\http\controllers\Printing;
 use app\http\controllers\Rooms;
 
 /** @var \mako\http\routing\Routes $routes */
@@ -39,6 +40,14 @@ $routes->post('/moves/{move_id}/boxes/new', [Boxes::class, 'newAction'], 'boxes:
 $routes->get('/moves/{move_id}/boxes/{id}', [Boxes::class, 'edit'], 'boxes:edit');
 $routes->post('/moves/{move_id}/boxes/{id}', [Boxes::class, 'editAction'], 'boxes:editAction');
 $routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'deleteAction'], 'boxes:deleteAction');
+#endregion
+
+#region print
+$routes->get('/print/{ids}', [Printing::class, 'print'], 'printing:print')
+	->patterns([
+		'size' => '[1-6]',
+		'ids' => '\d+(?:,\d+)*'
+	]);
 #endregion
 
 #region moves
