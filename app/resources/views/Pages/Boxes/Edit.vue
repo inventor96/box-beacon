@@ -1,10 +1,11 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
+import ColorSquare from '@/Components/ColorSquare.vue';
 import Select from '@/Components/Form/Select.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
 	move: {
@@ -27,6 +28,12 @@ const title = computed(() => (props.box ? 'Edit Box' : 'Add Box'));
 // separate lists
 const fromRooms = computed(() => props.rooms.filter((room) => room.location === 'from'));
 const toRooms = computed(() => props.rooms.filter((room) => room.location === 'to'));
+
+// color square updating
+const fromRoom = ref(props.box?.from_room_id ?? null);
+const toRoom = ref(props.box?.to_room_id ?? null);
+const fromRoomColor = computed(() => fromRooms.value.find(room => parseInt(room.id) === parseInt(fromRoom.value))?.color ?? '#ffffff');
+const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) === parseInt(toRoom.value))?.color ?? '#ffffff');
 </script>
 
 <template>
@@ -47,9 +54,15 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 		<Select
 			id="from_room_id"
 			label="From Room"
-			:model-value="props.box?.from_room_id"
+			v-model="fromRoom"
 			:error="errors.from_room_id"
+			outer-class="input-group"
 		>
+			<template #before>
+				<span class="input-group-text bg-secondary-subtle">
+					<ColorSquare :color="fromRoomColor" />
+				</span>
+			</template>
 			<option value="">Unassigned</option>
 			<option v-for="value in fromRooms" :key="value.id" :value="value.id">
 				{{ value.name }}
@@ -58,9 +71,15 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 		<Select
 			id="to_room_id"
 			label="To Room"
-			:model-value="props.box?.to_room_id"
+			v-model="toRoom"
 			:error="errors.to_room_id"
+			outer-class="input-group"
 		>
+			<template #before>
+				<span class="input-group-text bg-secondary-subtle">
+					<ColorSquare :color="toRoomColor" />
+				</span>
+			</template>
 			<option value="">Unassigned</option>
 			<option v-for="value in toRooms" :key="value.id" :value="value.id">
 				{{ value.name }}

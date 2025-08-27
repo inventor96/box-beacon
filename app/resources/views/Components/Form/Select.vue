@@ -43,6 +43,11 @@ const props = defineProps({
 		required: false,
 		default: false,
 	},
+	outerClass: {
+		type: String,
+		required: false,
+		default: null,
+	},
 });
 
 const modelValue = ref(props.modelValue);
@@ -57,7 +62,8 @@ function onChange(event) {
 </script>
 
 <template>
-	<div :class="{'mb-3': !props.noMb}">
+	<div :class="{'mb-3': !props.noMb, [props.outerClass]: props.outerClass}">
+		<slot name="before" />
 		<div class="form-floating">
 			<select
 				@change="onChange"
@@ -78,6 +84,7 @@ function onChange(event) {
 			</select>
 			<label :for="props.id">{{ props.label }}</label>
 		</div>
+		<slot name="after" />
 		<div v-if="props.error" class="invalid-feedback d-block">
 			{{ props.error }}
 		</div>
