@@ -1,6 +1,7 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
+import Input from '@/Components/Form/Input.vue';
 import Select from '@/Components/Form/Select.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
@@ -97,6 +98,54 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 			:model-value="props.box?.fragile"
 			:error="errors.fragile"
 		/>
+		<button type="submit" class="btn btn-primary">{{ props.box ? 'Update Box' : 'Add Box' }}</button>
+
+		<hr class="mt-5">
+		<h2>Items</h2>
+		<ul class="list-group mb-3">
+			<li
+				v-if="props.box?.items?.length"
+				v-for="(item, index) in props.box?.items"
+				:key="item.id"
+				class="list-group-item"
+			>
+				<Input
+					:id="`item-${item.id}-name`"
+					:name="`items[${item.id}][name]`"
+					label="Item Name/Description"
+					:model-value="item.name"
+					:error="errors.items && errors.items[item.id] ? errors.items[item.id].name : undefined"
+					:no-mb="true"
+					outer-class="input-group"
+				>
+					<template #before>
+						<span class="input-group-text bg-secondary-subtle">{{ index + 1 }}.</span>
+					</template>
+					<template #after>
+						<Form
+							:action="`/moves/${move.id}/boxes/${props.box.id}/items/${item.id}`"
+							method="delete"
+							class="d-inline m-0"
+							id="delete-item-form-{{ item.id }}"
+							:options="{ preserveScroll: true }"
+						/>
+						<button type="submit" class="btn btn-outline-danger" form="delete-item-form-{{ item.id }}">Delete Item</button>
+					</template>
+				</Input>
+			</li>
+			<li v-else class="list-group-item">No items in this box yet!</li>
+			<li class="list-group-item bg-secondary-subtle">
+				<Form
+					v-if="props.box"
+					:action="`/moves/${move.id}/boxes/${props.box.id}/items/new`"
+					method="post"
+					class="mb-0"
+					:options="{ preserveScroll: true }"
+				>
+					<button type="submit" class="btn btn-success">Add Item</button>
+				</Form>
+			</li>
+		</ul>
 		<button type="submit" class="btn btn-primary">{{ props.box ? 'Update Box' : 'Add Box' }}</button>
 	</Form>
 </template>

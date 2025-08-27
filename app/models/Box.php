@@ -7,6 +7,7 @@ use app\traits\AutoIdRelationTrait;
 use app\traits\OrmInstanceGetTrait;
 use mako\chrono\Time;
 use mako\database\midgard\ORM;
+use mako\database\midgard\ResultSet;
 use mako\database\midgard\traits\NullableTrait;
 use mako\database\midgard\traits\TimestampedTrait;
 
@@ -18,6 +19,7 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property bool $fragile
  * @property Room $fromRoom
  * @property Room $toRoom
+ * @property Item[]|ResultSet $items
  * @property Time $created_at
  * @property Time $updated_at
  */
@@ -93,5 +95,10 @@ class Box extends ORM implements ValidatorSpecInterface
 	public function toRoom()
 	{
 		return $this->belongsTo(Room::class, 'to_room_id');
+	}
+
+	public function items()
+	{
+		return $this->hasMany(Item::class);
 	}
 }

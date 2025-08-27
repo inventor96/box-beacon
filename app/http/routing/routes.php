@@ -4,6 +4,7 @@ use app\http\controllers\Account;
 use app\http\controllers\Auth;
 use app\http\controllers\Boxes;
 use app\http\controllers\Dashboard;
+use app\http\controllers\Items;
 use app\http\controllers\Moves;
 use app\http\controllers\Printing;
 use app\http\controllers\Rooms;
@@ -40,6 +41,14 @@ $routes->post('/moves/{move_id}/boxes/new', [Boxes::class, 'newAction'], 'boxes:
 $routes->get('/moves/{move_id}/boxes/{id}', [Boxes::class, 'edit'], 'boxes:edit');
 $routes->post('/moves/{move_id}/boxes/{id}', [Boxes::class, 'editAction'], 'boxes:editAction');
 $routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'deleteAction'], 'boxes:deleteAction');
+#endregion
+
+#region items
+$routes->get('/moves/{move_id}/boxes/{box_id}/items', [Items::class, 'home'], 'items:home');
+$routes->post('/moves/{move_id}/boxes/{box_id}/items/new', [Items::class, 'newAction'], 'items:newAction');
+$routes->get('/moves/{move_id}/boxes/{box_id}/items/{id}', [Items::class, 'edit'], 'items:edit');
+$routes->post('/moves/{move_id}/boxes/{box_id}/items/{id}', [Items::class, 'editAction'], 'items:editAction');
+$routes->delete('/moves/{move_id}/boxes/{box_id}/items/{id}', [Items::class, 'deleteAction'], 'items:deleteAction');
 #endregion
 
 #region print

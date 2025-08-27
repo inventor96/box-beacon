@@ -2,6 +2,7 @@
 namespace app\http\controllers;
 
 use app\models\Box;
+use app\models\Item;
 use app\models\Move;
 use app\traits\MoveSwitcherTrait;
 
@@ -40,20 +41,40 @@ class Boxes extends ControllerBase
 		]);
 	}
 
-	public function editAction(Move $move, Box $box, int $move_id, int|string $id)
+	public function editAction(Move $move, Box $box, Item $item, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
-		$post = $this->getValidatedInput($box->getValidatorSpec());
+
+		// add item rules
+		$item_rules = [];
+		foreach ($item->getValidatorSpec() as $field => $rules) {
+			$item_rules["items.*.$field"] = $rules;
+		}
+		$post = $this->getValidatedInput([
+			...$box->getValidatorSpec(),
+			...$item_rules,
+		]);
+
+		// create or save box details
 		if ($id === 'new') {
 			$box->requireAndAssign($post);
 			$b = $m->boxes()->create($box);
+			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box added successfully.');
 			return $this->safeRedirectResponse('boxes:edit', ['move_id' => $move_id, 'id' => $b->id]);
 		} else {
 			$record = $box->getInstanceOrThrow($id)->requireAndAssign($post);
 			$record->save();
+			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box updated successfully.');
 			return $this->safeRedirectResponse('boxes:home', ['move_id' => $move_id]);
+		}
+	}
+
+	protected function assignItems(Item $item, array $items): void
+	{
+		foreach ($items as $id => $post) {
+			$item->getInstanceOrThrow($id)->requireAndAssign($post)->save();
 		}
 	}
 
