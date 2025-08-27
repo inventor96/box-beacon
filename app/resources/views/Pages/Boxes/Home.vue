@@ -2,8 +2,9 @@
 import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
 import Head from '@/Components/Head.vue';
+import Modal from '@/Components/Modal.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
-import { Form, Link, router } from '@inertiajs/vue3';
+import { Form, Link, router, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 
 const props = defineProps({
@@ -13,14 +14,14 @@ const props = defineProps({
 	boxes: Array,
 });
 
+const batchForm = useForm({
+	pages: 1,
+});
+
 // move switcher
 const activeMoveId = ref(props.active_move_id);
 const moveId = ref(props.move_id);
 watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: false });
-
-function getBoxItems(box) {
-	return box.items.slice(0, 2).map(item => item.name).join(', ');
-}
 </script>
 
 <template>
@@ -35,9 +36,12 @@ function getBoxItems(box) {
 		v-model:moveId="moveId"
 	/>
 
-	<Form :action="`/moves/${moveId}/boxes/new`" method="post" class="mb-2">
-		<button type="submit" class="btn btn-success">Add a Box</button>
-	</Form>
+	<div class="hstack gap-2 mb-2">
+		<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#add-boxes">Add Multiple Boxes w/ Labels</button>
+		<Form :action="`/moves/${moveId}/boxes/new`" method="post" class="d-inline-block m-0">
+			<button type="submit" class="btn btn-outline-success">Add a Single Box</button>
+		</Form>
+	</div>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
@@ -96,4 +100,27 @@ function getBoxItems(box) {
 			</tr>
 		</tbody>
 	</table>
+	<Modal
+		id="add-boxes"
+		title="Add Multiple Boxes"
+		closeText="Cancel"
+		confirmText=""
+	>
+		<form id="pages-form" @submit.prevent="batchForm.post(`/moves/${moveId}/boxes/batch`)">
+			<p>There are six (6) labels per page, and a box will be created for each label.</p>
+			<label for="pages" class="form-label">How many pages do you need?</label>
+			<input type="range" class="form-range" min="1" max="20" v-model="batchForm.pages" id="pages" name="pages" />
+			<div v-if="batchForm.errors.pages" class="invalid-feedback d-block">
+				{{ batchForm.errors.pages }}
+			</div>
+			<div class="text-center"><b>{{ batchForm.pages }}</b> page{{ batchForm.pages !== 1 ? 's' : '' }} (<b>{{ batchForm.pages * 6 }}</b> boxes/labels)</div>
+		</form>
+
+		<template #footer>
+			<button type="submit" class="btn btn-primary" form="pages-form" :disabled="batchForm.processing">
+				<span class="spinner-border spinner-border-sm" v-if="batchForm.processing" role="status" aria-hidden="true"></span>
+				Add Boxes &amp; Print Labels
+			</button>
+		</template>
+	</Modal>
 </template>

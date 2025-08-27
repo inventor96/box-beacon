@@ -30,6 +30,21 @@ class Boxes extends ControllerBase
 		return $this->safeRedirectResponse('boxes:edit', ['move_id' => $move_id, 'id' => $b->id]);
 	}
 
+	public function batchAction(Move $move, Box $box, int $move_id)
+	{
+		$m = $move->getInstanceOrThrow($move_id);
+		$post = $this->getValidatedInput([
+			'pages' => ['numeric:int', 'between(1,20)']
+		]);
+		$boxes = [];
+		$box_count = (int)$post['pages'] * 6;
+		for ($i = 0; $i < $box_count; $i++) {
+			$boxes[] = $m->boxes()->create(clone $box);
+		}
+		$box_ids = array_map(fn($b) => $b->id, $boxes);
+		return $this->safeRedirectResponse('printing:print', ['ids' => implode(',', $box_ids)]);
+	}
+
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
