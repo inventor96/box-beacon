@@ -23,7 +23,7 @@ const props = defineProps({
 		required: true,
 	},
 	modelValue: {
-		type: String,
+		type: [String, Number],
 		required: false,
 		default: '',
 	},
@@ -37,6 +37,11 @@ const props = defineProps({
 		required: false,
 		default: false,
 	},
+	outerClass: {
+		type: String,
+		required: false,
+		default: null,
+	},
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -48,7 +53,8 @@ function onInput(event) {
 </script>
 
 <template>
-	<div :class="{'mb-3': !props.noMb}">
+	<div :class="{'mb-3': !props.noMb, [props.outerClass]: props.outerClass}">
+		<slot name="before" />
 		<div class="form-floating">
 			<input
 				:id="props.id"
@@ -63,6 +69,7 @@ function onInput(event) {
 			/>
 			<label :for="props.id">{{ props.label }}</label>
 		</div>
+		<slot name="after" />
 		<div v-if="props.error" class="invalid-feedback d-block">
 			{{ props.error }}
 		</div>

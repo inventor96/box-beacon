@@ -29,7 +29,7 @@ class Moves extends ControllerBase
 	public function edit(Move $move, int|string $id)
 	{
 		return $this->view->render('Pages/Moves/Edit', [
-			'move' => $id === 'new' ? null : $move->getInstanceOrThrow($id)->including(['users', 'moveInvites'])->first(),
+			'move' => $id === 'new' ? null : $move->where('id', '=', $id)->including(['users', 'moveInvites'])->first(),
 			'user' => $this->getUser(),
 		]);
 	}
