@@ -17,6 +17,10 @@ const props = defineProps({
 const activeMoveId = ref(props.active_move_id);
 const moveId = ref(props.move_id);
 watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: false });
+
+function getBoxItems(box) {
+	return box.items.slice(0, 2).map(item => item.name).join(', ');
+}
 </script>
 
 <template>
@@ -38,9 +42,10 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 		<thead>
 			<tr>
 				<th>Box #</th>
-				<th>Tags</th>
-				<th>From Room</th>
-				<th>To Room</th>
+				<th>Items <span class="d-md-none">/ Tags</span></th>
+				<th class="d-none d-md-table-cell">Tags</th>
+				<th class="d-none d-lg-table-cell">From Room</th>
+				<th class="d-none d-lg-table-cell">To Room</th>
 				<th class="text-end">Actions</th>
 			</tr>
 		</thead>
@@ -50,18 +55,28 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 					<BoxNumber :number="box.number" />
 				</th>
 				<td>
+					<span v-if="box.items.length">
+						{{ box.items.slice(0, 2).map(item => item.name).join(', ') }}<span v-if="box.items.length > 2">, and {{ box.items.length - 2 }} more...</span>
+					</span>
+					<span v-else class="text-muted">No items</span>
+					<div class="d-flex d-md-none gap-1 flex-wrap mt-1">
+						<span v-if="box.heavy" class="badge bg-secondary">Heavy</span>
+						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
+					</div>
+				</td>
+				<td class="d-none d-md-table-cell">
 					<div class="d-flex gap-1 flex-wrap">
 						<span v-if="box.heavy" class="badge bg-secondary">Heavy</span>
 						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
 					</div>
 				</td>
-				<td>
+				<td class="d-none d-lg-table-cell">
 					<div class="hstack gap-2">
 						<ColorSquare :color="box.fromRoom?.color ?? '#ffffff'" />
 						{{ box.fromRoom?.name ?? '---' }}
 					</div>
 				</td>
-				<td>
+				<td class="d-none d-lg-table-cell">
 					<div class="hstack gap-2">
 						<ColorSquare :color="box.toRoom?.color ?? '#ffffff'" />
 						{{ box.toRoom?.name ?? '---' }}

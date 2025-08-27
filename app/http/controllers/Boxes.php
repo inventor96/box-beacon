@@ -19,7 +19,7 @@ class Boxes extends ControllerBase
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move_id' => $move_id,
 			'moves' => $this->getUser()->moves()->all(),
-			'boxes' => $m->boxes()->including(['fromRoom', 'toRoom'])->all(),
+			'boxes' => $m->boxes()->including(['fromRoom', 'toRoom', 'items'])->all(),
 		]);
 	}
 
