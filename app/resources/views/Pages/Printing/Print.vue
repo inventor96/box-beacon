@@ -42,7 +42,7 @@ function print() {
 					<div>
 						BoxBeacon
 					</div>
-					<BoxNumber :number="box.number" class="display-2" />
+					<BoxNumber :number="box.number" class="display-3" />
 					<div class="mt-3">
 						<Qrcode :value="boxUrl(box)" level="H" size="150" />
 					</div>
