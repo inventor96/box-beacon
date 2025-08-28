@@ -26,4 +26,4 @@ Licensed under the MIT NonCommercial License (MIT-NC). See [LICENSE](LICENSE) fo
 Basically, you can use it for personal, non-commercial projects. But you can't sell it, use it for commercial purposes, or otherwise make a profit from it.
 
 ## Development
-This project is built with the [Mako Framework](https://makoframework.com/docs/10.0) (PHP 8.1+) and Vue 3, with [Inertia.js](https://inertiajs.com/) to glue them together. Composer is used to manage PHP packages, NPM is used to manage JavaScript packages, and Vite is used for asset bundling and development. Database functionality is built for MySQL/MariaDB, but Mako technically supports other databases as well.
+This project is built with the [Mako Framework](https://makoframework.com/docs/10.0) (PHP 8.1+), and Vue 3 using the Composition API and SFCs (Single File Components), with [Inertia.js](https://inertiajs.com/) to glue the frontend and backend together. Composer is used to manage PHP packages, NPM is used to manage JavaScript packages, and Vite is used for asset bundling and development. Database functionality is built for MySQL/MariaDB, but Mako technically supports other databases as well.
