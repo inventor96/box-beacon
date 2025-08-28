@@ -22,6 +22,35 @@ const batchForm = useForm({
 const activeMoveId = ref(props.active_move_id);
 const moveId = ref(props.move_id);
 watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: false });
+
+// track selected boxes
+const selectedBoxes = ref([]);
+
+// handler for individual checkbox change
+function toggleBoxSelection(boxId, event) {
+	if (event.target.checked) {
+		if (!selectedBoxes.value.includes(boxId)) {
+			selectedBoxes.value.push(boxId);
+		}
+	} else {
+		selectedBoxes.value = selectedBoxes.value.filter(id => id !== boxId);
+	}
+}
+
+// handler for "select all" checkbox
+function toggleAllBoxes(event) {
+	const checked = event.target.checked;
+	if (checked) {
+		selectedBoxes.value = props.boxes.map(box => box.id);
+	} else {
+		selectedBoxes.value = [];
+	}
+}
+
+function printSelectedBoxes() {
+	const ids = selectedBoxes.value.join(',');
+	router.get(`/print/${ids}`);
+}
 </script>
 
 <template>
@@ -42,9 +71,19 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 			<button type="submit" class="btn btn-outline-success">Add a Single Box</button>
 		</Form>
 	</div>
+	<button type="button" class="btn btn-secondary" @click="printSelectedBoxes" :disabled="!selectedBoxes.length">Print Labels for Selected Boxes</button>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
+				<th>
+					<input
+						type="checkbox"
+						class="form-check-input"
+						:indeterminate="selectedBoxes.length > 0 && selectedBoxes.length < boxes.length"
+						:checked="selectedBoxes.length === boxes.length"
+						@change="toggleAllBoxes($event)"
+					/>
+				</th>
 				<th>Box #</th>
 				<th>Items <span class="d-md-none">/ Tags</span></th>
 				<th class="d-none d-md-table-cell">Tags</th>
@@ -55,6 +94,15 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: fal
 		</thead>
 		<tbody>
 			<tr v-if="boxes.length" v-for="box in boxes" :key="box.id" class="align-middle">
+				<td>
+					<input
+						type="checkbox"
+						class="form-check-input"
+						:value="box.id"
+						:checked="selectedBoxes.includes(box.id)"
+						@change="toggleBoxSelection(box.id, $event)"
+					/>
+				</td>
 				<th>
 					<BoxNumber :number="box.number" />
 				</th>
