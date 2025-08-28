@@ -80,7 +80,7 @@ function printSelectedBoxes() {
 						type="checkbox"
 						class="form-check-input"
 						:indeterminate="selectedBoxes.length > 0 && selectedBoxes.length < boxes.length"
-						:checked="selectedBoxes.length === boxes.length"
+						:checked="boxes.length > 0 && selectedBoxes.length === boxes.length"
 						@change="toggleAllBoxes($event)"
 					/>
 				</th>
@@ -144,7 +144,7 @@ function printSelectedBoxes() {
 				</td>
 			</tr>
 			<tr v-else>
-				<td colspan="5" class="text-center">No boxes yet!</td>
+				<td colspan="7" class="text-center">No boxes yet!</td>
 			</tr>
 		</tbody>
 	</table>
