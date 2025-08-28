@@ -5,7 +5,6 @@
 .phpunit.result.cache
 /.idea
 /vendor
-composer.lock
 composer.phar
 node_modules/
 public/hot
