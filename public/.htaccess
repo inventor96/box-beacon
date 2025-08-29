@@ -1,6 +1,10 @@
 #php_value output_buffering On
 #php_value output_buffering Off
 
+<IfModule mod_headers.c>
+    Header add Vary "X-Inertia"
+</IfModule>
+
 <IfModule mod_rewrite.c>
 
 RewriteEngine on
