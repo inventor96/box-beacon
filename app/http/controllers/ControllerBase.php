@@ -49,15 +49,6 @@ abstract class ControllerBase extends Controller {
 	}
 
 	/**
-	 * Require authentication by default.
-	 */
-	public function beforeAction() {
-		if ($this->gatekeeper->isGuest()) {
-			return $this->safeRedirectResponse('auth:login');
-		}
-	}
-
-	/**
 	 * Returns the current user
 	 *
 	 * @return User|null

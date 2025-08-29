@@ -11,13 +11,6 @@ use mako\http\routing\attributes\Middleware;
 class Auth extends ControllerBase
 {
 	/**
-	 * Override the default authentication required.
-	 */
-	public function beforeAction() {
-		return;
-	}
-
-	/**
 	 * Render login page.
 	 */
 	public function login() {
