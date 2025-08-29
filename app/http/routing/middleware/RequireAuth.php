@@ -66,6 +66,9 @@ class RequireAuth implements MiddlewareInterface {
 				}
 			}
 
+			// keep flash around
+			$this->session?->reflash();
+
 			// throw 403 Forbidden error if no redirect is set
 			if ($this->redirect === false) {
 				throw new ForbiddenException();
