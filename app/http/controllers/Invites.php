@@ -15,6 +15,7 @@ class Invites extends ControllerBase
 		// validate input
 		$post = $this->getValidatedInput($invite->getValidatorSpec() + ['move_id' => ['required', 'numeric:int']]);
 		$move = $move->getInstanceOrThrow($post['move_id']);
+		$this->authorize('edit', $move);
 
 		// create invite
 		$invite->requireAndAssign($post);
@@ -37,6 +38,7 @@ class Invites extends ControllerBase
 	public function deleteAction(MoveInvite $invite, int $id)
 	{
 		$i = $invite->getInstanceOrThrow($id);
+		$this->authorize('delete', $i);
 		$i->delete();
 		$this->session->putFlash('success', 'Invite deleted.');
 		return $this->redirectSamePage('moves:edit', ['id' => $i->move_id]);
