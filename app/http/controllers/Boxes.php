@@ -26,6 +26,7 @@ class Boxes extends ControllerBase
 	public function newAction(Move $move, Box $box, int $move_id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
+		$this->authorize('edit', $m);
 		$b = $m->boxes()->create($box);
 		return $this->safeRedirectResponse('boxes:edit', ['move_id' => $move_id, 'id' => $b->id]);
 	}
@@ -33,6 +34,7 @@ class Boxes extends ControllerBase
 	public function batchAction(Move $move, Box $box, int $move_id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
+		$this->authorize('edit', $m);
 		$post = $this->getValidatedInput([
 			'pages' => ['numeric:int', 'between(1,20)']
 		]);
@@ -48,11 +50,13 @@ class Boxes extends ControllerBase
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
+		$b = $id === 'new' ? null : $box->where('id', '=', $id)->including(['items'])->firstOrThrow();
+		$this->authorize('edit', $b ?? $m);
 		return $this->view->render('Pages/Boxes/Edit', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move' => $m,
 			'rooms' => $m->rooms()->all(),
-			'box' => $id === 'new' ? null : $box->where('id', '=', $id)->including(['items'])->first(),
+			'box' => $b,
 		]);
 	}
 
@@ -72,13 +76,16 @@ class Boxes extends ControllerBase
 
 		// create or save box details
 		if ($id === 'new') {
+			$this->authorize('edit', $m);
 			$box->requireAndAssign($post);
 			$b = $m->boxes()->create($box);
 			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box added successfully.');
 			return $this->safeRedirectResponse('boxes:edit', ['move_id' => $move_id, 'id' => $b->id]);
 		} else {
-			$record = $box->getInstanceOrThrow($id)->requireAndAssign($post);
+			$b = $box->getInstanceOrThrow($id);
+			$this->authorize('edit', $b);
+			$record = $b->requireAndAssign($post);
 			$record->save();
 			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box updated successfully.');
@@ -89,14 +96,18 @@ class Boxes extends ControllerBase
 	protected function assignItems(Item $item, array $items): void
 	{
 		foreach ($items as $id => $post) {
-			$item->getInstanceOrThrow($id)->requireAndAssign($post)->save();
+			$i = $item->getInstanceOrThrow($id);
+			$this->authorize('edit', $i);
+			$i->requireAndAssign($post)->save();
 		}
 	}
 
 	public function deleteAction(Move $move, Box $box, int $move_id, int $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
-		$box->getInstanceOrThrow($id)->delete();
+		$b = $box->getInstanceOrThrow($id);
+		$this->authorize('delete', $b);
+		$b->delete();
 		$this->session->putFlash('success', 'Box deleted successfully.');
 		return $this->safeRedirectResponse('boxes:home', ['move_id' => $move_id]);
 	}

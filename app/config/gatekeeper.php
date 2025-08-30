@@ -1,6 +1,8 @@
 <?php
 
+use app\models\Box;
 use app\models\Move;
+use app\policies\BoxPolicy;
 use app\policies\MovePolicy;
 
 return
@@ -49,6 +51,7 @@ return
 	'policies' =>
 	[
 		Move::class => MovePolicy::class,
+		Box::class => BoxPolicy::class,
 	],
 
 	/*
