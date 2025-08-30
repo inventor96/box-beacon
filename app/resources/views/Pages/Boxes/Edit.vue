@@ -5,6 +5,7 @@ import Input from '@/Components/Form/Input.vue';
 import Select from '@/Components/Form/Select.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
+import QrScanModal from '@/Components/QrScanModal.vue';
 import { Form, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
@@ -42,7 +43,10 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 
 	<Link :href="`/moves/${move.id}/boxes`" class="mb-3">&lt; Back to Boxes</Link>
 	<h1>{{ title }}</h1>
-	<Link :href="`/print/${props.box.id}`" class="btn btn-secondary">Print Label</Link>
+	<div class="d-flex justify-content-between">
+		<Link :href="`/print/${props.box.id}`" class="btn btn-secondary">Print Label</Link>
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${props.move.id}`">Scan Another Box</button>
+	</div>
 	<Form
 		:action="`/moves/${move.id}/boxes/${props.box ? props.box.id : 'new'}`"
 		method="post"
@@ -148,4 +152,9 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 		</ul>
 		<button type="submit" class="btn btn-primary">{{ props.box ? 'Update Box' : 'Add Box' }}</button>
 	</Form>
+
+	<QrScanModal
+		:id="`qr-scan-modal-${props.move.id}`"
+		:moveId="props.move.id"
+	/>
 </template>
