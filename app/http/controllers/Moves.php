@@ -18,6 +18,7 @@ class Moves extends ControllerBase
 	public function setActive(Move $move, int $id)
 	{
 		$m = $move->getInstanceOrThrow($id);
+		$this->authorize('view', $m);
 		$this->getUser()->active_move_id = $id;
 		$this->getUser()->save();
 		$this->session->putFlash('success', $m->name . ' is now your current move.');
@@ -26,14 +27,18 @@ class Moves extends ControllerBase
 
 	public function edit(Move $move, int|string $id)
 	{
+		$m = $id === 'new'
+			? null
+			: $move->where('id', '=', $id)
+				->including([
+					'users',
+					'moveInvites' => fn($query) => $query->where('accepted', '=', false)
+				])->firstOrThrow();
+		if ($m !== null) {
+			$this->authorize('edit', $m);
+		}
 		return $this->view->render('Pages/Moves/Edit', [
-			'move' => $id === 'new'
-				? null
-				: $move->where('id', '=', $id)
-					->including([
-						'users',
-						'moveInvites' => fn($query) => $query->where('accepted', '=', false)
-					])->first(),
+			'move' => $m,
 			'user' => $this->getUser(),
 		]);
 	}
@@ -47,7 +52,9 @@ class Moves extends ControllerBase
 			$this->getUser()->moves()->link($record);
 			$this->session->putFlash('success', 'Move created successfully.');
 		} else {
-			$record = $move->getInstanceOrThrow($id)->requireAndAssign($post);
+			$m = $move->getInstanceOrThrow($id);
+			$this->authorize('edit', $m);
+			$record = $m->requireAndAssign($post);
 			$record->save();
 			$this->session->putFlash('success', 'Move updated successfully.');
 		}
@@ -56,7 +63,9 @@ class Moves extends ControllerBase
 
 	public function deleteAction(Move $move, int $id)
 	{
-		$move->getInstanceOrThrow($id)->delete();
+		$m = $move->getInstanceOrThrow($id);
+		$this->authorize('delete', $m);
+		$m->delete();
 		$this->session->putFlash('success', 'Move deleted successfully.');
 		return $this->safeRedirectResponse('moves:home');
 	}
@@ -64,7 +73,9 @@ class Moves extends ControllerBase
 	public function deleteUser(User $user, Move $move, int $move_id, int $user_id)
 	{
 		$u = $user->getInstanceOrThrow($user_id);
-		$move->getInstanceOrThrow($move_id)->users()->unlink($u);
+		$m = $move->getInstanceOrThrow($move_id);
+		$this->authorize('edit', $m);
+		$m->users()->unlink($u);
 		$this->session->putFlash('success', 'Participant removed successfully.');
 		return $this->safeRedirectResponse('moves:edit', ['id' => $move_id]);
 	}

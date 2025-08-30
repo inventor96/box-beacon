@@ -1,5 +1,8 @@
 <?php
 
+use app\models\Move;
+use app\policies\MovePolicy;
+
 return
 [
 	/*
@@ -45,7 +48,7 @@ return
 	 */
 	'policies' =>
 	[
-
+		Move::class => MovePolicy::class,
 	],
 
 	/*
