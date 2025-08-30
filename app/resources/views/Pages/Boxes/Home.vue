@@ -65,13 +65,29 @@ function printSelectedBoxes() {
 		v-model:moveId="moveId"
 	/>
 
-	<div class="hstack gap-2 mb-2">
-		<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#add-boxes">Add Multiple Boxes w/ Labels</button>
-		<Form :action="`/moves/${moveId}/boxes/new`" method="post" class="d-inline-block m-0">
-			<button type="submit" class="btn btn-outline-success">Add a Single Box</button>
-		</Form>
+	<div class="d-flex justify-content-between mb-2">
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				Actions
+			</button>
+			<ul class="dropdown-menu">
+				<li><button type="button" class="dropdown-item" @click="printSelectedBoxes" :disabled="!selectedBoxes.length">Print Labels for Selected Boxes</button></li>
+			</ul>
+		</div>
+		<div class="dropdown">
+			<button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				Add
+			</button>
+			<ul class="dropdown-menu dropdown-menu-end">
+				<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#add-boxes">Add Multiple Boxes w/ Labels</button></li>
+				<li>
+					<Form :action="`/moves/${moveId}/boxes/new`" method="post" class="d-inline m-0">
+						<button type="submit" class="dropdown-item">Add a Single Box</button>
+					</Form>
+				</li>
+			</ul>
+		</div>
 	</div>
-	<button type="button" class="btn btn-secondary" @click="printSelectedBoxes" :disabled="!selectedBoxes.length">Print Labels for Selected Boxes</button>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
