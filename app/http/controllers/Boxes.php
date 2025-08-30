@@ -4,6 +4,7 @@ namespace app\http\controllers;
 use app\models\Box;
 use app\models\Item;
 use app\models\Move;
+use app\models\Room;
 use app\traits\MoveSwitcherTrait;
 
 class Boxes extends ControllerBase
@@ -60,7 +61,7 @@ class Boxes extends ControllerBase
 		]);
 	}
 
-	public function editAction(Move $move, Box $box, Item $item, int $move_id, int|string $id)
+	public function editAction(Move $move, Box $box, Room $room, Item $item, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
 
@@ -73,6 +74,14 @@ class Boxes extends ControllerBase
 			...$box->getValidatorSpec(),
 			...$item_rules,
 		]);
+
+		// ensure they can view the rooms
+		if (!empty($post['from_room_id'])) {
+			$this->authorize('view', $room->getInstanceOrThrow($post['from_room_id']));
+		}
+		if (!empty($post['to_room_id'])) {
+			$this->authorize('view', $room->getInstanceOrThrow($post['to_room_id']));
+		}
 
 		// create or save box details
 		if ($id === 'new') {

@@ -32,6 +32,8 @@ class Rooms extends ControllerBase
 			'room' => ($r = $id === 'new' ? null : $room->getInstanceOrThrow($id)), // get valid room instance if not new
 		]);
 
+		$this->authorize('edit', $r ?? $m); // authorize either room, or move if new
+
 		// note location tab for back button
 		$this->session->putFlash('location_tab', $r?->location ?? 'from');
 
@@ -53,6 +55,7 @@ class Rooms extends ControllerBase
 			// create new room
 			$room->requireAndAssign($post);
 			$m = $move->getInstanceOrThrow($move_id);
+			$this->authorize('edit', $m);
 			$r = $m->rooms()->create($room);
 
 			// note location tab for reload
@@ -63,7 +66,9 @@ class Rooms extends ControllerBase
 			return $this->safeRedirectResponse('rooms:home', ['move_id' => $move_id]);
 		} else {
 			// update existing room
-			$record = $room->getInstanceOrThrow($id)->requireAndAssign($post);
+			$r = $room->getInstanceOrThrow($id);
+			$this->authorize('edit', $r);
+			$record = $r->requireAndAssign($post);
 			$record->save();
 
 			// note location tab for reload
@@ -77,7 +82,9 @@ class Rooms extends ControllerBase
 
 	public function deleteAction(Move $move, Room $room, int $move_id, int $id)
 	{
-		$room->getInstanceOrThrow($id)->delete();
+		$r = $room->getInstanceOrThrow($id);
+		$this->authorize('delete', $r);
+		$r->delete();
 		$this->session->putFlash('success', 'Room deleted successfully.');
 		return $this->safeRedirectResponse('rooms:home', ['move_id' => $move_id]);
 	}
