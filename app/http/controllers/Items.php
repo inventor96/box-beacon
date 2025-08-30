@@ -16,6 +16,7 @@ class Items extends ControllerBase
 
 		$m = $move->getInstanceOrThrow($move_id);
 		$b = $box->getInstanceOrThrow($box_id);
+		$this->authorize('view', $b);
 		return $this->view->render('Pages/Items/Home', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'items' => $b->items()->all(),
@@ -26,6 +27,7 @@ class Items extends ControllerBase
 	{
 		$m = $move->getInstanceOrThrow($move_id);
 		$b = $box->getInstanceOrThrow($box_id);
+		$this->authorize('edit', $b);
 		$item->name = '';
 		$i = $b->items()->create($item);
 		$this->session->putFlash('success', 'Item added successfully.');
@@ -37,6 +39,7 @@ class Items extends ControllerBase
 		$m = $move->getInstanceOrThrow($move_id);
 		$b = $box->getInstanceOrThrow($box_id);
 		$i = $item->getInstanceOrThrow($id);
+		$this->authorize('edit', $i);
 		return $this->view->render('Pages/Items/Edit', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move' => $m,
@@ -51,12 +54,15 @@ class Items extends ControllerBase
 		$b = $box->getInstanceOrThrow($box_id);
 		$post = $this->getValidatedInput($item->getValidatorSpec());
 		if ($id === 'new') {
+			$this->authorize('edit', $b);
 			$item->requireAndAssign($post);
 			$i = $b->items()->create($item);
 			$this->session->putFlash('success', 'Item added successfully.');
 			return $this->redirectSamePage('items:edit', ['move_id' => $move_id, 'box_id' => $box_id, 'id' => $i->id]);
 		} else {
-			$record = $item->getInstanceOrThrow($id)->requireAndAssign($post);
+			$i = $item->getInstanceOrThrow($id);
+			$this->authorize('edit', $i);
+			$record = $i->requireAndAssign($post);
 			$record->save();
 			$this->session->putFlash('success', 'Item updated successfully.');
 			return $this->redirectSamePage('items:home', ['move_id' => $move_id, 'box_id' => $box_id]);
@@ -67,7 +73,9 @@ class Items extends ControllerBase
 	{
 		$m = $move->getInstanceOrThrow($move_id);
 		$b = $box->getInstanceOrThrow($box_id);
-		$item->getInstanceOrThrow($id)->delete();
+		$i = $item->getInstanceOrThrow($id);
+		$this->authorize('delete', $i);
+		$i->delete();
 		$this->session->putFlash('success', 'Item deleted successfully.');
 		return $this->redirectSamePage('items:home', ['move_id' => $move_id, 'box_id' => $box_id]);
 	}

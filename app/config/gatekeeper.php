@@ -1,8 +1,10 @@
 <?php
 
 use app\models\Box;
+use app\models\Item;
 use app\models\Move;
 use app\policies\BoxPolicy;
+use app\policies\ItemPolicy;
 use app\policies\MovePolicy;
 
 return
@@ -52,6 +54,7 @@ return
 	[
 		Move::class => MovePolicy::class,
 		Box::class => BoxPolicy::class,
+		Item::class => ItemPolicy::class,
 	],
 
 	/*
