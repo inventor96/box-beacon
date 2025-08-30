@@ -20,6 +20,7 @@ trait MoveSwitcherTrait {
 	protected function checkMove(Move $move, int $move_id, ?Move &$m = null, ?string $object_name = null, ?string $route = null): Redirect|null {
 		// ensure the move_id is invalid (e.g. someone deleted it)
 		$m = $move->getInstance($move_id);
+		$this->authorize('view', $m);
 		if ($m === null) {
 			$m = $this->getUser()->moves()->first();
 

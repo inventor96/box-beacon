@@ -1,5 +1,16 @@
 <?php
 
+use app\models\Box;
+use app\models\Item;
+use app\models\Move;
+use app\models\MoveInvite;
+use app\models\Room;
+use app\policies\BoxPolicy;
+use app\policies\ItemPolicy;
+use app\policies\MoveInvitePolicy;
+use app\policies\MovePolicy;
+use app\policies\RoomPolicy;
+
 return
 [
 	/*
@@ -45,7 +56,11 @@ return
 	 */
 	'policies' =>
 	[
-
+		Move::class => MovePolicy::class,
+		Box::class => BoxPolicy::class,
+		Item::class => ItemPolicy::class,
+		Room::class => RoomPolicy::class,
+		MoveInvite::class => MoveInvitePolicy::class,
 	],
 
 	/*
