@@ -4,6 +4,7 @@ import ColorSquare from '@/Components/ColorSquare.vue';
 import Head from '@/Components/Head.vue';
 import Modal from '@/Components/Modal.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
+import QrCodeScanner from '@/Components/QrCodeScanner.vue';
 import { Form, Link, router, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 
@@ -51,6 +52,40 @@ function printSelectedBoxes() {
 	const ids = selectedBoxes.value.join(',');
 	router.get(`/print/${ids}`);
 }
+
+// scan modal
+const scanModal = ref(null);
+const scanModalOpen = ref(false);
+function scanModalOpened() {
+	scanModalOpen.value = true;
+}
+function scanModalClosed() {
+	scanModalOpen.value = false;
+}
+
+// code detection
+const codeValue = ref([]);
+const codeError = ref('');
+watch(codeValue, (newVal) => {
+	// check if it's a valid box path in the current domain
+	codeError.value = '';
+	if (newVal.length) {
+		const code = newVal[0];
+		console.log('Detected code:', code);
+		if (code.startsWith(`${window.location.origin}/moves/${moveId.value}/boxes/`)) {
+			const boxId = code.split('/').pop();
+			if (boxId && !isNaN(boxId) && Number(boxId) > 0) {
+				// redirect to box page
+				scanModal.value.hide();
+				router.get(`/moves/${moveId.value}/boxes/${boxId}`);
+			} else {
+				codeError.value = 'Hmm... That doesn\'t look like a valid box QR code for this move.';
+			}
+		} else {
+			codeError.value = 'Hmm... That doesn\'t look like a valid box QR code for this move.';
+		}
+	}
+});
 </script>
 
 <template>
@@ -74,6 +109,7 @@ function printSelectedBoxes() {
 				<li><button type="button" class="dropdown-item" @click="printSelectedBoxes" :disabled="!selectedBoxes.length">Print Labels for Selected Boxes</button></li>
 			</ul>
 		</div>
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scan-modal">Scan</button>
 		<div class="dropdown">
 			<button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 				Add
@@ -186,5 +222,23 @@ function printSelectedBoxes() {
 				Add Boxes &amp; Print Labels
 			</button>
 		</template>
+	</Modal>
+
+	<Modal
+		ref="scanModal"
+		id="scan-modal"
+		title="Scan Box Label"
+		closeText="Cancel"
+		confirmText=""
+		@shown="scanModalOpened"
+		@closed="scanModalClosed"
+	>
+		<QrCodeScanner
+			:enabled="scanModalOpen"
+			v-model="codeValue"
+		/>
+		<div v-if="codeError" class="invalid-feedback d-block">
+			{{ codeError }}
+		</div>
 	</Modal>
 </template>
