@@ -26,6 +26,9 @@ const props = defineProps({
 			label="Email"
 			:error="errors.email"
 		/>
-		<button type="submit" class="btn btn-primary">Add Participant</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-person-plus"></i>
+			Add Participant
+		</button>
 	</Form>
 </template>

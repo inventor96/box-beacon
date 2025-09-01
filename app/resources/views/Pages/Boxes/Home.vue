@@ -160,7 +160,7 @@ function printSelectedBoxes() {
 				<td>
 					<div class="hstack gap-1 justify-content-end">
 						<Link :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">
-							<i class="bi bi-pencil-square"></i>
+							<i class="bi bi-eye"></i>
 							<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 						</Link>
 						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0">

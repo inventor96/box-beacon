@@ -14,7 +14,10 @@ const props = defineProps({
 	<h1>Moves</h1>
 	<p>View and manage your moves.</p>
 
-	<Link href="/moves/new" class="btn btn-success mb-3">Create Move</Link>
+	<Link href="/moves/new" class="btn btn-success mb-3">
+		<i class="bi bi-plus-circle"></i>
+		Create Move
+	</Link>
 
 	<table class="table table-striped table-hover">
 		<thead>
@@ -32,11 +35,20 @@ const props = defineProps({
 				<td class="align-middle">
 					<div class="hstack gap-1 justify-content-end">
 						<Form v-if="move.id !== props.active_move_id" :action="`/moves/${move.id}/set-active`" method="post" class="m-0">
-							<button type="submit" class="btn btn-primary">Set as Current Move</button>
+							<button type="submit" class="btn btn-primary">
+								<i class="bi bi-check-circle"></i>
+								Set as Current Move
+							</button>
 						</Form>
-					<Link :href="`/moves/${move.id}`" class="btn btn-secondary">View/Edit</Link>
-						<Form :action="`/moves/${move.id}`" method="delete" class="m-0">
-							<button type="submit" class="btn btn-danger">Delete</button>
+					<Link :href="`/moves/${move.id}`" class="btn btn-secondary">
+						<i class="bi bi-eye"></i>
+						<span class="d-none d-md-inline-block ms-1">View/Edit</span>
+					</Link>
+					<Form :action="`/moves/${move.id}`" method="delete" class="m-0">
+						<button type="submit" class="btn btn-danger">
+							<i class="bi bi-trash3"></i>
+							<span class="d-none d-md-inline-block ms-1">Delete</span>
+						</button>
 						</Form>
 					</div>
 				</td>
