@@ -69,15 +69,20 @@ function printSelectedBoxes() {
 	<div class="d-flex justify-content-between mb-2">
 		<div class="dropdown">
 			<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<i class="bi bi-gear"></i>
 				Actions
 			</button>
 			<ul class="dropdown-menu">
 				<li><button type="button" class="dropdown-item" @click="printSelectedBoxes" :disabled="!selectedBoxes.length">Print Labels for Selected Boxes</button></li>
 			</ul>
 		</div>
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${moveId}`">Scan</button>
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${moveId}`">
+			<i class="bi bi-qr-code-scan"></i>
+			Scan
+		</button>
 		<div class="dropdown">
 			<button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<i class="bi bi-plus-circle"></i>
 				Add
 			</button>
 			<ul class="dropdown-menu dropdown-menu-end">
@@ -154,9 +159,15 @@ function printSelectedBoxes() {
 				</td>
 				<td>
 					<div class="hstack gap-1 justify-content-end">
-						<Link :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">View/Edit</Link>
+						<Link :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">
+							<i class="bi bi-pencil-square"></i>
+							<span class="d-none d-md-inline-block ms-1">View/Edit</span>
+						</Link>
 						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0">
-							<button type="submit" class="btn btn-danger">Delete</button>
+							<button type="submit" class="btn btn-danger">
+								<i class="bi bi-trash3"></i>
+								<span class="d-none d-md-inline-block ms-1">Delete</span>
+							</button>
 						</Form>
 					</div>
 				</td>
@@ -183,7 +194,7 @@ function printSelectedBoxes() {
 		</form>
 
 		<template #footer>
-			<button type="submit" class="btn btn-primary" form="pages-form" :disabled="batchForm.processing">
+			<button type="submit" class="btn btn-success" form="pages-form" :disabled="batchForm.processing">
 				<span class="spinner-border spinner-border-sm" v-if="batchForm.processing" role="status" aria-hidden="true"></span>
 				Add Boxes &amp; Print Labels
 			</button>
