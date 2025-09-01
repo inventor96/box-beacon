@@ -43,7 +43,7 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 
 	<Link :href="`/moves/${move.id}/boxes`" class="mb-3">&lt; Back to Boxes</Link>
 	<h1>{{ title }}</h1>
-	<div class="d-flex justify-content-between">
+	<div class="d-flex justify-content-between mb-3">
 		<Link :href="`/print/${props.box.id}`" class="btn btn-secondary">Print Label</Link>
 		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${props.move.id}`">Scan Another Box</button>
 	</div>
