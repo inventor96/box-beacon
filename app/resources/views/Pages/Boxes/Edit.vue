@@ -44,8 +44,14 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 	<Link :href="`/moves/${move.id}/boxes`" class="mb-3">&lt; Back to Boxes</Link>
 	<h1>{{ title }}</h1>
 	<div class="d-flex justify-content-between mb-3">
-		<Link :href="`/print/${props.box.id}`" class="btn btn-secondary">Print Label</Link>
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${props.move.id}`">Scan Another Box</button>
+		<Link :href="`/print/${props.box.id}`" class="btn btn-secondary">
+			<i class="bi bi-printer"></i>
+			Print Label
+		</Link>
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${props.move.id}`">
+			<i class="bi bi-qr-code-scan"></i>
+			Scan Another Box
+		</button>
 	</div>
 	<Form
 		:action="`/moves/${move.id}/boxes/${props.box ? props.box.id : 'new'}`"
@@ -102,7 +108,10 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 			:model-value="props.box?.fragile"
 			:error="errors.fragile"
 		/>
-		<button type="submit" class="btn btn-primary">{{ props.box ? 'Update Box' : 'Add Box' }}</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-check-circle"></i>
+			{{ props.box ? 'Update Box' : 'Add Box' }}
+		</button>
 
 		<hr class="mt-5">
 		<h2>Items</h2>
@@ -133,7 +142,10 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 							id="delete-item-form-{{ item.id }}"
 							:options="{ preserveScroll: true }"
 						/>
-						<button type="submit" class="btn btn-outline-danger" form="delete-item-form-{{ item.id }}">Delete Item</button>
+						<button type="submit" class="btn btn-outline-danger" form="delete-item-form-{{ item.id }}">
+							<i class="bi bi-trash3"></i>
+							Delete Item
+						</button>
 					</template>
 				</Input>
 			</li>
@@ -146,11 +158,17 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 					class="mb-0"
 					:options="{ preserveScroll: true }"
 				>
-					<button type="submit" class="btn btn-success">Add Item</button>
+					<button type="submit" class="btn btn-success">
+						<i class="bi bi-plus-circle"></i>
+						Add Item
+					</button>
 				</Form>
 			</li>
 		</ul>
-		<button type="submit" class="btn btn-primary">{{ props.box ? 'Update Box' : 'Add Box' }}</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-check-circle"></i>
+			{{ props.box ? 'Update Box' : 'Add Box' }}
+		</button>
 	</Form>
 
 	<QrScanModal
