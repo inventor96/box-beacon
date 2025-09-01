@@ -51,14 +51,23 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 		v-model:moveId="moveId"
 	/>
 
-	<Link :href="`/moves/${moveId}/rooms/new`" class="btn btn-success mb-2">Add Room</Link>
+	<Link :href="`/moves/${moveId}/rooms/new`" class="btn btn-success mb-2">
+		<i class="bi bi-plus-circle"></i>
+		Add Room
+	</Link>
 
 	<ul class="nav nav-tabs nav-fill">
 		<li class="nav-item">
-			<button class="nav-link" :class="{'active': props.location === 'from'}" id="from-rooms-tab" data-bs-toggle="tab" data-bs-target="#from-rooms" type="button">From Rooms</button>
+			<button class="nav-link" :class="{'active': props.location === 'from'}" id="from-rooms-tab" data-bs-toggle="tab" data-bs-target="#from-rooms" type="button">
+				<i class="bi bi-box-arrow-right"></i>
+				From Rooms
+			</button>
 		</li>
 		<li class="nav-item">
-			<button class="nav-link" :class="{'active': props.location === 'to'}" id="to-rooms-tab" data-bs-toggle="tab" data-bs-target="#to-rooms" type="button">To Rooms</button>
+			<button class="nav-link" :class="{'active': props.location === 'to'}" id="to-rooms-tab" data-bs-toggle="tab" data-bs-target="#to-rooms" type="button">
+				<i class="bi bi-box-arrow-in-right"></i>
+				To Rooms
+			</button>
 		</li>
 	</ul>
 
@@ -85,9 +94,15 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 						<td>{{ room.name }}</td>
 						<td>
 							<div class="hstack gap-1 justify-content-end">
-								<Link :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">View/Edit</Link>
+								<Link :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">
+									<i class="bi bi-eye"></i>
+									View/Edit
+								</Link>
 								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0">
-									<button type="submit" class="btn btn-danger">Delete</button>
+									<button type="submit" class="btn btn-danger">
+										<i class="bi bi-trash3"></i>
+										Delete
+									</button>
 								</Form>
 							</div>
 						</td>

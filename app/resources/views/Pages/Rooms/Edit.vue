@@ -54,7 +54,10 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 					:disabled="props.room"
 					:class="{'is-invalid': errors.location}"
 				>
-				<label class="btn btn-outline-secondary" for="from">"From" House</label>
+				<label class="btn btn-outline-secondary" for="from">
+					<i class="bi bi-box-arrow-right"></i>
+					"From" House
+				</label>
 	
 				<input
 					type="radio"
@@ -67,7 +70,10 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 					:disabled="props.room"
 					:class="{'is-invalid': errors.location}"
 				>
-				<label class="btn btn-outline-secondary" for="to">"To" House</label>
+				<label class="btn btn-outline-secondary" for="to">
+					<i class="bi bi-box-arrow-in-right"></i>
+					"To" House
+				</label>
 			</div>
 			<div v-if="errors.location" class="invalid-feedback d-block">
 				{{ errors.location }}
@@ -79,6 +85,7 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 				<span><b>Color:</b></span>
 				<ColorSquare :color="color" />
 				<button type="button" class="btn btn-outline-secondary btn-sm" @click="showColorPicker = !showColorPicker">
+					<i class="bi" :class="showColorPicker ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
 					{{ showColorPicker ? 'Hide Color Picker' : 'Show Color Picker' }}
 				</button>
 				<input type="hidden" name="color" :value="color" />
@@ -89,6 +96,9 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 			</div>
 		</div>
 
-		<button type="submit" class="btn btn-primary">{{ props.room ? 'Update Room' : 'Add Room' }}</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-check-circle"></i>
+			{{ props.room ? 'Update Room' : 'Add Room' }}
+		</button>
 	</Form>
 </template>
