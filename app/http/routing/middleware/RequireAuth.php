@@ -51,8 +51,8 @@ class RequireAuth implements MiddlewareInterface {
 	public function execute(Request $request, Response $response, Closure $next): Response {
 		// check if authentication is required
 		if ($this->require && $this->gatekeeper->isGuest()) {
-			// store the original URL to redirect back to after authentication
-			if ($this->backAfterAuth) {
+			// store the original URL to redirect back to after authentication if the path is part of the defined routes
+			if ($this->backAfterAuth && !empty($request->getRoute())) {
 				// check if we're due to update the original URL
 				$last_updated = $this->session?->get('_auth_redirect_time_', 0);
 				if ($last_updated + self::COOLDOWN_TIME < round(microtime(true) * 1000)) {
