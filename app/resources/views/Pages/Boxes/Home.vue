@@ -177,6 +177,7 @@ function printSelectedBoxes() {
 			</tr>
 		</tbody>
 	</table>
+
 	<Modal
 		id="add-boxes"
 		title="Add Multiple Boxes"
