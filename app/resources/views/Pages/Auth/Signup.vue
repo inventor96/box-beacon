@@ -58,6 +58,7 @@ import { Form, Link } from '@inertiajs/vue3';
 			:error="errors.confirm_password"
 		/>
 		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-person-plus"></i>
 			Sign Up
 		</button>
 	</Form>

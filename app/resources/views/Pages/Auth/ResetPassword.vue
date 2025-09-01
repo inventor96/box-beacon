@@ -34,6 +34,9 @@ const props = defineProps({
 			required
 			:error="errors.confirm_password"
 		/>
-		<button type="submit" class="btn btn-primary">Reset Password</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-lock"></i>
+			Reset Password
+		</button>
 	</Form>
 </template>

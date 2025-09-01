@@ -23,6 +23,9 @@ import { Form } from '@inertiajs/vue3';
 			required
 			:error="errors.email"
 		/>
-		<button type="submit" class="btn btn-primary">Send Reset Link</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-envelope"></i>
+			Send Reset Link
+		</button>
 	</Form>
 </template>
