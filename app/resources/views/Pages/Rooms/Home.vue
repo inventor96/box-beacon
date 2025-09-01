@@ -96,12 +96,12 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 							<div class="hstack gap-1 justify-content-end">
 								<Link :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">
 									<i class="bi bi-eye"></i>
-									View/Edit
+									<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 								</Link>
 								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0">
 									<button type="submit" class="btn btn-danger">
 										<i class="bi bi-trash3"></i>
-										Delete
+										<span class="d-none d-md-inline-block ms-1">Delete</span>
 									</button>
 								</Form>
 							</div>

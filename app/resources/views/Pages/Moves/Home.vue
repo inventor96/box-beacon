@@ -30,14 +30,17 @@ const props = defineProps({
 			<tr v-if="moves.length" v-for="move in moves" :key="move.id">
 				<td class="align-middle">
 					{{ move.name }}
-					<span v-if="move.id === props.active_move_id" class="badge bg-success">Current</span>
+					<span v-if="move.id === props.active_move_id" class="badge bg-primary">
+						<i class="bi bi-check-circle"></i>
+						Current
+					</span>
 				</td>
 				<td class="align-middle">
 					<div class="hstack gap-1 justify-content-end">
 						<Form v-if="move.id !== props.active_move_id" :action="`/moves/${move.id}/set-active`" method="post" class="m-0">
 							<button type="submit" class="btn btn-primary">
 								<i class="bi bi-check-circle"></i>
-								Set as Current Move
+								<span class="d-none d-md-inline-block ms-1">Set as Current Move</span>
 							</button>
 						</Form>
 					<Link :href="`/moves/${move.id}`" class="btn btn-secondary">
