@@ -1,8 +1,9 @@
 <script setup>
-import { Dropdown } from 'bootstrap' // used by navbar
+import { /* Dropdown, */ Collapse } from 'bootstrap'
 import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
 	_env: {
@@ -30,6 +31,25 @@ const props = defineProps({
 		default: () => []
 	}
 });
+
+const collapseRef = ref(null);
+let collapse = null;
+
+onMounted(() => {
+	if (collapseRef.value) {
+		collapse = new Collapse(collapseRef.value, { toggle: false });
+	}
+});
+
+const page = usePage();
+watch(
+	() => page.url,
+	() => {
+		if (collapse) {
+			collapse.hide();
+		}
+	}
+);
 </script>
 
 <template>
@@ -45,7 +65,7 @@ const props = defineProps({
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			<div class="collapse navbar-collapse fw-normal" id="navbarNav">
+			<div class="collapse navbar-collapse fw-normal" id="navbarNav" ref="collapseRef">
 				<ul class="navbar-nav">
 					<NavLink
 						v-for="link in props._left_navlinks"
