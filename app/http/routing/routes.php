@@ -92,8 +92,14 @@ $routes->group([
 	#region moves
 	$routes->get('/moves', [Moves::class, 'home'], 'moves:home');
 	$routes->post('/moves/{id}/set-active', [Moves::class, 'setActive'], 'moves:setActive');
-	$routes->get('/moves/{id}', [Moves::class, 'edit'], 'moves:edit');
-	$routes->post('/moves/{id}', [Moves::class, 'editAction'], 'moves:editAction');
+	$routes->get('/moves/{id}', [Moves::class, 'edit'], 'moves:edit')
+		->patterns([
+			'id' => '\d+|new'
+		]);
+	$routes->post('/moves/{id}', [Moves::class, 'editAction'], 'moves:editAction')
+		->patterns([
+			'id' => '\d+|new'
+		]);
 	$routes->delete('/moves/{id}', [Moves::class, 'deleteAction'], 'moves:deleteAction');
 	$routes->delete('/moves/{move_id}/users/{user_id}', [Moves::class, 'deleteUser'], 'moves:deleteUser');
 	#endregion
