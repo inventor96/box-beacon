@@ -81,11 +81,9 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 	 */
 	public function getValidatorSpec(): array {
 		return [
-			'username' => ['required'],
 			'first_name' => ['required'],
 			'last_name' => ['required'],
 			'email' => ['required', 'email'],
-			'groups' => ['array'],
 		];
 	}
 
