@@ -3,14 +3,16 @@ namespace app\models;
 
 class NavLink {
 	public string $name;
+	public string $icon;
 	public string $path;
 	public bool $active;
 
 	/** @var self[] */
 	public array $dropdowns = [];
 
-	public function __construct(string $name, string $path, bool $active) {
+	public function __construct(string $name, string $icon, string $path, bool $active) {
 		$this->name = $name;
+		$this->icon = $icon;
 		$this->path = $path;
 		$this->active = $active;
 	}

@@ -52,6 +52,7 @@ const props = defineProps({
 						:key="link.path"
 						:path="link.path"
 						:name="link.name"
+						:icon="link.icon ?? ''"
 						:active="link.active"
 						:dropdowns="link.dropdowns"
 					/>
@@ -62,6 +63,7 @@ const props = defineProps({
 						:key="link.path"
 						:path="link.path"
 						:name="link.name"
+						:icon="link.icon ?? ''"
 						:active="link.active"
 						:dropdowns="link.dropdowns"
 					/>

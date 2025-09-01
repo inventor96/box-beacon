@@ -10,6 +10,11 @@ const props = defineProps({
 		type: String,
 		required: true
 	},
+	icon: {
+		type: String,
+		required: false,
+		default: '',
+	},
 	active: {
 		type: Boolean,
 		default: false
@@ -29,6 +34,7 @@ const props = defineProps({
 			:href="props.path"
 			:class="{ active: props.active }"
 		>
+			<i v-if="props.icon" class="bi" :class="props.icon"></i>
 			{{ props.name }}
 		</Link>
 		<a
@@ -39,6 +45,7 @@ const props = defineProps({
 			data-bs-toggle="dropdown"
 			aria-expanded="false"
 		>
+			<i v-if="props.icon" class="bi" :class="props.icon"></i>
 			{{ props.name }}
 		</a>
 		<ul class="dropdown-menu">
@@ -48,6 +55,7 @@ const props = defineProps({
 					:href="dropdown.path"
 					:class="{ active: dropdown.active }"
 				>
+					<i v-if="dropdown.icon" class="bi" :class="dropdown.icon"></i>
 					{{ dropdown.name }}
 				</Link>
 			</li>

@@ -20,9 +20,9 @@ class NavLinks {
 
 		// logged in
 		$links = [
-			$this->nav->createFromRoute('Boxes', 'boxes:home', ['move_id' => $this->user->active_move_id ?? 0]),
-			$this->nav->createFromRoute('Moves', 'moves:home'),
-			$this->nav->createFromRoute('Rooms', 'rooms:home', ['move_id' => $this->user->active_move_id ?? 0]),
+			$this->nav->createFromRoute('Boxes', 'bi-box', 'boxes:home', ['move_id' => $this->user->active_move_id ?? 0]),
+			$this->nav->createFromRoute('Moves', 'bi-arrows-move', 'moves:home'),
+			$this->nav->createFromRoute('Rooms', 'bi-door-open', 'rooms:home', ['move_id' => $this->user->active_move_id ?? 0]),
 		];
 
 		return $links;
@@ -37,15 +37,15 @@ class NavLinks {
 		// guest
 		if ($this->user === null) {
 			return [
-				$this->nav->createFromRoute('Sign Up', 'auth:signup'),
-				$this->nav->createFromRoute('Log In', 'auth:login'),
+				$this->nav->createFromRoute('Sign Up', 'bi-person-plus', 'auth:signup'),
+				$this->nav->createFromRoute('Log In', 'bi-box-arrow-in-right', 'auth:login'),
 			];
 		}
 
 		// logged in
 		return [
-			$this->nav->createFromRoute('Account', 'account:home'),
-			$this->nav->createFromRoute('Log Out', 'auth:logout'),
+			$this->nav->createFromRoute('Account', 'bi-person', 'account:home'),
+			$this->nav->createFromRoute('Log Out', 'bi-box-arrow-right', 'auth:logout'),
 		];
 	}
 }
