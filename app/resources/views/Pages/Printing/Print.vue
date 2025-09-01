@@ -30,10 +30,16 @@ function print() {
 	<div class="container-fluid text-center">
 		<div class="row d-print-none my-3">
 			<div class="col d-flex justify-content-start">
-				<Link href="/moves/0/boxes" class="btn btn-secondary">&lt; Go to Boxes List</Link>
+				<Link href="/moves/0/boxes" class="btn btn-secondary">
+					<i class="bi bi-arrow-left"></i>
+					Go to Boxes List
+				</Link>
 			</div>
 			<div class="col d-flex justify-content-end">
-				<button type="button" class="btn btn-primary" @click="print">Print</button>
+				<button type="button" class="btn btn-primary" @click="print">
+					<i class="bi bi-printer"></i>
+					Print
+				</button>
 			</div>
 		</div>
 		<div class="row g-3 row-cols-2 row-cols-md-3">
