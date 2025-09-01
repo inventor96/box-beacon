@@ -108,8 +108,14 @@ $routes->group([
 	
 	#region rooms
 	$routes->get('/moves/{move_id}/rooms', [Rooms::class, 'home'], 'rooms:home');
-	$routes->get('/moves/{move_id}/rooms/{id}', [Rooms::class, 'edit'], 'rooms:edit');
-	$routes->post('/moves/{move_id}/rooms/{id}', [Rooms::class, 'editAction'], 'rooms:editAction');
+	$routes->get('/moves/{move_id}/rooms/{id}', [Rooms::class, 'edit'], 'rooms:edit')
+		->patterns([
+			'id' => '\d+|new'
+		]);
+	$routes->post('/moves/{move_id}/rooms/{id}', [Rooms::class, 'editAction'], 'rooms:editAction')
+		->patterns([
+			'id' => '\d+|new'
+		]);
 	$routes->delete('/moves/{move_id}/rooms/{id}', [Rooms::class, 'deleteAction'], 'rooms:deleteAction');
 	#endregion
 });

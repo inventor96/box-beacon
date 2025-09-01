@@ -89,7 +89,8 @@ class User extends GatekeeperUser implements ValidatorSpecInterface {
 
 	public function moves()
 	{
-		return $this->manyToMany(Move::class);
+		return $this->manyToMany(Move::class)
+			->orderBy('name');
 	}
 
 	/**
