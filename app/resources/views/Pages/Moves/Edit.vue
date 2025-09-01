@@ -52,12 +52,18 @@ function submitInvite() {
 			:model-value="props.move?.name"
 			:error="errors.name"
 		/>
-		<button type="submit" class="btn btn-primary">{{ props.move ? 'Update Move' : 'Create Move' }}</button>
+		<button type="submit" class="btn btn-primary">
+			<i class="bi bi-check-circle"></i>
+			{{ props.move ? 'Update Move' : 'Create Move' }}
+		</button>
 	</Form>
 
 	<hr class="mt-5">
 	<h2>Participants</h2>
-	<button v-if="move" data-bs-toggle="modal" data-bs-target="#invite-participant" class="btn btn-success mb-3">Invite Participant</button>
+	<button v-if="move" data-bs-toggle="modal" data-bs-target="#invite-participant" class="btn btn-success mb-3">
+		<i class="bi bi-person-plus"></i>
+		Invite Participant
+	</button>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
@@ -75,7 +81,10 @@ function submitInvite() {
 				<td class="align-middle">{{ user.email }}</td>
 				<td class="align-middle text-end">
 					<Form v-if="user.id !== props.user.id" :action="`/moves/${move.id}/users/${user.id}`" method="delete" class="m-0">
-						<button type="submit" class="btn btn-danger">Remove</button>
+						<button type="submit" class="btn btn-danger">
+							<i class="bi bi-trash3"></i>
+							Remove
+						</button>
 					</Form>
 				</td>
 			</tr>
@@ -98,7 +107,10 @@ function submitInvite() {
 					<td class="align-middle">{{ invite.email }}</td>
 					<td class="align-middle text-end">
 						<Form :action="`/invites/${invite.id}`" method="delete" class="m-0" :options="{ preserveScroll: true }">
-							<button type="submit" class="btn btn-danger">Remove</button>
+							<button type="submit" class="btn btn-danger">
+								<i class="bi bi-trash3"></i>
+								Remove
+							</button>
 						</Form>
 					</td>
 				</tr>
@@ -129,8 +141,9 @@ function submitInvite() {
 		</form>
 
 		<template #footer>
-			<button type="submit" class="btn btn-primary" form="invite-form" :disabled="inviteForm.processing">
+			<button type="submit" class="btn btn-success" form="invite-form" :disabled="inviteForm.processing">
 				<span class="spinner-border spinner-border-sm" v-if="inviteForm.processing" role="status" aria-hidden="true"></span>
+				<i class="bi bi-person-plus"></i>
 				Invite Participant
 			</button>
 		</template>
