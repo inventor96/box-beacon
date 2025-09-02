@@ -53,6 +53,6 @@ const props = defineProps({
 	</Modal>
 	<button type="button" class="btn" :class="props.buttonClass" data-bs-toggle="modal" :data-bs-target="`#delete-modal-${props.id}`">
 		<i class="bi bi-trash3"></i>
-		{{ props.buttonText }}
+		<span class="d-none d-md-inline-block ms-1">{{ props.buttonText }}</span>
 	</button>
 </template>
