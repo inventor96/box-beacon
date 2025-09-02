@@ -4,7 +4,7 @@ import Input from '@/Components/Form/Input.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { TwitterPicker } from 'vue-color';
+import { CompactPicker, TwitterPicker } from 'vue-color';
 
 const props = defineProps({
 	move: {
@@ -95,7 +95,7 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 				</button>
 				<input type="hidden" name="color" :value="color" />
 			</div>
-			<TwitterPicker class="mb-3 ms-5 mt-3" :class="{ 'd-none': !showColorPicker }" v-model="color" />
+			<CompactPicker class="mb-3 ms-5" :class="{ 'd-none': !showColorPicker }" v-model="color" />
 			<div v-if="errors.color" class="invalid-feedback d-block">
 				{{ errors.color }}
 			</div>
