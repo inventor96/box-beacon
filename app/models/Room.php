@@ -56,6 +56,7 @@ class Room extends ORM implements ValidatorSpecInterface
 
 	public function boxes()
 	{
-		return $this->hasMany(Box::class);
+		return $this->hasMany(Box::class)
+			->orderBy('number');
 	}
 }

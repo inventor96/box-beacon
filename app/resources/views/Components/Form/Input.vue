@@ -1,5 +1,5 @@
 <script setup>
-import { defineEmits, defineProps, useAttrs, defineOptions } from 'vue';
+import { defineEmits, defineProps, useAttrs, defineOptions, ref } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
@@ -45,7 +45,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue']);
+
 const $attrs = useAttrs();
+const inputRef = ref(null);
+defineExpose({ inputRef });
 
 function onInput(event) {
 	emit('update:modelValue', event.target.value);
@@ -57,6 +60,7 @@ function onInput(event) {
 		<slot name="before" />
 		<div class="form-floating">
 			<input
+				ref="inputRef"
 				:id="props.id"
 				:name="props.name ?? props.id"
 				:type="props.type"

@@ -1,6 +1,7 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
+import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import Modal from '@/Components/Modal.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
@@ -163,11 +164,12 @@ function printSelectedBoxes() {
 							<i class="bi bi-eye"></i>
 							<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 						</Link>
-						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0">
-							<button type="submit" class="btn btn-danger">
-								<i class="bi bi-trash3"></i>
-								<span class="d-none d-md-inline-block ms-1">Delete</span>
-							</button>
+						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0" #default="{ processing }">
+							<DeleteConfirmButton
+								:id="`delete-box-${box.id}`"
+								:item-text="`box #${box.number}`"
+								:processing="processing"
+							/>
 						</Form>
 					</div>
 				</td>
@@ -177,6 +179,7 @@ function printSelectedBoxes() {
 			</tr>
 		</tbody>
 	</table>
+
 	<Modal
 		id="add-boxes"
 		title="Add Multiple Boxes"

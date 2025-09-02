@@ -26,16 +26,18 @@ class Rooms extends ControllerBase
 	public function edit(Move $move, Room $room, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
+		$preselected_location = $this->request->getQuery()->get('location');
 		$return = $this->view->render('Pages/Rooms/Edit', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move' => $m,
 			'room' => ($r = $id === 'new' ? null : $room->getInstanceOrThrow($id)), // get valid room instance if not new
+			'preselected_location' => $preselected_location,
 		]);
 
 		$this->authorize('edit', $r ?? $m); // authorize either room, or move if new
 
 		// note location tab for back button
-		$this->session->putFlash('location_tab', $r?->location ?? 'from');
+		$this->session->putFlash('location_tab', $r?->location ?? $preselected_location ?? 'from');
 
 		return $return;
 	}

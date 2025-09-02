@@ -56,7 +56,9 @@ $routes->group([
 	
 	#region account
 	$routes->get('/account', [Account::class, 'home'], 'account:home');
-	$routes->put('/account', [Account::class, 'update'], 'account:update');
+	$routes->put('/account', [Account::class, 'updateAction'], 'account:updateAction');
+	$routes->post('/account/password', [Account::class, 'updatePasswordAction'], 'account:updatePasswordAction');
+	$routes->delete('/account', [Account::class, 'deleteAction'], 'account:deleteAction');
 	#endregion
 
 	#region invites
@@ -106,8 +108,14 @@ $routes->group([
 	
 	#region rooms
 	$routes->get('/moves/{move_id}/rooms', [Rooms::class, 'home'], 'rooms:home');
-	$routes->get('/moves/{move_id}/rooms/{id}', [Rooms::class, 'edit'], 'rooms:edit');
-	$routes->post('/moves/{move_id}/rooms/{id}', [Rooms::class, 'editAction'], 'rooms:editAction');
+	$routes->get('/moves/{move_id}/rooms/{id}', [Rooms::class, 'edit'], 'rooms:edit')
+		->patterns([
+			'id' => '\d+|new'
+		]);
+	$routes->post('/moves/{move_id}/rooms/{id}', [Rooms::class, 'editAction'], 'rooms:editAction')
+		->patterns([
+			'id' => '\d+|new'
+		]);
 	$routes->delete('/moves/{move_id}/rooms/{id}', [Rooms::class, 'deleteAction'], 'rooms:deleteAction');
 	#endregion
 });

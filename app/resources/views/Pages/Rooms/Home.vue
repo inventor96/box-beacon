@@ -1,5 +1,6 @@
 <script setup>
 import ColorSquare from '@/Components/ColorSquare.vue';
+import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
 import { Form, Link, router } from '@inertiajs/vue3';
@@ -37,6 +38,8 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/rooms`), { immediate: fal
 // separate lists
 const fromRooms = computed(() => props.rooms.filter((room) => room.location === 'from'));
 const toRooms = computed(() => props.rooms.filter((room) => room.location === 'to'));
+
+const location = ref(props.location);
 </script>
 
 <template>
@@ -51,20 +54,36 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 		v-model:moveId="moveId"
 	/>
 
-	<Link :href="`/moves/${moveId}/rooms/new`" class="btn btn-success mb-2">
+	<Link :href="`/moves/${moveId}/rooms/new?location=${location}`" class="btn btn-success mb-2">
 		<i class="bi bi-plus-circle"></i>
 		Add Room
 	</Link>
 
 	<ul class="nav nav-tabs nav-fill">
 		<li class="nav-item">
-			<button class="nav-link" :class="{'active': props.location === 'from'}" id="from-rooms-tab" data-bs-toggle="tab" data-bs-target="#from-rooms" type="button">
+			<button
+				class="nav-link"
+				:class="{'active': location === 'from'}"
+				id="from-rooms-tab"
+				data-bs-toggle="tab"
+				data-bs-target="#from-rooms"
+				type="button"
+				@click="location = 'from'"
+			>
 				<i class="bi bi-box-arrow-right"></i>
 				From Rooms
 			</button>
 		</li>
 		<li class="nav-item">
-			<button class="nav-link" :class="{'active': props.location === 'to'}" id="to-rooms-tab" data-bs-toggle="tab" data-bs-target="#to-rooms" type="button">
+			<button
+				class="nav-link"
+				:class="{'active': location === 'to'}"
+				id="to-rooms-tab"
+				data-bs-toggle="tab"
+				data-bs-target="#to-rooms"
+				type="button"
+				@click="location = 'to'"
+			>
 				<i class="bi bi-box-arrow-in-right"></i>
 				To Rooms
 			</button>
@@ -96,13 +115,14 @@ const toRooms = computed(() => props.rooms.filter((room) => room.location === 't
 							<div class="hstack gap-1 justify-content-end">
 								<Link :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">
 									<i class="bi bi-eye"></i>
-									View/Edit
+									<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 								</Link>
-								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0">
-									<button type="submit" class="btn btn-danger">
-										<i class="bi bi-trash3"></i>
-										Delete
-									</button>
+								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0" #default="{ processing }">
+									<DeleteConfirmButton
+										:id="`delete-room-${room.id}`"
+										:item-text="`the '${room.name}' room`"
+										:processing="processing"
+									/>
 								</Form>
 							</div>
 						</td>

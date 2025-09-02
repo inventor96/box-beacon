@@ -1,13 +1,14 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
+import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Input from '@/Components/Form/Input.vue';
 import Select from '@/Components/Form/Select.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
 import QrScanModal from '@/Components/QrScanModal.vue';
 import { Form, Link } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch, nextTick } from 'vue';
 
 const props = defineProps({
 	move: {
@@ -36,6 +37,27 @@ const fromRoom = ref(props.box?.from_room_id ?? null);
 const toRoom = ref(props.box?.to_room_id ?? null);
 const fromRoomColor = computed(() => fromRooms.value.find(room => parseInt(room.id) === parseInt(fromRoom.value))?.color ?? '#ffffff');
 const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) === parseInt(toRoom.value))?.color ?? '#ffffff');
+
+const itemNameRefs = ref([]);
+
+// Watch for changes in items to focus last input and scroll
+let prevItemsLength = props.box?.items?.length || 0;
+watch(
+	() => props.box?.items?.length,
+	async (newLen, oldLen) => {
+		if (newLen > oldLen) {
+			await nextTick();
+
+			// focus last input
+			const lastInput = itemNameRefs.value[newLen - 1];
+			if (lastInput) lastInput.focus();
+
+			// also scroll window to bottom for full-page scroll
+			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+		}
+		prevItemsLength = newLen;
+	}
+);
 </script>
 
 <template>
@@ -124,12 +146,14 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 			>
 				<Input
 					:id="`item-${item.id}-name`"
+					:key="item.id"
 					:name="`items[${item.id}][name]`"
 					label="Item Name/Description"
 					:model-value="item.name"
 					:error="errors.items && errors.items[item.id] ? errors.items[item.id].name : undefined"
 					:no-mb="true"
 					outer-class="input-group"
+					:ref="el => itemNameRefs[index] = el ? el.inputRef : null"
 				>
 					<template #before>
 						<span class="input-group-text bg-secondary-subtle">{{ index + 1 }}.</span>
@@ -139,13 +163,15 @@ const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) 
 							:action="`/moves/${move.id}/boxes/${props.box.id}/items/${item.id}`"
 							method="delete"
 							class="d-inline m-0"
-							id="delete-item-form-{{ item.id }}"
+							:id="`delete-item-form-${item.id}`"
 							:options="{ preserveScroll: true }"
 						/>
-						<button type="submit" class="btn btn-outline-danger" form="delete-item-form-{{ item.id }}">
-							<i class="bi bi-trash3"></i>
-							Delete Item
-						</button>
+						<DeleteConfirmButton
+							:form="`delete-item-form-${item.id}`"
+							button-class="btn-outline-danger"
+							:id="`delete-item-${item.id}`"
+							:item-text="`item #${index + 1}`"
+						/>
 					</template>
 				</Input>
 			</li>

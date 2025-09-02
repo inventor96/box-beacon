@@ -1,4 +1,5 @@
 <script setup>
+import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Input from '@/Components/Form/Input.vue';
 import Head from '@/Components/Head.vue';
 import Modal from '@/Components/Modal.vue';
@@ -79,12 +80,22 @@ function submitInvite() {
 					<span v-if="user.id === props.user.id" class="badge bg-secondary">You</span>
 				</td>
 				<td class="align-middle">{{ user.email }}</td>
-				<td class="align-middle text-end">
-					<Form v-if="user.id !== props.user.id" :action="`/moves/${move.id}/users/${user.id}`" method="delete" class="m-0">
-						<button type="submit" class="btn btn-danger">
-							<i class="bi bi-trash3"></i>
-							Remove
-						</button>
+				<td class="align-middle" :class="{ 'd-flex justify-content-end': user.id !== props.user.id }">
+					<Form
+						v-if="user.id !== props.user.id"
+						:action="`/moves/${move.id}/users/${user.id}`"
+						method="delete"
+						class="m-0"
+						#default="{ processing }"
+					>
+						<DeleteConfirmButton
+							:id="`remove-user-${user.id}`"
+							button-text="Remove"
+							item-text=""
+							:processing="processing"
+						>
+							<p>Are you sure you want to remove {{ user.first_name }} {{ user.last_name }} from this move?</p>
+						</DeleteConfirmButton>
 					</Form>
 				</td>
 			</tr>
@@ -105,12 +116,19 @@ function submitInvite() {
 			<tbody>
 				<tr v-if="move && move.moveInvites?.length" v-for="invite in move.moveInvites" :key="invite.id">
 					<td class="align-middle">{{ invite.email }}</td>
-					<td class="align-middle text-end">
-						<Form :action="`/invites/${invite.id}`" method="delete" class="m-0" :options="{ preserveScroll: true }">
-							<button type="submit" class="btn btn-danger">
-								<i class="bi bi-trash3"></i>
-								Remove
-							</button>
+					<td class="align-middle d-flex justify-content-end">
+						<Form
+							:action="`/invites/${invite.id}`"
+							method="delete"
+							class="m-0"
+							:options="{ preserveScroll: true }"
+							#default="{ processing }"
+						>
+							<DeleteConfirmButton
+								:id="`delete-invite-${invite.id}`"
+								:item-text="`the invitation for ${invite.email}`"
+								:processing="processing"
+							/>
 						</Form>
 					</td>
 				</tr>

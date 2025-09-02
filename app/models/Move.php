@@ -50,33 +50,37 @@ class Move extends ORM implements ValidatorSpecInterface
 
 	public function users()
 	{
-		return $this->manyToMany(User::class);
+		return $this->manyToMany(User::class)
+			->orderBy('first_name');
 	}
 
 	public function moveInvites()
 	{
-		return $this->hasMany(MoveInvite::class);
+		return $this->hasMany(MoveInvite::class)
+			->orderBy('email');
 	}
 
 	public function boxes()
 	{
-		return $this->hasMany(Box::class);
+		return $this->hasMany(Box::class)
+			->orderBy('number');
 	}
 
 	public function rooms()
 	{
-		return $this->hasMany(Room::class);
+		return $this->hasMany(Room::class)
+			->orderBy('name');
 	}
 
 	public function fromRooms()
 	{
-		return $this->hasMany(Room::class)
+		return $this->rooms()
 			->where('location', '=', RoomLocation::FROM);
 	}
 
 	public function toRooms()
 	{
-		return $this->hasMany(Room::class)
+		return $this->rooms()
 			->where('location', '=', RoomLocation::TO);
 	}
 }

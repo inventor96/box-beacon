@@ -16,6 +16,11 @@ const props = defineProps({
 		required: false,
 		default: null,
 	},
+	preselected_location: {
+		type: String,
+		required: false,
+		default: null,
+	},
 });
 
 const title = computed(() => (props.room ? 'Edit Room' : 'Add Room'));
@@ -50,7 +55,7 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 					value="from"
 					id="from"
 					autocomplete="off"
-					:checked="props.room?.location === 'from'"
+					:checked="(props.room?.location ?? props.preselected_location) === 'from'"
 					:disabled="props.room"
 					:class="{'is-invalid': errors.location}"
 				>
@@ -66,7 +71,7 @@ const color = ref(props.room ? props.room.color : '#ffffff');
 					value="to"
 					id="to"
 					autocomplete="off"
-					:checked="props.room?.location === 'to'"
+					:checked="(props.room?.location ?? props.preselected_location) === 'to'"
 					:disabled="props.room"
 					:class="{'is-invalid': errors.location}"
 				>
