@@ -1,4 +1,5 @@
 <script setup>
+import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
 
@@ -47,12 +48,13 @@ const props = defineProps({
 						<i class="bi bi-eye"></i>
 						<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 					</Link>
-					<Form :action="`/moves/${move.id}`" method="delete" class="m-0">
-						<button type="submit" class="btn btn-danger">
-							<i class="bi bi-trash3"></i>
-							<span class="d-none d-md-inline-block ms-1">Delete</span>
-						</button>
-						</Form>
+					<Form :action="`/moves/${move.id}`" method="delete" class="m-0" #default="{ processing }">
+						<DeleteConfirmButton
+							:id="`delete-move-${move.id}`"
+							:item-text="`the '${move.name}' move`"
+							:processing="processing"
+						/>
+					</Form>
 					</div>
 				</td>
 			</tr>

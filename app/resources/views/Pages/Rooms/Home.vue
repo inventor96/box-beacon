@@ -1,5 +1,6 @@
 <script setup>
 import ColorSquare from '@/Components/ColorSquare.vue';
+import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
 import { Form, Link, router } from '@inertiajs/vue3';
@@ -116,11 +117,12 @@ const location = ref(props.location);
 									<i class="bi bi-eye"></i>
 									<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 								</Link>
-								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0">
-									<button type="submit" class="btn btn-danger">
-										<i class="bi bi-trash3"></i>
-										<span class="d-none d-md-inline-block ms-1">Delete</span>
-									</button>
+								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0" #default="{ processing }">
+									<DeleteConfirmButton
+										:id="`delete-room-${room.id}`"
+										:item-text="`the '${room.name}' room`"
+										:processing="processing"
+									/>
 								</Form>
 							</div>
 						</td>
