@@ -25,13 +25,35 @@ class Items extends ControllerBase
 
 	public function newAction(Move $move, Box $box, Item $item, int $move_id, int $box_id)
 	{
+		// validate access
 		$m = $move->getInstanceOrThrow($move_id);
 		$b = $box->getInstanceOrThrow($box_id);
 		$this->authorize('edit', $b);
+
+		// save existing items
+		$item_rules = [];
+		foreach ($item->getValidatorSpec() as $field => $rules) {
+			$item_rules["items.*.$field"] = $rules;
+		}
+		$post = $this->getValidatedInput($item_rules);
+		$this->assignItems($item, $post['items'] ?? []);
+
+		// create new item
 		$item->name = '';
 		$i = $b->items()->create($item);
+
+		// update page
 		$this->session->putFlash('success', 'Item added successfully.');
 		return $this->redirectSamePage('items:edit', ['move_id' => $move_id, 'box_id' => $box_id, 'id' => $i->id]);
+	}
+
+	protected function assignItems(Item $item, array $items): void
+	{
+		foreach ($items as $id => $post) {
+			$i = $item->getInstanceOrThrow($id);
+			$this->authorize('edit', $i);
+			$i->requireAndAssign($post)->save();
+		}
 	}
 
 	public function edit(Move $move, Box $box, Item $item, int $move_id, int $box_id, int $id)

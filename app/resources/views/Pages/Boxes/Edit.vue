@@ -38,6 +38,20 @@ const toRoom = ref(props.box?.to_room_id ?? null);
 const fromRoomColor = computed(() => fromRooms.value.find(room => parseInt(room.id) === parseInt(fromRoom.value))?.color ?? '#ffffff');
 const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) === parseInt(toRoom.value))?.color ?? '#ffffff');
 
+// track items locally
+const items = ref(props.box?.items ?? []);
+watch(() => props.box?.items, (newItems) => {
+	// remove items that are no longer present
+	items.value = items.value.filter(item => newItems.some(newItem => newItem.id === item.id));
+
+	// add new items
+	newItems.forEach((item) => {
+		if (!items.value.some(existingItem => existingItem.id === item.id)) {
+			items.value.push(item);
+		}
+	});
+});
+
 const itemNameRefs = ref([]);
 
 // Watch for changes in items to focus last input and scroll
@@ -139,8 +153,8 @@ watch(
 		<h2>Items</h2>
 		<ul class="list-group mb-3">
 			<li
-				v-if="props.box?.items?.length"
-				v-for="(item, index) in props.box?.items"
+				v-if="items.length"
+				v-for="(item, index) in items"
 				:key="item.id"
 				class="list-group-item"
 			>
@@ -150,6 +164,7 @@ watch(
 					:name="`items[${item.id}][name]`"
 					label="Item Name/Description"
 					:model-value="item.name"
+					@update:model-value="value => items[index].name = value"
 					:error="errors.items && errors.items[item.id] ? errors.items[item.id].name : undefined"
 					:no-mb="true"
 					outer-class="input-group"
@@ -176,15 +191,16 @@ watch(
 				</Input>
 			</li>
 			<li v-else class="list-group-item">No items in this box yet!</li>
-			<li class="list-group-item bg-secondary-subtle">
+			<li v-if="props.box" class="list-group-item bg-secondary-subtle">
 				<Form
 					v-if="props.box"
 					:action="`/moves/${move.id}/boxes/${props.box.id}/items/new`"
 					method="post"
 					class="mb-0"
 					:options="{ preserveScroll: true }"
+					#default="{ processing }"
 				>
-					<button type="submit" class="btn btn-success">
+					<button type="submit" class="btn btn-success" :disabled="processing">
 						<i class="bi bi-plus-circle"></i>
 						Add Item
 					</button>

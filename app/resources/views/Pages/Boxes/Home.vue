@@ -53,6 +53,18 @@ function printSelectedBoxes() {
 	const ids = selectedBoxes.value.join(',');
 	router.get(`/print/${ids}`);
 }
+
+function itemsText(items) {
+	const nonEmptyItems = items.filter(item => item.name.trim() !== '');
+	return nonEmptyItems
+		.slice(0, 2)
+		.map(item => item.name)
+		.join(', ')
+		+ (nonEmptyItems.length > 2
+			? `, and ${nonEmptyItems.length - 2} more...`
+			: ''
+		);
+}
 </script>
 
 <template>
@@ -131,8 +143,8 @@ function printSelectedBoxes() {
 					<BoxNumber :number="box.number" />
 				</th>
 				<td>
-					<span v-if="box.items.length">
-						{{ box.items.slice(0, 2).map(item => item.name).join(', ') }}<span v-if="box.items.length > 2">, and {{ box.items.length - 2 }} more...</span>
+					<span v-if="itemsText(box.items)">
+						{{ itemsText(box.items) }}
 					</span>
 					<span v-else class="text-muted">No items</span>
 					<div class="d-flex d-md-none gap-1 flex-wrap mt-1">
