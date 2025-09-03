@@ -4,7 +4,7 @@ import Input from '@/Components/Form/Input.vue';
 import Head from '@/Components/Head.vue';
 import { Form, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
-import { CompactPicker, TwitterPicker } from 'vue-color';
+import { CompactPicker } from 'vue-color';
 
 const props = defineProps({
 	move: {
