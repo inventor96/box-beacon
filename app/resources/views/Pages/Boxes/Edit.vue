@@ -7,7 +7,7 @@ import Select from '@/Components/Form/Select.vue';
 import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
 import QrScanModal from '@/Components/QrScanModal.vue';
-import { Form, Link } from '@inertiajs/vue3';
+import { Form, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref, watch, nextTick } from 'vue';
 
 const props = defineProps({
@@ -39,6 +39,48 @@ const fromRoomColor = computed(() => fromRooms.value.find(room => parseInt(room.
 const toRoomColor = computed(() => toRooms.value.find(room => parseInt(room.id) === parseInt(toRoom.value))?.color ?? '#ffffff');
 
 const itemNameRefs = ref([]);
+
+// add/remove item handling
+const itemForm = useForm({}, {
+	preserveScroll: true,
+	preserveState: true,
+});
+function changeAndRestoreItems(handler) {
+	// record existing item name values
+	const itemNames = itemNameRefs.value.filter(el => !!el).map(el => {
+		return {
+			id: el.dataset.id,
+			value: el.value,
+		};
+	});
+
+	// call the handler, passing the onSuccess function
+	handler(async () => {
+		await nextTick();
+
+		// restore item name values
+		itemNameRefs.value.forEach((el) => {
+			const item = itemNames.find(item => item.id === el?.dataset.id);
+			if (el && item) {
+				el.value = item.value;
+			}
+		});
+	});
+}
+function addItem() {
+	changeAndRestoreItems(function(onSuccess) {
+		itemForm.post(`/moves/${props.move.id}/boxes/${props.box.id}/items/new`, {
+			onSuccess: onSuccess,
+		});
+	});
+}
+function deleteItem(itemId) {
+	changeAndRestoreItems(function(onSuccess) {
+		itemForm.delete(`/moves/${props.move.id}/boxes/${props.box.id}/items/${itemId}`, {
+			onSuccess: onSuccess,
+		});
+	});
+}
 
 // Watch for changes in items to focus last input and scroll
 let prevItemsLength = props.box?.items?.length || 0;
@@ -146,6 +188,7 @@ watch(
 			>
 				<Input
 					:id="`item-${item.id}-name`"
+					:data-id="item.id"
 					:key="item.id"
 					:name="`items[${item.id}][name]`"
 					label="Item Name/Description"
@@ -159,36 +202,25 @@ watch(
 						<span class="input-group-text bg-secondary-subtle">{{ index + 1 }}.</span>
 					</template>
 					<template #after>
-						<Form
-							:action="`/moves/${move.id}/boxes/${props.box.id}/items/${item.id}`"
-							method="delete"
-							class="d-inline m-0"
-							:id="`delete-item-form-${item.id}`"
-							:options="{ preserveScroll: true }"
-						/>
+						<form class="d-inline m-0" :id="`delete-item-form-${item.id}`" @submit.prevent="deleteItem(item.id)"></form>
 						<DeleteConfirmButton
 							:form="`delete-item-form-${item.id}`"
 							button-class="btn-outline-danger"
 							:id="`delete-item-${item.id}`"
+							:key="item.id"
 							:item-text="`item #${index + 1}`"
 						/>
 					</template>
 				</Input>
 			</li>
 			<li v-else class="list-group-item">No items in this box yet!</li>
-			<li class="list-group-item bg-secondary-subtle">
-				<Form
-					v-if="props.box"
-					:action="`/moves/${move.id}/boxes/${props.box.id}/items/new`"
-					method="post"
-					class="mb-0"
-					:options="{ preserveScroll: true }"
-				>
-					<button type="submit" class="btn btn-success">
+			<li v-if="props.box" class="list-group-item bg-secondary-subtle">
+				<form @submit.prevent="addItem" class="d-inline m-0">
+					<button type="submit" class="btn btn-success" :disabled="itemForm.processing">
 						<i class="bi bi-plus-circle"></i>
 						Add Item
 					</button>
-				</Form>
+				</form>
 			</li>
 		</ul>
 		<button type="submit" class="btn btn-primary">
