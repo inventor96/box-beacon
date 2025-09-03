@@ -1,4 +1,5 @@
 <script setup>
+import { router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import Modal from './Modal.vue';
 import QrCodeScanner from './QrCodeScanner.vue';
