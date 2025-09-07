@@ -20,6 +20,7 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property Room[]|ResultSet $rooms
  * @property Room[]|ResultSet $fromRooms
  * @property Room[]|ResultSet $toRooms
+ * @property Tag[]|ResultSet $tags
  * @property Time $created_at
  * @property Time $updated_at
  */
@@ -82,5 +83,10 @@ class Move extends ORM implements ValidatorSpecInterface
 	{
 		return $this->rooms()
 			->where('location', '=', RoomLocation::TO);
+	}
+
+	public function tags()
+	{
+		return $this->hasMany(Tag::class);
 	}
 }

@@ -20,6 +20,7 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property Room $fromRoom
  * @property Room $toRoom
  * @property Item[]|ResultSet $items
+ * @property Tag[]|ResultSet $tags
  * @property Time $created_at
  * @property Time $updated_at
  */
@@ -100,5 +101,10 @@ class Box extends ORM implements ValidatorSpecInterface
 	public function items()
 	{
 		return $this->hasMany(Item::class);
+	}
+
+	public function tags()
+	{
+		return $this->manyToMany(Tag::class);
 	}
 }

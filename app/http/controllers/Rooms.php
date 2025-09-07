@@ -82,7 +82,7 @@ class Rooms extends ControllerBase
 		}
 	}
 
-	public function deleteAction(Move $move, Room $room, int $move_id, int $id)
+	public function deleteAction(Room $room, int $move_id, int $id)
 	{
 		$r = $room->getInstanceOrThrow($id);
 		$this->authorize('delete', $r);

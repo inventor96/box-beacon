@@ -23,6 +23,7 @@ class NavLinks {
 			$this->nav->createFromRoute('Boxes', 'bi-box', 'boxes:home', ['move_id' => $this->user->active_move_id ?? 0]),
 			$this->nav->createFromRoute('Moves', 'bi-arrows-move', 'moves:home'),
 			$this->nav->createFromRoute('Rooms', 'bi-door-open', 'rooms:home', ['move_id' => $this->user->active_move_id ?? 0]),
+			$this->nav->createFromRoute('Tags', 'bi-tags', 'tags:home', ['move_id' => $this->user->active_move_id ?? 0]),
 		];
 
 		return $links;

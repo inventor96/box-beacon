@@ -5,11 +5,13 @@ use app\models\Item;
 use app\models\Move;
 use app\models\MoveInvite;
 use app\models\Room;
+use app\models\Tag;
 use app\policies\BoxPolicy;
 use app\policies\ItemPolicy;
 use app\policies\MoveInvitePolicy;
 use app\policies\MovePolicy;
 use app\policies\RoomPolicy;
+use app\policies\TagPolicy;
 
 return
 [
@@ -61,6 +63,7 @@ return
 		Item::class => ItemPolicy::class,
 		Room::class => RoomPolicy::class,
 		MoveInvite::class => MoveInvitePolicy::class,
+		Tag::class => TagPolicy::class,
 	],
 
 	/*
