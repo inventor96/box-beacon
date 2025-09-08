@@ -1,6 +1,7 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
+import CustomColorBadge from '@/Components/CustomColorBadge.vue';
 import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Input from '@/Components/Form/Input.vue';
 import Select from '@/Components/Form/Select.vue';
@@ -24,6 +25,11 @@ const props = defineProps({
 		type: Array,
 		required: true,
 	},
+	tags: {
+		type: Array,
+		required: false,
+		default: () => [],
+	}
 });
 
 const title = computed(() => (props.box ? 'Edit Box' : 'Add Box'));
@@ -132,18 +138,34 @@ watch(
 				{{ value.name }}
 			</option>
 		</Select>
-		<Switch
-			id="heavy"
-			label="Heavy"
-			:model-value="props.box?.heavy"
-			:error="errors.heavy"
-		/>
-		<Switch
-			id="fragile"
-			label="Fragile"
-			:model-value="props.box?.fragile"
-			:error="errors.fragile"
-		/>
+		<div class="card mb-3">
+			<div class="card-body">
+				<h5 class="card-title mb-3">Tags</h5>
+				<div v-if="tags.length" class="row mb-3 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+					<div v-for="tag in tags" class="col">
+						<Switch
+							:id="`tag-${tag.id}`"
+							name="tags[]"
+							:value="tag.id"
+							:key="tag.id"
+							:no-mb="true"
+							:model-value="props.box?.tags?.some(t => t.id === tag.id) ?? false"
+							:error="errors.tags && errors.tags[tag.id]"
+							inner-class="hstack gap-1 align-items-center"
+						>
+							<template #label>
+								<CustomColorBadge :color="tag.color" class="fs-6 form-check-label">{{ tag.name }}</CustomColorBadge>
+							</template>
+						</Switch>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col text-center text-muted">
+						Create and manage tags in the <Link :href="`/moves/${move.id}/tags`">Tags</Link> area.
+					</div>
+				</div>
+			</div>
+		</div>
 		<button type="submit" class="btn btn-primary">
 			<i class="bi bi-check-circle"></i>
 			{{ props.box ? 'Update Box' : 'Add Box' }}

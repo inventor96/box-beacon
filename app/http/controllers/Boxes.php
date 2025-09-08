@@ -5,6 +5,7 @@ use app\models\Box;
 use app\models\Item;
 use app\models\Move;
 use app\models\Room;
+use app\models\Tag;
 use app\traits\MoveSwitcherTrait;
 
 class Boxes extends ControllerBase
@@ -20,7 +21,7 @@ class Boxes extends ControllerBase
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move_id' => $move_id,
 			'moves' => $this->getUser()->moves()->all(),
-			'boxes' => $m->boxes()->including(['fromRoom', 'toRoom', 'items'])->all(),
+			'boxes' => $m->boxes()->including(['fromRoom', 'toRoom', 'items', 'tags'])->all(),
 		]);
 	}
 
@@ -51,17 +52,18 @@ class Boxes extends ControllerBase
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
-		$b = $id === 'new' ? null : $box->where('id', '=', $id)->including(['items'])->firstOrThrow();
+		$b = $id === 'new' ? null : $box->where('id', '=', $id)->including(['items', 'tags'])->firstOrThrow();
 		$this->authorize('edit', $b ?? $m);
 		return $this->view->render('Pages/Boxes/Edit', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move' => $m,
 			'rooms' => $m->rooms()->all(),
+			'tags' => $m->tags()->all(),
 			'box' => $b,
 		]);
 	}
 
-	public function editAction(Move $move, Box $box, Room $room, Item $item, int $move_id, int|string $id)
+	public function editAction(Move $move, Box $box, Room $room, Item $item, Tag $tag, int $move_id, int|string $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
 
@@ -73,6 +75,8 @@ class Boxes extends ControllerBase
 		$post = $this->getValidatedInput([
 			...$box->getValidatorSpec(),
 			...$item_rules,
+			'tags' => ['array'],
+			'tags.*' => ['numeric:int'],
 		]);
 
 		// ensure they can view the rooms
@@ -88,6 +92,7 @@ class Boxes extends ControllerBase
 			$this->authorize('edit', $m);
 			$box->requireAndAssign($post);
 			$b = $m->boxes()->create($box);
+			$this->linkTags($tag, $b, $post['tags'] ?? []);
 			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box added successfully.');
 			return $this->safeRedirectResponse('boxes:edit', ['move_id' => $move_id, 'id' => $b->id]);
@@ -96,6 +101,7 @@ class Boxes extends ControllerBase
 			$this->authorize('edit', $b);
 			$record = $b->requireAndAssign($post);
 			$record->save();
+			$this->linkTags($tag, $b, $post['tags'] ?? []);
 			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box updated successfully.');
 			return $this->safeRedirectResponse('boxes:home', ['move_id' => $move_id]);
@@ -108,6 +114,19 @@ class Boxes extends ControllerBase
 			$i = $item->getInstanceOrThrow($id);
 			$this->authorize('edit', $i);
 			$i->requireAndAssign($post)->save();
+		}
+	}
+
+	protected function linkTags(Tag $tag, Box $record, array $tag_ids): void
+	{
+		// remove existing tags
+		$record->tags()->unlink();
+
+		// (re-)add tags
+		foreach ($tag_ids as $id) {
+			$t = $tag->getInstanceOrThrow($id);
+			$this->authorize('view', $t);
+			$record->tags()->link($t);
 		}
 	}
 

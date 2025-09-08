@@ -4,7 +4,7 @@ namespace app\migrations;
 
 use mako\database\migrations\Migration;
 
-class Migration_20250907165826 extends Migration
+class Migration_20250907230725 extends Migration
 {
 	/**
 	 * Description.
@@ -18,13 +18,9 @@ class Migration_20250907165826 extends Migration
 	{
 		$this->getConnection()->query
 		(<<<SQL
-		CREATE TABLE `boxes_tags` (
-			`box_id` int(11) unsigned NOT NULL,
-			`tag_id` int(11) unsigned NOT NULL,
-			PRIMARY KEY (`box_id`, `tag_id`),
-			FOREIGN KEY (`box_id`) REFERENCES `boxes`(`id`) ON DELETE CASCADE,
-			FOREIGN KEY (`tag_id`) REFERENCES `tags`(`id`) ON DELETE CASCADE
-		);
+		ALTER TABLE `boxes`
+			DROP COLUMN `heavy`,
+			DROP COLUMN `fragile`;
 		SQL);
 	}
 
@@ -35,7 +31,9 @@ class Migration_20250907165826 extends Migration
 	{
 		$this->getConnection()->query
 		(<<<SQL
-		DROP TABLE IF EXISTS `boxes_tags`;
+		ALTER TABLE `boxes`
+			ADD COLUMN `heavy` tinyint(1) NOT NULL DEFAULT 0,
+			ADD COLUMN `fragile` tinyint(1) NOT NULL DEFAULT 0;
 		SQL);
 	}
 }

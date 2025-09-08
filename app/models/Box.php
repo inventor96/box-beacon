@@ -15,8 +15,6 @@ use mako\database\midgard\traits\TimestampedTrait;
  * @property int $id
  * @property Move $move
  * @property-read int $number
- * @property bool $heavy
- * @property bool $fragile
  * @property Room $fromRoom
  * @property Room $toRoom
  * @property Item[]|ResultSet $items
@@ -33,13 +31,9 @@ class Box extends ORM implements ValidatorSpecInterface
 	use NullableTrait;
 
 	protected array $cast = [
-		'heavy' => 'bool',
-		'fragile' => 'bool',
 	];
 
 	protected array $assignable = [
-		'heavy',
-		'fragile',
 		'from_room_id',
 		'to_room_id',
 	];
@@ -56,8 +50,6 @@ class Box extends ORM implements ValidatorSpecInterface
 	{
 		return [
 			//'number' => ['required', 'integer'],
-			'heavy' => ['required', 'boolean'],
-			'fragile' => ['required', 'boolean'],
 			'from_room_id' => ['optional', 'exists("rooms", "id")'],
 			'to_room_id' => ['optional', 'exists("rooms", "id")'],
 		];

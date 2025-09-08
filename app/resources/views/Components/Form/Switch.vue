@@ -14,10 +14,15 @@ const props = defineProps({
 		required: false,
 		default: '',
 	},
-	modelValue: {
+	modelValue: { // for true/false setups
 		type: Boolean,
 		required: false,
 		default: false,
+	},
+	value: { // for array element setups
+		type: [String, Number],
+		required: false,
+		default: null,
 	},
 	error: {
 		type: String,
@@ -28,7 +33,12 @@ const props = defineProps({
 		type: Boolean,
 		required: false,
 		default: false,
-	}
+	},
+	innerClass: {
+		type: String,
+		required: false,
+		default: '',
+	},
 });
 
 const emit = defineEmits(['update:modelValue']);
@@ -40,8 +50,9 @@ function onChange(event) {
 
 <template>
 	<div :class="{'mb-3': !props.noMb}">
-		<div class="form-check form-switch">
+		<div class="form-check form-switch" :class="props.innerClass">
 			<input
+				v-if="props.value === null"
 				:id="props.id + '_hidden'"
 				:name="props.name ?? props.id"
 				type="hidden"
@@ -51,12 +62,13 @@ function onChange(event) {
 				:id="props.id"
 				:name="props.name ?? props.id"
 				type="checkbox"
-				value="1"
+				:value="props.value ?? 1"
 				class="form-check-input"
 				:class="{'is-invalid': props.error}"
 				:checked="props.modelValue"
 				@change="onChange"
 			/>
+			<slot name="label" />
 			<label v-if="props.label" :for="props.id" class="form-check-label">{{ props.label }}</label>
 		</div>
 		<div v-if="props.error" class="invalid-feedback d-block">
