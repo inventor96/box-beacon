@@ -10,6 +10,7 @@ use app\http\controllers\Items;
 use app\http\controllers\Moves;
 use app\http\controllers\Printing;
 use app\http\controllers\Rooms;
+use app\http\controllers\Tags;
 use app\http\routing\middleware\RequireAuth;
 use mako\http\routing\Routes;
 
@@ -117,5 +118,18 @@ $routes->group([
 			'id' => '\d+|new'
 		]);
 	$routes->delete('/moves/{move_id}/rooms/{id}', [Rooms::class, 'deleteAction'], 'rooms:deleteAction');
+	#endregion
+
+	#region tags
+	$routes->get('/moves/{move_id}/tags', [Tags::class, 'home'], 'tags:home');
+	$routes->get('/moves/{move_id}/tags/{id}', [Tags::class, 'edit'], 'tags:edit')
+		->patterns([
+			'id' => '\d+|new'
+		]);
+	$routes->post('/moves/{move_id}/tags/{id}', [Tags::class, 'editAction'], 'tags:editAction')
+		->patterns([
+			'id' => '\d+|new'
+		]);
+	$routes->delete('/moves/{move_id}/tags/{id}', [Tags::class, 'deleteAction'], 'tags:deleteAction');
 	#endregion
 });

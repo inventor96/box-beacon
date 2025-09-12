@@ -1,6 +1,7 @@
 <script setup>
 import BoxNumber from '@/Components/BoxNumber.vue';
 import ColorSquare from '@/Components/ColorSquare.vue';
+import CustomColorBadge from '@/Components/CustomColorBadge.vue';
 import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import Modal from '@/Components/Modal.vue';
@@ -148,14 +149,24 @@ function itemsText(items) {
 					</span>
 					<span v-else class="text-muted">No items</span>
 					<div class="d-flex d-md-none gap-1 flex-wrap mt-1">
-						<span v-if="box.heavy" class="badge bg-secondary">Heavy</span>
-						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
+						<CustomColorBadge
+							v-for="tag in box.tags"
+							:key="tag.id"
+							:color="tag.color"
+						>
+							{{ tag.name }}
+						</CustomColorBadge>
 					</div>
 				</td>
 				<td class="d-none d-md-table-cell">
 					<div class="d-flex gap-1 flex-wrap">
-						<span v-if="box.heavy" class="badge bg-secondary">Heavy</span>
-						<span v-if="box.fragile" class="badge bg-secondary">Fragile</span>
+						<CustomColorBadge
+							v-for="tag in box.tags"
+							:key="tag.id"
+							:color="tag.color"
+						>
+							{{ tag.name }}
+						</CustomColorBadge>
 					</div>
 				</td>
 				<td class="d-none d-lg-table-cell">
