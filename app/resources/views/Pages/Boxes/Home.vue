@@ -6,6 +6,7 @@ import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import Modal from '@/Components/Modal.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
+import Pager from '@/Components/Pager.vue';
 import QrScanModal from '@/Components/QrScanModal.vue';
 import { Form, Link, router, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
@@ -14,7 +15,7 @@ const props = defineProps({
 	active_move_id: Number,
 	move_id: Number,
 	moves: Array,
-	boxes: Array,
+	boxes: Object, // paginated
 });
 
 const batchForm = useForm({
@@ -44,7 +45,7 @@ function toggleBoxSelection(boxId, event) {
 function toggleAllBoxes(event) {
 	const checked = event.target.checked;
 	if (checked) {
-		selectedBoxes.value = props.boxes.map(box => box.id);
+		selectedBoxes.value = props.boxes.data.map(box => box.id);
 	} else {
 		selectedBoxes.value = [];
 	}
@@ -130,7 +131,7 @@ function itemsText(items) {
 			</tr>
 		</thead>
 		<tbody>
-			<tr v-if="boxes.length" v-for="box in boxes" :key="box.id" class="align-middle">
+			<tr v-if="props.boxes.data.length" v-for="box in props.boxes.data" :key="box.id" class="align-middle">
 				<td>
 					<input
 						type="checkbox"
@@ -202,6 +203,7 @@ function itemsText(items) {
 			</tr>
 		</tbody>
 	</table>
+	<Pager :pagination="props.boxes.pagination" />
 
 	<Modal
 		id="add-boxes"
