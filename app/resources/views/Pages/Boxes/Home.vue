@@ -113,8 +113,8 @@ function itemsText(items) {
 					<input
 						type="checkbox"
 						class="form-check-input"
-						:indeterminate="selectedBoxes.length > 0 && selectedBoxes.length < boxes.length"
-						:checked="boxes.length > 0 && selectedBoxes.length === boxes.length"
+						:indeterminate="selectedBoxes.length > 0 && selectedBoxes.length < boxes.data.length"
+						:checked="boxes.data.length > 0 && selectedBoxes.length === boxes.data.length"
 						@change="toggleAllBoxes($event)"
 					/>
 				</th>
