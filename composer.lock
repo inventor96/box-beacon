@@ -63,16 +63,16 @@
         },
         {
             "name": "inventor96/inertia-mako",
-            "version": "v1.4.1",
+            "version": "v1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/inventor96/inertia-mako.git",
-                "reference": "e484b5f8ad4729538bbfc9b4b53d355a37858eb7"
+                "reference": "d65be39c77f02df5ad154eb66e99e1573774a1c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/inventor96/inertia-mako/zipball/e484b5f8ad4729538bbfc9b4b53d355a37858eb7",
-                "reference": "e484b5f8ad4729538bbfc9b4b53d355a37858eb7",
+                "url": "https://api.github.com/repos/inventor96/inertia-mako/zipball/d65be39c77f02df5ad154eb66e99e1573774a1c3",
+                "reference": "d65be39c77f02df5ad154eb66e99e1573774a1c3",
                 "shasum": ""
             },
             "require": {
@@ -105,9 +105,9 @@
             ],
             "support": {
                 "issues": "https://github.com/inventor96/inertia-mako/issues",
-                "source": "https://github.com/inventor96/inertia-mako/tree/v1.4.1"
+                "source": "https://github.com/inventor96/inertia-mako/tree/v1.4.2"
             },
-            "time": "2025-08-27T23:00:55+00:00"
+            "time": "2025-09-15T08:48:22+00:00"
         },
         {
             "name": "mako/framework",
