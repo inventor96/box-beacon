@@ -59,6 +59,15 @@ $enable-negative-margins: true;
 $bootstrap-icons-font-dir: "/assets/fonts";
 @import "bootstrap-icons/font/bootstrap-icons";
 
+// inherit line-height utilities from $utilities map for bootstrap icons
+@each $lh-key, $lh-value in map-get($utilities, "line-height", "values") {
+	.lh-#{$lh-key}.bi::before,
+	.lh-#{$lh-key}[class^="bi-"]::before,
+	.lh-#{$lh-key}[class*=" bi-"]::before {
+		line-height: #{$lh-value} !important;
+	}
+}
+
 // custom styles
 .border-dashed {
 	border-style: dashed !important;

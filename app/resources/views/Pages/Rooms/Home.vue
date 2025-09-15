@@ -30,11 +30,6 @@ const props = defineProps({
 	},
 });
 
-// move switcher
-const activeMoveId = ref(props.active_move_id);
-const moveId = ref(props.move_id);
-watch(moveId, (newVal) => router.get(`/moves/${newVal}/rooms`), { immediate: false });
-
 // separate lists
 const fromRooms = computed(() => props.rooms.filter((room) => room.location === 'from'));
 const toRooms = computed(() => props.rooms.filter((room) => room.location === 'to'));
@@ -49,12 +44,13 @@ const location = ref(props.location);
 	<p>View and manage your rooms.</p>
 
 	<MoveSwitcher
+		path="/rooms"
 		:moves="props.moves"
-		v-model:activeMoveId="activeMoveId"
-		v-model:moveId="moveId"
+		:activeMoveId="props.active_move_id"
+		:moveId="props.move_id"
 	/>
 
-	<Link :href="`/moves/${moveId}/rooms/new?location=${location}`" class="btn btn-success mb-2">
+	<Link :href="`/moves/${props.move_id}/rooms/new?location=${location}`" class="btn btn-success mb-2">
 		<i class="bi bi-plus-circle"></i>
 		Add Room
 	</Link>
@@ -113,11 +109,11 @@ const location = ref(props.location);
 						<td>{{ room.name }}</td>
 						<td>
 							<div class="hstack gap-1 justify-content-end">
-								<Link :href="`/moves/${moveId}/rooms/${room.id}`" class="btn btn-secondary">
+								<Link :href="`/moves/${props.move_id}/rooms/${room.id}`" class="btn btn-secondary">
 									<i class="bi bi-eye"></i>
 									<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 								</Link>
-								<Form :action="`/moves/${moveId}/rooms/${room.id}`" method="delete" class="m-0" #default="{ processing }">
+								<Form :action="`/moves/${props.move_id}/rooms/${room.id}`" method="delete" class="m-0" #default="{ processing }">
 									<DeleteConfirmButton
 										:id="`delete-room-${room.id}`"
 										:item-text="`the '${room.name}' room`"

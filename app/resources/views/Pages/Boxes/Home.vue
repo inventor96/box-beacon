@@ -22,11 +22,6 @@ const batchForm = useForm({
 	pages: 1,
 });
 
-// move switcher
-const activeMoveId = ref(props.active_move_id);
-const moveId = ref(props.move_id);
-watch(moveId, (newVal) => router.get(`/moves/${newVal}/boxes`), { immediate: false });
-
 // track selected boxes
 const selectedBoxes = ref([]);
 
@@ -76,9 +71,10 @@ function itemsText(items) {
 	<p>View and manage your boxes.</p>
 
 	<MoveSwitcher
+		path="/boxes"
 		:moves="props.moves"
-		v-model:activeMoveId="activeMoveId"
-		v-model:moveId="moveId"
+		:activeMoveId="props.active_move_id"
+		:moveId="props.move_id"
 	/>
 
 	<div class="d-flex justify-content-between mb-2">
@@ -91,7 +87,7 @@ function itemsText(items) {
 				<li><button type="button" class="dropdown-item" @click="printSelectedBoxes" :disabled="!selectedBoxes.length">Print Labels for Selected Boxes</button></li>
 			</ul>
 		</div>
-		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${moveId}`">
+		<button type="button" class="btn btn-primary" data-bs-toggle="modal" :data-bs-target="`#qr-scan-modal-${props.move_id}`">
 			<i class="bi bi-qr-code-scan"></i>
 			Scan
 		</button>
@@ -103,7 +99,7 @@ function itemsText(items) {
 			<ul class="dropdown-menu dropdown-menu-end">
 				<li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#add-boxes">Add Multiple Boxes w/ Labels</button></li>
 				<li>
-					<Form :action="`/moves/${moveId}/boxes/new`" method="post" class="d-inline m-0">
+					<Form :action="`/moves/${props.move_id}/boxes/new`" method="post" class="d-inline m-0">
 						<button type="submit" class="dropdown-item">Add a Single Box</button>
 					</Form>
 				</li>
@@ -117,8 +113,8 @@ function itemsText(items) {
 					<input
 						type="checkbox"
 						class="form-check-input"
-						:indeterminate="selectedBoxes.length > 0 && selectedBoxes.length < boxes.length"
-						:checked="boxes.length > 0 && selectedBoxes.length === boxes.length"
+						:indeterminate="selectedBoxes.length > 0 && selectedBoxes.length < boxes.data.length"
+						:checked="boxes.data.length > 0 && selectedBoxes.length === boxes.data.length"
 						@change="toggleAllBoxes($event)"
 					/>
 				</th>
@@ -184,11 +180,11 @@ function itemsText(items) {
 				</td>
 				<td>
 					<div class="hstack gap-1 justify-content-end">
-						<Link :href="`/moves/${moveId}/boxes/${box.id}`" class="btn btn-secondary">
+						<Link :href="`/moves/${props.move_id}/boxes/${box.id}`" class="btn btn-secondary">
 							<i class="bi bi-eye"></i>
 							<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 						</Link>
-						<Form :action="`/moves/${moveId}/boxes/${box.id}`" method="delete" class="m-0" #default="{ processing }">
+						<Form :action="`/moves/${props.move_id}/boxes/${box.id}`" method="delete" class="m-0" #default="{ processing }">
 							<DeleteConfirmButton
 								:id="`delete-box-${box.id}`"
 								:item-text="`box #${box.number}`"
@@ -211,7 +207,7 @@ function itemsText(items) {
 		closeText="Cancel"
 		confirmText=""
 	>
-		<form id="pages-form" @submit.prevent="batchForm.post(`/moves/${moveId}/boxes/batch`)">
+		<form id="pages-form" @submit.prevent="batchForm.post(`/moves/${props.move_id}/boxes/batch`)">
 			<p>There are six (6) labels per page, and a box will be created for each label.</p>
 			<label for="pages" class="form-label">How many pages do you need?</label>
 			<input type="range" class="form-range" min="1" max="20" v-model="batchForm.pages" id="pages" name="pages" />
@@ -230,7 +226,7 @@ function itemsText(items) {
 	</Modal>
 
 	<QrScanModal
-		:id="`qr-scan-modal-${moveId}`"
-		:moveId="moveId"
+		:id="`qr-scan-modal-${props.move_id}`"
+		:moveId="props.move_id"
 	/>
 </template>
