@@ -24,11 +24,6 @@ const props = defineProps({
 		required: true,
 	},
 });
-
-// move switcher
-const activeMoveId = ref(props.active_move_id);
-const moveId = ref(props.move_id);
-watch(moveId, (newVal) => router.get(`/moves/${newVal}/tags`), { immediate: false });
 </script>
 
 <template>
@@ -38,12 +33,13 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/tags`), { immediate: fals
 	<p>View and manage your tags.</p>
 
 	<MoveSwitcher
+		path="/tags"
 		:moves="props.moves"
-		v-model:activeMoveId="activeMoveId"
-		v-model:moveId="moveId"
+		:activeMoveId="props.active_move_id"
+		:moveId="props.move_id"
 	/>
 
-	<Link :href="`/moves/${moveId}/tags/new`" class="btn btn-success mb-2">
+	<Link :href="`/moves/${props.move_id}/tags/new`" class="btn btn-success mb-2">
 		<i class="bi bi-plus-circle"></i>
 		Add Tag
 	</Link>
@@ -69,11 +65,11 @@ watch(moveId, (newVal) => router.get(`/moves/${newVal}/tags`), { immediate: fals
 				<td>{{ tag.name }}</td>
 				<td>
 					<div class="hstack gap-1 justify-content-end">
-						<Link :href="`/moves/${moveId}/tags/${tag.id}`" class="btn btn-secondary">
+						<Link :href="`/moves/${props.move_id}/tags/${tag.id}`" class="btn btn-secondary">
 							<i class="bi bi-eye"></i>
 							<span class="d-none d-md-inline-block ms-1">View/Edit</span>
 						</Link>
-						<Form :action="`/moves/${moveId}/tags/${tag.id}`" method="delete" class="m-0" #default="{ processing }">
+						<Form :action="`/moves/${props.move_id}/tags/${tag.id}`" method="delete" class="m-0" #default="{ processing }">
 							<DeleteConfirmButton
 								:id="`delete-tag-${tag.id}`"
 								:item-text="`the '${tag.name}' tag`"

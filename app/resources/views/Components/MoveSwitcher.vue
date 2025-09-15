@@ -1,8 +1,12 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3';
-import { ref, watchEffect } from 'vue';
+import { router, useForm } from '@inertiajs/vue3';
+import { ref, watch, watchEffect } from 'vue';
 
 const props = defineProps({
+	path: {
+		type: String,
+		required: true,
+	},
 	moves: {
 		type: Array,
 		required: true,
@@ -31,7 +35,9 @@ const emit = defineEmits([
 	'update:activeMoveId',
 ]);
 
+// update stuff when changed
 watchEffect(() => emit('update:moveId', moveId.value));
+watch(moveId, (newVal) => router.get(`/moves/${newVal}${props.path}`), { immediate: false });
 
 function setActiveMove() {
 	form.post(`/moves/${moveId.value}/set-active`, {
