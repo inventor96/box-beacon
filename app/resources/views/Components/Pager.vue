@@ -9,6 +9,11 @@ const props = defineProps({
 		required: false,
 		default: false,
 	},
+	maxSidePages: {
+		type: Number,
+		required: false,
+		default: 3,
+	},
 });
 
 const firstRecordNumber = computed(() => {
@@ -23,6 +28,20 @@ const lastRecordNumber = computed(() => {
 		return 0;
 	}
 	return Math.min(props.pagination.current_page * props.pagination.items_per_page, props.pagination.items);
+});
+
+// Compute page numbers to show
+const pageNumbers = computed(() => {
+	const total = props.pagination.number_of_pages;
+	const current = props.pagination.current_page;
+	const side = props.maxSidePages;
+	const start = Math.max(current - side, 1);
+	const end = Math.min(current + side, total);
+	const pages = [];
+	for (let i = start; i <= end; i++) {
+		pages.push(i);
+	}
+	return pages;
 });
 </script>
 
@@ -41,7 +60,12 @@ const lastRecordNumber = computed(() => {
 						<span aria-hidden="true"><i class="bi lh-base bi-chevron-left"></i></span>
 					</Link>
 				</li>
-				<li class="page-item" :class="{ active: page === props.pagination.current_page }" v-for="page in Array.from({ length: props.pagination.number_of_pages }, (_, i) => i + 1)" :key="page">
+				<li
+					class="page-item"
+					:class="{ active: page === props.pagination.current_page }"
+					v-for="page in pageNumbers"
+					:key="page"
+				>
 					<Link class="page-link" :href="`?page=${page}`">
 						{{ page }}
 					</Link>
