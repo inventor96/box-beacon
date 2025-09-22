@@ -77,7 +77,7 @@ $routes->group([
 	#endregion
 	
 	#region items
-	$routes->get('/moves/{move_id}/boxes/{box_id}/items', [Items::class, 'home'], 'items:home');
+	$routes->get('/moves/{move_id}/items', [Items::class, 'home'], 'items:home');
 	$routes->post('/moves/{move_id}/boxes/{box_id}/items/new', [Items::class, 'newAction'], 'items:newAction');
 	$routes->get('/moves/{move_id}/boxes/{box_id}/items/{id}', [Items::class, 'edit'], 'items:edit');
 	$routes->post('/moves/{move_id}/boxes/{box_id}/items/{id}', [Items::class, 'editAction'], 'items:editAction');

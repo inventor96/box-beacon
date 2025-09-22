@@ -10,16 +10,20 @@ class Items extends ControllerBase
 {
 	use MoveSwitcherTrait;
 
-	public function home(Move $move, Box $box, int $move_id, int $box_id)
+	public function home(Move $move, Item $item, int $move_id)
 	{
 		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
 
-		$m = $move->getInstanceOrThrow($move_id);
-		$b = $box->getInstanceOrThrow($box_id);
-		$this->authorize('view', $b);
 		return $this->view->render('Pages/Items/Home', [
 			'active_move_id' => $this->getUser()->active_move_id,
-			'items' => $b->items()->all(),
+			'move_id' => $move_id,
+			'moves' => $this->getUser()->moves()->all(),
+			'items' => $item->including('box')
+				->join('boxes', 'boxes.id', '=', 'items.box_id')
+				->where('boxes.move_id', '=', $move_id)
+				->where('items.name', '!=', '')
+				->orderBy('items.name')
+				->paginate(),
 		]);
 	}
 
