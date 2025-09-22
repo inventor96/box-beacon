@@ -9,7 +9,7 @@ import Switch from '@/Components/Form/Switch.vue';
 import Head from '@/Components/Head.vue';
 import QrScanModal from '@/Components/QrScanModal.vue';
 import { Form, Link } from '@inertiajs/vue3';
-import { computed, ref, watch, nextTick } from 'vue';
+import { computed, ref, watch, nextTick, capitalize } from 'vue';
 
 const props = defineProps({
 	move: {
@@ -29,7 +29,12 @@ const props = defineProps({
 		type: Array,
 		required: false,
 		default: () => [],
-	}
+	},
+	source: {
+		type: String,
+		required: false,
+		default: 'boxes',
+	},
 });
 
 const title = computed(() => (props.box ? 'Edit Box' : 'Add Box'));
@@ -83,7 +88,7 @@ watch(
 <template>
 	<Head :title="title" />
 
-	<Link :href="`/moves/${move.id}/boxes`" class="mb-3">&lt; Back to Boxes</Link>
+	<Link :href="`/moves/${move.id}/${props.source}`" class="mb-3">&lt; Back to {{ capitalize(props.source) }}</Link>
 	<h1>{{ title }}</h1>
 	<div class="d-flex justify-content-between mb-3">
 		<Link :href="`/print/${props.box.id}`" class="btn btn-secondary">
@@ -96,7 +101,7 @@ watch(
 		</button>
 	</div>
 	<Form
-		:action="`/moves/${move.id}/boxes/${props.box ? props.box.id : 'new'}`"
+		:action="`/moves/${move.id}/boxes/${props.box ? props.box.id : 'new'}?source=${props.source}`"
 		method="post"
 		#default="{ errors }"
 	>

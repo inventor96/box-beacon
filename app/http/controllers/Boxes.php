@@ -7,6 +7,7 @@ use app\models\Move;
 use app\models\Room;
 use app\models\Tag;
 use app\traits\MoveSwitcherTrait;
+use mako\http\routing\URLBuilder;
 
 class Boxes extends ControllerBase
 {
@@ -51,6 +52,11 @@ class Boxes extends ControllerBase
 
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
+		// get source
+		$ref_url = $this->request->getReferrer('boxes:home');
+		$suffix = substr($ref_url, strrpos($ref_url, "/") + 1);
+		$source = in_array($suffix, ['boxes', 'items']) ? $suffix : 'boxes';
+
 		$m = $move->getInstanceOrThrow($move_id);
 		$b = $id === 'new' ? null : $box->where('id', '=', $id)->including(['items', 'tags'])->firstOrThrow();
 		$this->authorize('edit', $b ?? $m);
@@ -60,6 +66,7 @@ class Boxes extends ControllerBase
 			'rooms' => $m->rooms()->all(),
 			'tags' => $m->tags()->all(),
 			'box' => $b,
+			'source' => $source,
 		]);
 	}
 
@@ -104,7 +111,14 @@ class Boxes extends ControllerBase
 			$this->linkTags($tag, $b, $post['tags'] ?? []);
 			$this->assignItems($item, $post['items'] ?? []);
 			$this->session->putFlash('success', 'Box updated successfully.');
-			return $this->safeRedirectResponse('boxes:home', ['move_id' => $move_id]);
+
+			// determine original source
+			$source = $this->request->getQuery()->get('source', 'boxes');
+			if (!in_array($source, ['boxes', 'items'])) {
+				$source = 'boxes';
+			}
+
+			return $this->safeRedirectResponse($source . ':home', ['move_id' => $move_id]);
 		}
 	}
 

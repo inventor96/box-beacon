@@ -20,7 +20,8 @@ class NavLinks {
 
 		// logged in
 		$links = [
-			$this->nav->createFromRoute('Boxes', 'bi-box', 'boxes:home', ['move_id' => $this->user->active_move_id ?? 0]),
+			$this->nav->createFromRoute('Boxes', 'bi-boxes', 'boxes:home', ['move_id' => $this->user->active_move_id ?? 0]),
+			$this->nav->createFromRoute('Items', 'bi-list-task', 'items:home', ['move_id' => $this->user->active_move_id ?? 0]),
 			$this->nav->createFromRoute('Moves', 'bi-arrows-move', 'moves:home'),
 			$this->nav->createFromRoute('Rooms', 'bi-door-open', 'rooms:home', ['move_id' => $this->user->active_move_id ?? 0]),
 			$this->nav->createFromRoute('Tags', 'bi-tags', 'tags:home', ['move_id' => $this->user->active_move_id ?? 0]),
