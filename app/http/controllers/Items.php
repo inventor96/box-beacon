@@ -14,16 +14,24 @@ class Items extends ControllerBase
 	{
 		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
 
+		// query
+		$items_query = $item->including('box')
+			->join('boxes', 'boxes.id', '=', 'items.box_id')
+			->where('boxes.move_id', '=', $move_id)
+			->where('items.name', '!=', '')
+			->orderBy('items.name');
+
+		// handle item searching
+		if ($q = $this->request->getQuery()->get('q')) {
+			$items_query = $items_query->whereRaw('MATCH(items.name) AGAINST(? WITH QUERY EXPANSION)', [$q]);
+		}
+
 		return $this->view->render('Pages/Items/Home', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move_id' => $move_id,
 			'moves' => $this->getUser()->moves()->all(),
-			'items' => $item->including('box')
-				->join('boxes', 'boxes.id', '=', 'items.box_id')
-				->where('boxes.move_id', '=', $move_id)
-				->where('items.name', '!=', '')
-				->orderBy('items.name')
-				->paginate(),
+			'items' => $items_query->paginate(),
+			'q' => $q,
 		]);
 	}
 

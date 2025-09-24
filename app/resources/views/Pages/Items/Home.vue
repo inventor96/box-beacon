@@ -23,6 +23,10 @@ const props = defineProps({
 		type: Object, // paginated
 		required: true,
 	},
+	q: {
+		type: String,
+		required: false,
+	},
 });
 </script>
 
@@ -30,7 +34,6 @@ const props = defineProps({
 	<Head title="Items" />
 
 	<h1>Items</h1>
-	<p>View and manage your items.</p>
 
 	<MoveSwitcher
 		path="/items"
@@ -39,6 +42,15 @@ const props = defineProps({
 		:moveId="props.move_id"
 	/>
 
+	<hr>
+	<Form :action="`/moves/${props.move_id}/items`" method="get">
+		<div class="input-group mb-3">
+			<span class="input-group-text bg-secondary-subtle"><i class="bi bi-search"></i></span>
+			<input type="text" class="form-control" placeholder="Search items..." name="q" v-model="props.q" />
+			<button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
+			<Link :href="`/moves/${props.move_id}/items`" v-if="props.q" class="btn btn-outline-warning"><i class="bi bi-x-circle"></i> Clear</Link>
+		</div>
+	</Form>
 	<table class="table table-striped table-hover">
 		<thead>
 			<tr>
@@ -75,7 +87,8 @@ const props = defineProps({
 				</td>
 			</tr>
 			<tr v-else>
-				<td colspan="3" class="text-center">No items yet! Add some to a <Link :href="`/moves/${props.move_id}/boxes`">box</Link>.</td>
+				<td v-if="props.q" colspan="3" class="text-center">No items match your search.</td>
+				<td v-else colspan="3" class="text-center">No items yet! Add some to a <Link :href="`/moves/${props.move_id}/boxes`">box</Link>.</td>
 			</tr>
 		</tbody>
 	</table>

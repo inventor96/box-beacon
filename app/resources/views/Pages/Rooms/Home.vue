@@ -3,8 +3,8 @@ import ColorSquare from '@/Components/ColorSquare.vue';
 import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
-import { Form, Link, router } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { Form, Link } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
 	active_move_id: {
@@ -41,7 +41,6 @@ const location = ref(props.location);
 	<Head title="Rooms" />
 
 	<h1>Rooms</h1>
-	<p>View and manage your rooms.</p>
 
 	<MoveSwitcher
 		path="/rooms"
