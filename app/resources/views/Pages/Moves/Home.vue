@@ -13,7 +13,6 @@ const props = defineProps({
 	<Head title="Moves" />
 
 	<h1>Moves</h1>
-	<p>View and manage your moves.</p>
 
 	<Link href="/moves/new" class="btn btn-success mb-3">
 		<i class="bi bi-plus-circle"></i>

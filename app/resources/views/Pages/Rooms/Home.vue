@@ -41,7 +41,6 @@ const location = ref(props.location);
 	<Head title="Rooms" />
 
 	<h1>Rooms</h1>
-	<p>View and manage your rooms.</p>
 
 	<MoveSwitcher
 		path="/rooms"

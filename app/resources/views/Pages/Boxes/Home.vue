@@ -68,7 +68,6 @@ function itemsText(items) {
 	<Head title="Boxes" />
 
 	<h1>Boxes</h1>
-	<p>View and manage your boxes.</p>
 
 	<MoveSwitcher
 		path="/boxes"

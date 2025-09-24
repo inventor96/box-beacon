@@ -30,7 +30,6 @@ const props = defineProps({
 	<Head title="Tags" />
 
 	<h1>Tags</h1>
-	<p>View and manage your tags.</p>
 
 	<MoveSwitcher
 		path="/tags"

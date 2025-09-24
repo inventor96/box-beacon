@@ -34,7 +34,6 @@ const props = defineProps({
 	<Head title="Items" />
 
 	<h1>Items</h1>
-	<p>View and manage your items.</p>
 
 	<MoveSwitcher
 		path="/items"

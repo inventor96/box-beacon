@@ -21,7 +21,6 @@ const props = defineProps({
 	<Head title="Account" />
 
 	<h1>Account</h1>
-	<p>Manage your account settings and preferences.</p>
 	<Form
 		:action="`/account`"
 		method="put"
