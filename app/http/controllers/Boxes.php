@@ -7,7 +7,6 @@ use app\models\Move;
 use app\models\Room;
 use app\models\Tag;
 use app\traits\MoveSwitcherTrait;
-use mako\http\routing\URLBuilder;
 
 class Boxes extends ControllerBase
 {
@@ -17,12 +16,38 @@ class Boxes extends ControllerBase
 	{
 		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
 
+		// query
+		$boxes_query = $m->boxes()->including(['fromRoom', 'toRoom', 'items', 'tags']);
+
+		// filters
+		$q = $this->request->getQuery();
+		$filters = [];
+		if ($tags = $q->get('tags')) {
+			$boxes_query
+				->join('boxes_tags', 'boxes_tags.box_id', '=', 'boxes.id', 'INNER JOIN')
+				->in('boxes_tags.tag_id', $tags)
+				->groupBy('boxes.id')
+				->havingRaw('COUNT(DISTINCT boxes_tags.tag_id)', '=', count($tags));
+			$filters['tags'] = $tags;
+		}
+		if ($from_rooms = $q->get('from_rooms')) {
+			$boxes_query->in('from_room_id', $from_rooms);
+			$filters['from_rooms'] = $from_rooms;
+		}
+		if ($to_rooms = $q->get('to_rooms')) {
+			$boxes_query->in('to_room_id', $to_rooms);
+			$filters['to_rooms'] = $to_rooms;
+		}
+
 		// render the page
 		return $this->view->render('Pages/Boxes/Home', [
 			'active_move_id' => $this->getUser()->active_move_id,
 			'move_id' => $move_id,
 			'moves' => $this->getUser()->moves()->all(),
-			'boxes' => $m->boxes()->including(['fromRoom', 'toRoom', 'items', 'tags'])->paginate(),
+			'boxes' => $boxes_query->paginate(),
+			'tags' => $m->tags()->all(),
+			'rooms' => $m->rooms()->all(),
+			'filters' => $filters,
 		]);
 	}
 
