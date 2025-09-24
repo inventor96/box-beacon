@@ -3,8 +3,7 @@ import ColorSquare from '@/Components/ColorSquare.vue';
 import DeleteConfirmButton from '@/Components/Form/DeleteConfirmButton.vue';
 import Head from '@/Components/Head.vue';
 import MoveSwitcher from '@/Components/MoveSwitcher.vue';
-import { Form, Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { Form, Link } from '@inertiajs/vue3';
 
 const props = defineProps({
 	active_move_id: {

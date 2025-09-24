@@ -9,7 +9,7 @@ import MoveSwitcher from '@/Components/MoveSwitcher.vue';
 import Pager from '@/Components/Pager.vue';
 import QrScanModal from '@/Components/QrScanModal.vue';
 import { Form, Link, router, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
 	active_move_id: Number,
