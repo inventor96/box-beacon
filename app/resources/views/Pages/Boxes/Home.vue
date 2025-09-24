@@ -136,7 +136,7 @@ const showFilter = ref(hasFilters.value);
 				<div class="dropdown w-100">
 					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 						<span v-if="props.filters.from_rooms && props.filters.from_rooms.length" class="badge bg-primary me-1">{{ props.filters.from_rooms.length }}</span>
-						<i class="bi bi-tags"></i>
+						<i class="bi bi-box-arrow-right"></i>
 						From Room
 					</button>
 					<ul class="dropdown-menu">
@@ -166,7 +166,7 @@ const showFilter = ref(hasFilters.value);
 				<div class="dropdown w-100">
 					<button class="btn btn-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 						<span v-if="props.filters.to_rooms && props.filters.to_rooms.length" class="badge bg-primary me-1">{{ props.filters.to_rooms.length }}</span>
-						<i class="bi bi-tags"></i>
+						<i class="bi bi-box-arrow-in-right"></i>
 						To Room
 					</button>
 					<ul class="dropdown-menu">
