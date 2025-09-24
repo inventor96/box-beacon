@@ -47,8 +47,8 @@ const props = defineProps({
 		<div class="input-group mb-3">
 			<span class="input-group-text bg-secondary-subtle"><i class="bi bi-search"></i></span>
 			<input type="text" class="form-control" placeholder="Search items..." name="q" v-model="props.q" />
-			<button class="btn btn-primary" type="submit">Search</button>
-			<Link :href="`/moves/${props.move_id}/items`" v-if="props.q" class="btn btn-outline-warning">Clear</Link>
+			<button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> Search</button>
+			<Link :href="`/moves/${props.move_id}/items`" v-if="props.q" class="btn btn-outline-warning"><i class="bi bi-x-circle"></i> Clear</Link>
 		</div>
 	</Form>
 	<table class="table table-striped table-hover">
