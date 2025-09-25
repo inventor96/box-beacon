@@ -25,6 +25,15 @@ class Moves extends ControllerBase
 		return $this->redirectSamePage('moves:home');
 	}
 
+	public function unload(Move $move, int $id)
+	{
+		$m = $move->getInstanceOrThrow($id);
+		$this->authorize('view', $m);
+		return $this->view->render('Pages/Moves/Unload', [
+			'move' => $m,
+		]);
+	}
+
 	public function edit(Move $move, int|string $id)
 	{
 		$m = $id === 'new'
