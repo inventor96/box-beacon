@@ -1,16 +1,13 @@
 <?php
-
 namespace app\http\controllers;
-
-use mako\view\ViewFactory;
 
 class Dashboard extends ControllerBase
 {
 	/**
 	 * Home page action.
 	 */
-	public function home(): string
+	public function home()
 	{
-		return $this->view->render('Pages/Dashboard/Home');
+		return $this->safeRedirectResponse('boxes:home', ['move_id' => $this->getUser()->active_move_id ?? 0]);
 	}
 }
