@@ -180,7 +180,7 @@ function submitNumberEntry() {
 		</div>
 	</nav>
 
-	<div class="container-fluid">
+	<div class="container-fluid mb-3">
 		<div class="row g-3">
 			<div class="order-1 order-md-0" :class="hideScanner ? 'col-auto' : `col-12 col-md-${colNum}`">
 				<div class="card border-primary">
@@ -222,7 +222,6 @@ function submitNumberEntry() {
 				</button>
 				<div class="card border-primary">
 					<div class="card-body">
-						<h3 class="card-title">Box Details</h3>
 						<p class="card-text">
 							<!-- waiting alert -->
 							<div class="alert alert-info mb-0 d-flex justify-content-center align-items-center" role="alert" v-if="codeValue.length === 0 && !codeError && enabled">
@@ -262,7 +261,7 @@ function submitNumberEntry() {
 									</span>
 								</div>
 								<div class="col-12">
-									<hr class="my-2">
+									<hr class="my-1">
 								</div>
 								<div class="col-12 d-flex gap-2 flex-wrap">
 									<div class="display-3" v-for="tag in scannedBox.tags" :key="tag.id">
