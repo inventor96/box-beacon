@@ -10,6 +10,7 @@ import { ref, watch } from 'vue';
 import axios from 'axios';
 import BoxNumber from '@/Components/BoxNumber.vue';
 import CustomColorBadge from '@/Components/CustomColorBadge.vue';
+import Modal from '@/Components/Modal.vue';
 
 const props = defineProps({
 	move: Object,
@@ -71,11 +72,12 @@ watch(codeValue, (newVal) => {
 		// process the first code only
 		const code = newVal[0];
 		loading.value = true;
-		if (code.startsWith(`${window.location.origin}/moves/${props.move.id}/boxes/`)) {
+		const isByNumber = code.startsWith('by-number/');
+		if (code.startsWith(`${window.location.origin}/moves/${props.move.id}/boxes/`) || isByNumber) {
 			const boxId = code.split('/').pop();
 			if (boxId && !isNaN(boxId) && Number(boxId) > 0) {
 				// load box details via API
-				axios.get(`/moves/${props.move.id}/boxes/${boxId}/unload`)
+				axios.get(isByNumber ? `/moves/${props.move.id}/box-by-number/${boxId}/unload` : `/moves/${props.move.id}/boxes/${boxId}/unload`)
 					.then((response) => {
 						if (response.data && response.data.success) {
 							// success
@@ -118,6 +120,15 @@ watch(codeValue, (newVal) => {
 		}
 	}
 });
+
+// number entry modal
+const numberEntry = ref('');
+function submitNumberEntry() {
+	if (numberEntry.value) {
+		codeValue.value = [`by-number/${numberEntry.value}`];
+		numberEntry.value = '';
+	}
+}
 </script>
 
 <template>
@@ -205,6 +216,10 @@ watch(codeValue, (newVal) => {
 				</div>
 			</div>
 			<div class="col-12 col-md">
+				<button class="btn btn-sm btn-primary mb-1 w-100 fw-bold" data-bs-toggle="modal" data-bs-target="#number-modal">
+					<i class="bi bi-grid-3x3"></i>
+					Enter Box Number
+				</button>
 				<div class="card border-primary">
 					<div class="card-body">
 						<h3 class="card-title">Box Details</h3>
@@ -213,7 +228,7 @@ watch(codeValue, (newVal) => {
 							<div class="alert alert-info mb-0 d-flex justify-content-center align-items-center" role="alert" v-if="codeValue.length === 0 && !codeError && enabled">
 								<span class="spinner-border spinner-border-lg" role="status" aria-hidden="true"></span>
 								<h3 class="d-inline align-middle ms-2 mb-0">
-									Waiting for QR code scan...
+									Waiting for label...
 								</h3>
 							</div>
 							<!-- loading alert -->
@@ -226,7 +241,7 @@ watch(codeValue, (newVal) => {
 							<!-- found alert -->
 							<div class="alert alert-success mb-0 d-flex justify-content-center align-items-center" role="alert" v-if="scannedBox.id && !codeError && !loading && codeValue.length > 0">
 								<h3 class="d-inline align-middle ms-2 mb-0">
-									Here's the box details!
+									Here it is!
 								</h3>
 							</div>
 							<!-- error alert -->
@@ -236,21 +251,19 @@ watch(codeValue, (newVal) => {
 								</h3>
 							</div>
 							<!-- box details -->
-							<div v-if="scannedBox.id && !codeError && !loading" class="row g-3 mt-3">
-								<div class="col-auto">
+							<div v-if="scannedBox.id && !codeError && !loading" class="row g-3 mt-2">
+								<div class="col d-flex justify-content-between align-items-center flex-wrap gap-2">
 									<BoxNumber :number="scannedBox.number" class="display-4" />
+									<span class="display-1 ms-2">Room:</span>
+									<span class="display-1">
+										<CustomColorBadge :color="scannedBox.toRoom?.color ?? '#ffffff'">
+											{{ scannedBox.toRoom?.name ?? '---' }}
+										</CustomColorBadge>
+									</span>
 								</div>
-								<div class="col hstack gap-2">
-									<h1 class="display-1">
-										<div class="hstack gap-2">
-											<span>Room:</span>
-											<CustomColorBadge :color="scannedBox.toRoom?.color ?? '#ffffff'">
-												{{ scannedBox.toRoom?.name ?? '---' }}
-											</CustomColorBadge>
-										</div>
-									</h1>
+								<div class="col-12">
+									<hr class="my-2">
 								</div>
-								<div class="col-12"><hr></div>
 								<div class="col-12 d-flex gap-2 flex-wrap">
 									<div class="display-3" v-for="tag in scannedBox.tags" :key="tag.id">
 										<CustomColorBadge :color="tag.color">
@@ -265,6 +278,30 @@ watch(codeValue, (newVal) => {
 			</div>
 		</div>
 	</div>
+
+	<Modal id="number-modal" title="Enter Box Number" close-text="" confirm-text="">
+		<h2 class="text-center">
+			{{ numberEntry || '---' }}
+		</h2>
+		<div class="row row-cols-3 g-0 justify-content-center">
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '1'">1</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '2'">2</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '3'">3</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '4'">4</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '5'">5</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '6'">6</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '7'">7</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '8'">8</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '9'">9</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry = numberEntry.slice(0, -1)">
+				<i class="bi bi-backspace"></i>
+			</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="numberEntry += '0'">0</button>
+			<button class="col btn btn-outline-primary btn-lg fw-bold p-3" @click="submitNumberEntry()" data-bs-dismiss="modal">
+				<i class="bi bi-check-circle-fill"></i>
+			</button>
+		</div>
+	</Modal>
 </template>
 
 <style>

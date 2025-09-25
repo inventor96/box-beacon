@@ -75,6 +75,10 @@ $routes->group([
 	$routes->post('/moves/{move_id}/boxes/{id}', [Boxes::class, 'editAction'], 'boxes:editAction');
 	$routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'deleteAction'], 'boxes:deleteAction');
 	$routes->get('/moves/{move_id}/boxes/{id}/unload', [Boxes::class, 'unloadDetails'], 'boxes:unloadDetails');
+	$routes->get('/moves/{move_id}/box-by-number/{number}/unload', [Boxes::class, 'unloadDetailsByNumber'], 'boxes:unloadDetailsByNumber')
+		->patterns([
+			'number' => '\d+'
+		]);
 	#endregion
 	
 	#region items

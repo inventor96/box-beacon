@@ -185,10 +185,41 @@ class Boxes extends ControllerBase
 	public function unloadDetails(Move $move, Box $box, int $move_id, int $id)
 	{
 		$m = $move->getInstanceOrThrow($move_id);
-		$b = $box->where('id', '=', $id)->including(['items', 'tags', 'fromRoom', 'toRoom'])->first();
+		$b = $box
+			->where('move_id', '=', $m->id)
+			->where('id', '=', $id)
+			->including(['tags', 'toRoom'])
+			->first();
 
 		// check it's accessible
 		if ($b === null || $b->move_id !== $m->id) {
+			return $this->jsonResponse(['error' => 'Box not found.'], 404);
+		}
+		if ($this->authorizer->can($this->getUser(), 'view', $b) === false) {
+			return $this->jsonResponse(['error' => 'You do not have permission to view this box.'], 403);
+		}
+
+		// return the details
+		return $this->jsonResponse([
+			'success' => true,
+			'box' => $b,
+		]);
+	}
+
+	/**
+	 * Used by the unloading portal to get box details via AJAX when the user manually enters a box number
+	 */
+	public function unloadDetailsByNumber(Move $move, Box $box, int $move_id, int $number)
+	{
+		$m = $move->getInstanceOrThrow($move_id);
+		$b = $box
+			->where('move_id', '=', $m->id)
+			->where('number', '=', $number)
+			->including(['tags', 'toRoom'])
+			->first();
+
+		// check it's accessible
+		if ($b === null) {
 			return $this->jsonResponse(['error' => 'Box not found.'], 404);
 		}
 		if ($this->authorizer->can($this->getUser(), 'view', $b) === false) {
