@@ -54,9 +54,7 @@ watch(
 
 <template>
 	<!-- environment alert -->
-	<div v-if="props._env !== 'prod'" id="env_alert" class="alert alert-warning m-0 p-1 text-center">
-		{{props._env}} environment
-	</div>
+	<div v-if="props._env !== 'prod'" id="env_alert" class="alert alert-warning m-0 p-1 text-center">{{props._env}} environment</div>
 
 	<!-- navigation bar -->
 	<nav id="navbar" data-bs-theme="dark" class="navbar navbar-expand-lg bg-primary mb-3 shadow">

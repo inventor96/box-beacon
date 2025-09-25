@@ -74,6 +74,7 @@ $routes->group([
 	$routes->get('/moves/{move_id}/boxes/{id}', [Boxes::class, 'edit'], 'boxes:edit');
 	$routes->post('/moves/{move_id}/boxes/{id}', [Boxes::class, 'editAction'], 'boxes:editAction');
 	$routes->delete('/moves/{move_id}/boxes/{id}', [Boxes::class, 'deleteAction'], 'boxes:deleteAction');
+	$routes->get('/moves/{move_id}/boxes/{id}/unload', [Boxes::class, 'unloadDetails'], 'boxes:unloadDetails');
 	#endregion
 	
 	#region items
@@ -95,6 +96,7 @@ $routes->group([
 	#region moves
 	$routes->get('/moves', [Moves::class, 'home'], 'moves:home');
 	$routes->post('/moves/{id}/set-active', [Moves::class, 'setActive'], 'moves:setActive');
+	$routes->get('/moves/{id}/unload', [Moves::class, 'unload'], 'moves:unload');
 	$routes->get('/moves/{id}', [Moves::class, 'edit'], 'moves:edit')
 		->patterns([
 			'id' => '\d+|new'

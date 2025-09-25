@@ -43,17 +43,21 @@ const props = defineProps({
 								<span class="d-none d-md-inline-block ms-1">Set as Current Move</span>
 							</button>
 						</Form>
-					<Link :href="`/moves/${move.id}`" class="btn btn-secondary">
-						<i class="bi bi-eye"></i>
-						<span class="d-none d-md-inline-block ms-1">View/Edit</span>
-					</Link>
-					<Form :action="`/moves/${move.id}`" method="delete" class="m-0" #default="{ processing }">
-						<DeleteConfirmButton
-							:id="`delete-move-${move.id}`"
-							:item-text="`the '${move.name}' move`"
-							:processing="processing"
-						/>
-					</Form>
+						<Link :href="`/moves/${move.id}/unload`" class="btn btn-info">
+							<i class="bi bi-sign-turn-slight-right"></i>
+							<span class="d-none d-md-inline-block ms-1">Unloading Portal</span>
+						</Link>
+						<Link :href="`/moves/${move.id}`" class="btn btn-secondary">
+							<i class="bi bi-eye"></i>
+							<span class="d-none d-md-inline-block ms-1">View/Edit</span>
+						</Link>
+						<Form :action="`/moves/${move.id}`" method="delete" class="m-0" #default="{ processing }">
+							<DeleteConfirmButton
+								:id="`delete-move-${move.id}`"
+								:item-text="`the '${move.name}' move`"
+								:processing="processing"
+							/>
+						</Form>
 					</div>
 				</td>
 			</tr>
