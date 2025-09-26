@@ -1,0 +1,31 @@
+services:
+  app:
+    build: .
+    container_name: boxbeacon-app
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: boxbeacon
+      MYSQL_USER: boxuser
+      MYSQL_PASSWORD: boxpass
+
+  db:
+    image: mariadb:10.11
+    container_name: boxbeacon-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: boxbeacon
+      MYSQL_USER: boxuser
+      MYSQL_PASSWORD: boxpass
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./app/migrations/docker.sql:/docker-entrypoint-initdb.d/docker.sql:ro
+
+volumes:
+  db_data:

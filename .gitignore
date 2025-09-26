@@ -10,4 +10,5 @@ node_modules/
 public/hot
 .vite/
 /app/config/*/*.php
+!app/config/docker/*.php
 .vscode/
