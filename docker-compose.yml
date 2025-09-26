@@ -5,6 +5,7 @@ services:
       dockerfile: ./docker/backend/Dockerfile
     volumes:
       - .:/var/www/html
+      - /var/www/html/vendor
       - ./docker/backend/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     ports:
       - "8080:80"
@@ -35,6 +36,7 @@ services:
       dockerfile: ./docker/frontend/Dockerfile
     volumes:
       - .:/app
+      - /app/node_modules
     ports:
       - "5173:5173"
     depends_on:
