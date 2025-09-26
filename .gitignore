@@ -11,4 +11,5 @@ public/hot
 .vite/
 /app/config/*/*.php
 !app/config/docker/*.php
-.vscode/
+.vscode/*.json
+!.vscode/launch.json

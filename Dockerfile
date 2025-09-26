@@ -11,7 +11,7 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 RUN a2enmod rewrite headers
 
 # Install PHP extensions
-RUN install-php-extensions zip
+RUN install-php-extensions zip xdebug
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Composer install
@@ -33,8 +33,8 @@ ENV MAKO_ENV docker
 RUN chown -R www-data:www-data /var/www/html/app/storage
 RUN chmod -R 775 /var/www/html/app/storage
 
-# Database migrations
-COPY docker-entrypoint.sh /usr/local/bin/entrypoint.sh
+# Runtime configs
+COPY docker/docker-entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]
