@@ -1,5 +1,5 @@
 <script setup>
-import { defineEmits, defineProps, useAttrs, defineOptions, ref } from 'vue';
+import { useAttrs, ref } from 'vue';
 
 defineOptions({ inheritAttrs: false });
 
