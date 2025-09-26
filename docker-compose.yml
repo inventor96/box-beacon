@@ -1,10 +1,11 @@
 services:
-  app:
-    build: .
-    container_name: boxbeacon-app
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
     volumes:
       - .:/var/www/html
-      - ./docker/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./docker/backend/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
     ports:
       - "8080:80"
     extra_hosts:
@@ -12,14 +13,12 @@ services:
     depends_on:
       - db
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: boxbeacon
       MYSQL_USER: boxuser
       MYSQL_PASSWORD: boxpass
 
   db:
     image: mariadb:10.11
-    container_name: boxbeacon-db
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpass
@@ -29,6 +28,17 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./app/migrations/docker.sql:/docker-entrypoint-initdb.d/docker.sql:ro
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 
 volumes:
   db_data:
