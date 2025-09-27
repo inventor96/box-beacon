@@ -2,7 +2,6 @@
 FROM node:21.6 AS frontend-build
 WORKDIR /app
 COPY package.json package-lock.json* ./
-ENV NODE_ENV=production
 RUN npm install
 COPY . .
 RUN npm run build
@@ -33,7 +32,7 @@ COPY . .
 
 # Copy frontend assets
 COPY --from=frontend-build /app/node_modules/bootstrap-icons/font/fonts /var/www/html/public/assets/fonts
-COPY --from=frontend-build /app/public/build/assets /var/www/html/public/build/assets
+COPY --from=frontend-build /app/public/build /var/www/html/public/build
 
 # Optimized autoloader
 RUN composer dump-autoload --optimize
