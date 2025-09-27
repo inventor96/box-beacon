@@ -34,6 +34,10 @@ COPY . .
 COPY --from=frontend-build /app/node_modules/bootstrap-icons/font/fonts /var/www/html/public/assets/fonts
 COPY --from=frontend-build /app/public/build /var/www/html/public/build
 
+# Generate inertia version
+RUN echo "<?php return ['$(date +%Y%m%d%H%M%S)'];" \
+    > /var/www/html/app/config/packages/inertia/version.php
+
 # Optimized autoloader
 RUN composer dump-autoload --optimize
 

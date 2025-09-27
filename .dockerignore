@@ -13,6 +13,7 @@ public/hot
 .env.*.local
 .env.local
 .env.example
+.git/
 .editorconfig
 .gitignore
 .php-cs-fixer.php
