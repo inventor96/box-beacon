@@ -4,6 +4,7 @@
 FROM php:8.3-apache
 WORKDIR /var/www/html
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN apt update && apt install -y zip unzip libzip-dev
 
 # Apache configs
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
@@ -12,8 +13,8 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 RUN a2enmod rewrite headers
 
 # Install PHP extensions
-RUN install-php-extensions zip xdebug
-RUN docker-php-ext-install pdo pdo_mysql
+RUN install-php-extensions xdebug
+RUN docker-php-ext-install pdo pdo_mysql zip
 
 # Composer install
 COPY composer.json composer.lock ./
