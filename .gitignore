@@ -13,3 +13,6 @@ public/hot
 !app/config/docker/*.php
 .vscode/*.json
 !.vscode/launch.json
+.env
+.env.*.local
+.env.local

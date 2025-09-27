@@ -1,0 +1,21 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./docker/backend/Dockerfile
+      target: dev
+    volumes:
+      - .:/var/www/html
+      - ./docker/backend/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/frontend/Dockerfile
+      target: dev
+    volumes:
+      - .:/app
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"

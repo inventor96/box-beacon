@@ -1,15 +1,20 @@
-# Frontend Dockerfile
-
-# Environment
-FROM node:21.6
+# ------- Base stage -------
+FROM node:21.6 AS base
 WORKDIR /app
 
-# Install deps first (cached layer)
 COPY package.json package-lock.json* ./
 RUN npm install
 
-# Copy everything (vite.config.ts, src/, etc.)
+# ------- Dev stage -------
+FROM base AS dev
 COPY . .
-
-# Default command: vite dev server
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+# ------- Build stage -------
+FROM base AS build
+COPY . .
+RUN npm run build
+
+# ------- Prod stage -------
+FROM nginx:stable-alpine AS prod
+COPY --from=build /app/dist /usr/share/nginx/html
