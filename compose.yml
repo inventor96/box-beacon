@@ -24,13 +24,5 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-  frontend:
-    build:
-      context: .
-      dockerfile: ./docker/frontend/Dockerfile
-      target: prod
-    depends_on:
-      - backend
-
 volumes:
   db_data:

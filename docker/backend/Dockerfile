@@ -1,3 +1,12 @@
+# ------- Frontend build stage -------
+FROM node:21.6 AS frontend-build
+WORKDIR /app
+COPY package.json package-lock.json* ./
+ENV NODE_ENV=production
+RUN npm install
+COPY . .
+RUN npm run build
+
 # ------- Base stage -------
 FROM php:8.3-apache AS base
 WORKDIR /var/www/html
@@ -19,8 +28,14 @@ COPY composer.json composer.lock ./
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
 
-# Application code and autoloader
+# Application code
 COPY . .
+
+# Copy frontend assets
+COPY --from=frontend-build /app/node_modules/bootstrap-icons/font/fonts /var/www/html/public/assets/fonts
+COPY --from=frontend-build /app/public/build/assets /var/www/html/public/build/assets
+
+# Optimized autoloader
 RUN composer dump-autoload --optimize
 
 # Framework environment
