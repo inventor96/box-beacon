@@ -62,6 +62,9 @@ FROM base AS dev
 RUN apt update && apt install -y zip unzip libzip-dev \
  && rm -rf /var/lib/apt/lists/*
 
+# Enable proxy for dev resources
+RUN a2enmod proxy proxy_http
+
 # Install PHP extensions
 RUN install-php-extensions pdo pdo_mysql zip xdebug
 
