@@ -50,6 +50,9 @@ ENV MAKO_ENV=prod
 RUN chown -R www-data:www-data /var/www/html/app/storage \
  && chmod -R 775 /var/www/html/app/storage
 
+# Remove installers
+RUN rm -rf /usr/local/bin/install-php-extensions /usr/bin/composer
+
 # Entrypoint and start
 COPY docker/backend/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
@@ -61,7 +64,7 @@ FROM base AS dev
 
 # Install system dependencies manually for zip so they stick around for composer commands
 # (install-php-extensions cleans up installs after itself)
-RUN apt update && apt install -y zip unzip libzip-dev \
+RUN apt update && apt install -y zip unzip libzip-dev gosu \
  && rm -rf /var/lib/apt/lists/*
 
 # Enable proxy for dev resources
@@ -70,11 +73,22 @@ RUN a2enmod proxy proxy_http
 # Install PHP extensions
 RUN install-php-extensions pdo pdo_mysql zip xdebug
 
+# Setup entrypoint
+COPY docker/backend/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Framework environment
 ENV MAKO_ENV=docker
 
-# Entrypoint and start
-COPY docker/backend/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+# Allow configurable UID/GID
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} devuser && \
+    useradd -u ${UID} -g ${GID} -m devuser
+
+# Allow www-data to write to storage
+RUN usermod -a -G devuser www-data
+
+# Fire in the hole!
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["apache2-foreground"]

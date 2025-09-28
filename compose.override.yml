@@ -4,6 +4,13 @@ services:
       context: .
       dockerfile: ./docker/backend/Dockerfile
       target: dev
+      args:
+        UID: "${UID}"
+        GID: "${GID}"
+    user: "${UID}:${GID}"
+    environment:
+      - UID=${UID}
+      - GID=${GID}
     volumes:
       - .:/var/www/html
       - ./docker/backend/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini # enable xdebug
@@ -16,6 +23,13 @@ services:
       context: .
       dockerfile: ./docker/frontend/Dockerfile
       target: dev
+      args:
+        UID: "${UID}"
+        GID: "${GID}"
+    user: "${UID}:${GID}"
+    environment:
+      - UID=${UID}
+      - GID=${GID}
     volumes:
       - .:/app
     ports:
