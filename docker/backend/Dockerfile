@@ -16,6 +16,10 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 RUN a2enmod rewrite headers
 
+# Setup composer
+COPY composer.json composer.lock ./
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # ------- Prod stage -------
 FROM base AS prod
 
@@ -23,8 +27,6 @@ FROM base AS prod
 RUN install-php-extensions pdo pdo_mysql zip
 
 # Install composer dependencies (separate layer to leverage Docker cache)
-COPY composer.json composer.lock ./
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
 
 # Application code
