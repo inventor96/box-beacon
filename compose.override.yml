@@ -30,6 +30,9 @@ services:
     environment:
       - UID=${UID}
       - GID=${GID}
+    depends_on:
+      backend:
+        condition: service_healthy
     volumes:
       - .:/app
     ports:
@@ -38,6 +41,9 @@ services:
   mailpit:
     image: axllent/mailpit:latest
     restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
     networks:
       - default
     environment:
@@ -50,6 +56,9 @@ services:
       context: ./docker/adminer
       dockerfile: ./Dockerfile
     restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
     networks:
       - default
     environment:
