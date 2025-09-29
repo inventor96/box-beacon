@@ -48,7 +48,7 @@ ENV MAKO_ENV=prod
 
 # Permissions for storage
 RUN chown -R www-data:www-data /var/www/html/app/storage \
- && chmod -R 775 /var/www/html/app/storage
+ && chmod -R 2775 /var/www/html/app/storage
 
 # Remove installers
 RUN rm -rf /usr/local/bin/install-php-extensions /usr/bin/composer
@@ -64,7 +64,7 @@ FROM base AS dev
 
 # Install system dependencies manually for zip so they stick around for composer commands
 # (install-php-extensions cleans up installs after itself)
-RUN apt update && apt install -y zip unzip libzip-dev gosu \
+RUN apt update && apt install -y zip unzip libzip-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # Enable proxy for dev resources

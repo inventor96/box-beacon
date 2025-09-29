@@ -6,14 +6,6 @@ COPY package.json package-lock.json* ./
 # ------- Dev stage -------
 FROM base AS dev
 
-# Install dependencies
-RUN apt-get update && apt-get install -y gosu \
-  && rm -rf /var/lib/apt/lists/*
-
-# Setup entrypoint
-COPY docker/backend/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
 # Allow configurable UID/GID
 ARG UID=1000
 ARG GID=1000
@@ -25,5 +17,4 @@ RUN if ! id -u ${UID} >/dev/null 2>&1; then \
     fi
 
 # Fire in the hole!
-ENTRYPOINT ["entrypoint.sh"]
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
