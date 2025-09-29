@@ -83,11 +83,15 @@ ENV MAKO_ENV=docker
 # Allow configurable UID/GID
 ARG UID=1000
 ARG GID=1000
-RUN groupadd -g ${GID} devuser && \
-    useradd -u ${UID} -g ${GID} -m devuser
+RUN if ! getent group ${GID} >/dev/null; then \
+      groupadd -g ${GID} devuser; \
+    fi
+RUN if ! id -u ${UID} >/dev/null 2>&1; then \
+      useradd -u ${UID} -g ${GID} -m devuser; \
+    fi
 
 # Allow www-data to write to storage
-RUN usermod -a -G devuser www-data
+RUN usermod -a -G ${GID} www-data
 
 # Fire in the hole!
 ENTRYPOINT ["entrypoint.sh"]
