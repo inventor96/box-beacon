@@ -11,10 +11,11 @@ FROM php:8.3-apache AS base
 WORKDIR /var/www/html
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
+# Configure Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf
-RUN sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-RUN a2enmod rewrite headers
+RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-available/*.conf \
+ && sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+ && a2enmod rewrite headers
 
 # Setup composer
 COPY composer.json composer.lock ./
@@ -27,7 +28,7 @@ FROM base AS prod
 RUN install-php-extensions pdo pdo_mysql zip
 
 # Install composer dependencies (separate layer to leverage Docker cache)
-RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
+RUN composer install --no-dev --prefer-dist --no-scripts --no-autoloader --optimize-autoloader
 
 # Application code
 COPY . .
@@ -50,8 +51,9 @@ ENV MAKO_ENV=prod
 RUN chown -R www-data:www-data /var/www/html/app/storage \
  && chmod -R 2775 /var/www/html/app/storage
 
-# Remove installers
-RUN rm -rf /usr/local/bin/install-php-extensions /usr/bin/composer
+# Clean up unnecessary files
+RUN apt clean \
+ && rm -rf /usr/local/bin/install-php-extensions /usr/bin/composer ~/.composer /tmp/* /var/tmp/*
 
 # Entrypoint and start
 COPY docker/backend/entrypoint.sh /usr/local/bin/entrypoint.sh
