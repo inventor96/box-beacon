@@ -6,7 +6,9 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
+    const viteDomain = env.VITE_DOMAIN || 'localhost';
     const vitePort = env.VITE_PORT ? Number(env.VITE_PORT) : 5173;
+    const backendPort = env.VITE_BACKEND_PORT ? Number(env.VITE_BACKEND_PORT) : 8080;
 
     return {
         plugins: [
@@ -49,6 +51,16 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             port: vitePort,
+            hmr: {
+                host: viteDomain,
+                port: vitePort,
+            },
+            cors: {
+                origin: [
+                    `http://${viteDomain}:${backendPort}`,
+                    `http://${viteDomain}`,
+                ],
+            },
         },
     };
 });
