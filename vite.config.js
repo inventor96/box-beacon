@@ -5,6 +5,7 @@ import path from 'path';
 import vueDevTools from 'vite-plugin-vue-devtools';
 
 export default defineConfig(({ mode }) => {
+    // get environment variables
     const env = loadEnv(mode, process.cwd(), '');
     const viteDomain = env.VITE_DOMAIN || 'localhost';
     const vitePort = env.VITE_PORT ? Number(env.VITE_PORT) : 5173;
@@ -40,6 +41,7 @@ export default defineConfig(({ mode }) => {
         css: {
             preprocessorOptions: {
                 scss: {
+                    // ignore warnings from Bootstrap
                     silenceDeprecations: [
                         'import',
                         'mixed-decls',
@@ -49,6 +51,7 @@ export default defineConfig(({ mode }) => {
                 },
             },
         },
+        // custom networking settings to allow working with domains and docker
         server: {
             port: vitePort,
             hmr: {

@@ -52,7 +52,7 @@ services:
       MAILPIT_WEB_BIND_ADDR: 0.0.0.0:8025
 
   adminer:
-    # Custom Adminer image with autologin based on github.com/jeliebig/Adminer-Autologin
+    # custom Adminer image with autologin based on github.com/jeliebig/Adminer-Autologin
     build:
       context: ./docker/adminer
       dockerfile: ./Dockerfile
