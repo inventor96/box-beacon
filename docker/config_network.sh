@@ -1,6 +1,21 @@
 #!/bin/sh
 set -e
 
+# intro
+echo ""
+echo "This script will help you configure the network settings for your Docker-based"
+echo "project. It will update the .env file and modify /etc/hosts to set up a local"
+echo "development domain using an available loopback address. This will enable you to"
+echo "access your project via a friendly domain name instead of localhost or an IP"
+echo "address. Because each project uses its own loopback IP, you can have multiple"
+echo "projects running simultaneously. This script also allows you to set the host"
+echo "listing port to 80 to avoid needing to specify a port in the URL. If you"
+echo "choose a privileged port (<1024), ensure your host's Docker configuration allows"
+echo "binding to it."
+echo ""
+echo "You may be prompted for your password via sudo to modify /etc/hosts."
+echo ""
+
 # check for NoNewPrivs
 if [ -f /proc/self/status ]; then
 	if grep -q 'NoNewPrivs:\s*1' /proc/self/status; then
@@ -17,6 +32,7 @@ if [ ! -f ../.env ]; then
 	if [ "$create_env" = "y" ]; then
 		cp ../.env.example ../.env
 		echo ".env file created from .env.example"
+		echo ""
 	else
 		echo "Aborting."
 		exit 1
@@ -32,6 +48,7 @@ echo "LISTEN_IP: ${LISTEN_IP}"
 echo "LISTEN_DOMAIN: ${LISTEN_DOMAIN}"
 echo "BACKEND_PORT: ${BACKEND_PORT}"
 echo "FRONTEND_PORT: ${FRONTEND_PORT}"
+echo ""
 
 # ask for the desired domain name, defaulting to {project}.test if LISTEN_DOMAIN is 'localhost' or empty
 if [ -n "$LISTEN_DOMAIN" ] && [ "$LISTEN_DOMAIN" != "localhost" ]; then
@@ -88,8 +105,10 @@ backend_port=${input_backend_port:-$backend_port}
 
 # notify user if backend_port is privileged (<1024)
 if [ "$backend_port" -lt 1024 ]; then
+	echo ""
 	echo "NOTE: The backend port $backend_port is a privileged port (<1024). Please make sure your docker configuration is allowed to bind to it."
 fi
+echo ""
 
 # ask for the desired frontend port, defaulting to 5173 if FRONTEND_PORT is 5173
 if [ -n "$FRONTEND_PORT" ] && [ "$FRONTEND_PORT" != "5173" ]; then
@@ -102,8 +121,10 @@ frontend_port=${input_frontend_port:-$frontend_port}
 
 # notify user if frontend_port is privileged (<1024)
 if [ "$frontend_port" -lt 1024 ]; then
+	echo ""
 	echo "NOTE: The frontend port $frontend_port is a privileged port (<1024). Please make sure your docker configuration is allowed to bind to it."
 fi
+echo ""
 
 # confirm the settings
 echo "The following settings will be applied:"
@@ -111,13 +132,16 @@ echo "LISTEN_IP: $ip_address"
 echo "LISTEN_DOMAIN: $domain_name"
 echo "BACKEND_PORT: $backend_port"
 echo "FRONTEND_PORT: $frontend_port"
+echo ""
 read -p "Do you want to proceed? (y/n) " confirm
 if [ "$confirm" != "y" ]; then
 	echo "Aborting."
 	exit 1
 fi
+echo ""
 
 # update .env file with the new settings
+echo "Updating .env file..."
 sed -i.bak -e "s|^LISTEN_IP=.*$|LISTEN_IP=$ip_address|" \
 	-e "s|^LISTEN_DOMAIN=.*$|LISTEN_DOMAIN=$domain_name|" \
 	-e "s|^BACKEND_PORT=.*$|BACKEND_PORT=$backend_port|" \
@@ -125,8 +149,18 @@ sed -i.bak -e "s|^LISTEN_IP=.*$|LISTEN_IP=$ip_address|" \
 rm ../.env.bak
 
 # add the new entry to /etc/hosts
+echo "Updating /etc/hosts..."
 echo "$ip_address	$domain_name db.$domain_name mail.$domain_name" | sudo tee -a /etc/hosts > /dev/null
 
+# done
+echo ""
 echo "Configuration updated successfully!"
 echo "Please restart your Docker containers to apply the new settings."
-echo "You can now access your project at http://$domain_name:$backend_port"
+if [ "$backend_port" -eq 80 ]; then
+	# display backend port only if not 80
+	echo ""
+	echo "You can now access your project at http://$domain_name"
+else
+	echo ""
+	echo "You can now access your project at http://$domain_name:$backend_port"
+fi
