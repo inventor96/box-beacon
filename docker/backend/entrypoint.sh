@@ -9,11 +9,12 @@ if [ "$1" = "apache2-foreground" ]; then
   done
 
   echo "Database is up, running migrations..."
-  # In prod, fail hard if migrations fail
   if [ "${MAKO_ENV:-}" = "prod" ]; then
-    php app/reactor migration:up
+    # In prod, fail hard if migrations fail
+    php app/reactor migration:up --env=migration
   else
-    php app/reactor migration:up || true
+    # In non-prod, don't sweat it if migrations fail
+    php app/reactor migration:up --env=migration || true
   fi
 fi
 
