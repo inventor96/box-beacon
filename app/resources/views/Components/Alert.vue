@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits, onMounted, ref, onBeforeUnmount } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { Alert } from 'bootstrap';
 
 const props = defineProps({
