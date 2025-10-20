@@ -3,7 +3,7 @@ import { /* Dropdown, */ Collapse } from 'bootstrap'
 import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
 	_env: {
@@ -50,11 +50,38 @@ watch(
 		}
 	}
 );
+
+const dbLink = computed(
+	() => {
+		if (props._env === 'docker') {
+			return `//db.${window.location.host}:${window.location.port}`;
+		}
+		return null;
+	}
+);
+const mailLink = computed(
+	() => {
+		if (props._env === 'docker') {
+			return `//mail.${window.location.host}:${window.location.port}`;
+		}
+		return null;
+	}
+);
 </script>
 
 <template>
 	<!-- environment alert -->
-	<div v-if="props._env !== 'prod'" id="env_alert" class="alert alert-warning m-0 p-1 text-center">{{props._env}} environment</div>
+	<div v-if="props._env !== 'prod'" id="env_alert" class="alert alert-warning m-0 p-1 d-flex justify-content-around">
+		<a v-if="dbLink" :href="dbLink" target="_blank" class="icon-link">
+			Adminer
+			<i class="bi bi-box-arrow-up-right"></i>
+		</a>
+		<span>{{props._env}} environment</span>
+		<a v-if="mailLink" :href="mailLink" target="_blank" class="icon-link">
+			Mailpit
+			<i class="bi bi-box-arrow-up-right"></i>
+		</a>
+	</div>
 
 	<!-- navigation bar -->
 	<nav id="navbar" data-bs-theme="dark" class="navbar navbar-expand-lg bg-primary mb-3 shadow">
