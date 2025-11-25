@@ -8,6 +8,7 @@ use app\http\controllers\Fonts;
 use app\http\controllers\Invites;
 use app\http\controllers\Items;
 use app\http\controllers\Moves;
+use app\http\controllers\Offline;
 use app\http\controllers\Printing;
 use app\http\controllers\Rooms;
 use app\http\controllers\Tags;
@@ -33,6 +34,7 @@ $routes->group([
 			[RequireAuth::class, ['require' => false]],
 		],
 	], function (Routes $routes) {
+		$routes->get('/meta/offline-cache', [Offline::class, 'index'], 'offline:index');
 		$routes->get('/assets/fonts/{font}', [Fonts::class, 'fonts'], 'fonts:fonts');
 
 		#region authentication
