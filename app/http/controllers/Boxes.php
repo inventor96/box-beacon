@@ -78,6 +78,7 @@ class Boxes extends ControllerBase
 		return $this->safeRedirectResponse('printing:print', ['ids' => implode(',', $box_ids)]);
 	}
 
+	#[OfflineCachable(3600, false, [ParamGenerator::class, 'userBoxParams'])]
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		// get source
