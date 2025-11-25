@@ -38,7 +38,7 @@ class OfflineRoutes {
 			}
 
 			// reflect based on action type
-			switch ($this->getActionType($action)) {
+			switch (ActionTypeEnum::from($action)) {
 				case ActionTypeEnum::METHOD:
 					$reflection = new ReflectionMethod($action[0], $action[1]);
 					break;
@@ -59,10 +59,10 @@ class OfflineRoutes {
 			$attribute = $attributes[0]->newInstance();
 
 			// get param combos from attribute's param generator
-			if (isset($attribute->param_generator) && $this->getActionType($attribute->param_generator) !== ActionTypeEnum::UNKNOWN) {
+			if (isset($attribute->param_generator) && ActionTypeEnum::from($attribute->param_generator) !== ActionTypeEnum::UNKNOWN) {
 				// call param generator based on type
 				$params = [];
-				switch ($this->getActionType($attribute->param_generator)) {
+				switch (ActionTypeEnum::from($attribute->param_generator)) {
 					case ActionTypeEnum::METHOD:
 						// convert class to object if needed before calling
 						if (!is_object($attribute->param_generator[0])) {
@@ -146,27 +146,5 @@ class OfflineRoutes {
 
 		// return generated routes
 		return $output;
-	}
-
-	protected function getActionType(mixed $action): ActionTypeEnum {
-		if (
-			is_array($action)
-			&& isset($action[0], $action[1])
-			&& (
-				is_object($action[0])
-				|| is_string($action[0])
-			)
-			&& is_string($action[1])
-			&& method_exists($action[0], $action[1])
-		) {
-			// class or object method
-			return ActionTypeEnum::METHOD;
-		} elseif (is_callable($action)) {
-			// closure or function name
-			return ActionTypeEnum::FUNCTION;
-		} else {
-			// unsupported action type
-			return ActionTypeEnum::UNKNOWN;
-		}
 	}
 }
