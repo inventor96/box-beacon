@@ -2,6 +2,7 @@
 namespace app\modules\offline;
 
 use Attribute;
+use Closure;
 
 #[Attribute(Attribute::TARGET_METHOD)]
 class OfflineCachable {
@@ -10,7 +11,7 @@ class OfflineCachable {
 	public function __construct(
 		public int $ttl = 86400,
 		public bool $paginated = false,
-		callable|null $param_generator = null,
+		callable|array|string|Closure|null $param_generator = null,
 	) {
 		if ($param_generator !== null) {
 			$this->param_generator = $param_generator;

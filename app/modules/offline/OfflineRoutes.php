@@ -38,25 +38,17 @@ class OfflineRoutes {
 			}
 
 			// reflect based on action type
-			if (
-				is_array($action)
-				&& count($action) === 2
-				&& (
-					is_object($action[0])
-					|| is_string($action[0])
-				)
-				&& is_string($action[1])
-				&& method_exists($action[0], $action[1])
-			) {
-				// class method
-				$reflection = new ReflectionMethod($action[0], $action[1]);
-			} elseif ($action instanceof Closure || (is_string($action) && function_exists($action))) {
-				// closure or function name
-				$reflection = new ReflectionFunction($action);
-			} else {
-				// unsupported action type
-				$this->logger->warning('Skipping offline cache route generation for [ ' . $route->getRoute() . ' ] due to unsupported action type');
-				continue;
+			switch ($this->getActionType($action)) {
+				case ActionTypeEnum::METHOD:
+					$reflection = new ReflectionMethod($action[0], $action[1]);
+					break;
+				case ActionTypeEnum::FUNCTION:
+					$reflection = new ReflectionFunction($action);
+					break;
+				default:
+					// unsupported action type
+					$this->logger->warning('Skipping offline cache route generation for [ ' . $route->getRoute() . ' ] due to unsupported action type');
+					continue 2;
 			}
 
 			// if the OfflineCachable attribute is present, generate params and add to output
@@ -67,9 +59,23 @@ class OfflineRoutes {
 			$attribute = $attributes[0]->newInstance();
 
 			// get param combos from attribute's param generator
-			if (isset($attribute->param_generator) && is_callable($attribute->param_generator)) {
+			if (isset($attribute->param_generator) && $this->getActionType($attribute->param_generator) !== ActionTypeEnum::UNKNOWN) {
+				// call param generator based on type
+				$params = [];
+				switch ($this->getActionType($attribute->param_generator)) {
+					case ActionTypeEnum::METHOD:
+						// convert class to object if needed before calling
+						if (!is_object($attribute->param_generator[0])) {
+							// likely a non-static method, instantiate class
+							$obj = $this->container->get($attribute->param_generator[0]);
+							$attribute->param_generator[0] = $obj;
+						}
+					case ActionTypeEnum::FUNCTION:
+						$params = $this->container->call($attribute->param_generator);
+						break;
+				}
+
 				// process each param combo
-				$params = $this->container->call($attribute->param_generator);
 				foreach ($params as $param_set) {
 					// build route path
 					$path = $route->getRoute();
@@ -140,5 +146,27 @@ class OfflineRoutes {
 
 		// return generated routes
 		return $output;
+	}
+
+	protected function getActionType(mixed $action): ActionTypeEnum {
+		if (
+			is_array($action)
+			&& isset($action[0], $action[1])
+			&& (
+				is_object($action[0])
+				|| is_string($action[0])
+			)
+			&& is_string($action[1])
+			&& method_exists($action[0], $action[1])
+		) {
+			// class or object method
+			return ActionTypeEnum::METHOD;
+		} elseif (is_callable($action)) {
+			// closure or function name
+			return ActionTypeEnum::FUNCTION;
+		} else {
+			// unsupported action type
+			return ActionTypeEnum::UNKNOWN;
+		}
 	}
 }
