@@ -1,8 +1,6 @@
 <?php
 namespace app\modules\offline;
 
-use app\models\User;
-use Closure;
 use mako\http\routing\Route;
 use mako\http\routing\Routes;
 use mako\logger\Logger;
@@ -66,7 +64,7 @@ class OfflineRoutes {
 					case ActionTypeEnum::METHOD:
 						// convert class to object if needed before calling
 						if (!is_object($attribute->param_generator[0])) {
-							// likely a non-static method, instantiate class
+							// likely a non-static method; instantiate class
 							$obj = $this->container->get($attribute->param_generator[0]);
 							$attribute->param_generator[0] = $obj;
 						}
