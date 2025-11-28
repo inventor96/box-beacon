@@ -75,12 +75,12 @@ class OfflineRoutes {
 
 				// process each param combo
 				foreach ($params as $param_set) {
-					// build route path
-					$path = $route->getRoute();
+					// build route url
+					$url = $route->getRoute();
 					$query_params = [];
 					foreach ($param_set as $key => $value) {
 						// replace param placeholder with value
-						$path = str_replace('{' . $key . '}', $value, $path, $count);
+						$url = str_replace('{' . $key . '}', $value, $url, $count);
 	
 						// if no replacement was made, append to query params
 						if ($count === 0) {
@@ -89,12 +89,12 @@ class OfflineRoutes {
 					}
 	
 					// check for leftover placeholders
-					if (preg_match_all('/\{([^}]+)\}(\??)/', $path, $matches, PREG_SET_ORDER)) {
+					if (preg_match_all('/\{([^}]+)\}(\??)/', $url, $matches, PREG_SET_ORDER)) {
 						$required_placeholders_left = [];
 						foreach ($matches as $match) {
 							// if the placeholder is optional, remove it
 							if (isset($match[2]) && $match[2] === '?') {
-								$path = str_replace($match[0], '', $path);
+								$url = str_replace($match[0], '', $url);
 							} else {
 								// required placeholder left unfilled
 								$required_placeholders_left[] = $match[1];
@@ -110,7 +110,7 @@ class OfflineRoutes {
 	
 					// add to output
 					$output[] = [
-						'path' => $path . (count($query_params) > 0 ? '?' . http_build_query($query_params) : ''),
+						'url' => $url . (count($query_params) > 0 ? '?' . http_build_query($query_params) : ''),
 						'ttl' => $attribute->ttl,
 						'paginated' => $attribute->paginated,
 					];
@@ -135,7 +135,7 @@ class OfflineRoutes {
 
 				// add the route as-is
 				$output[] = [
-					'path' => $route->getRoute(),
+					'url' => $route->getRoute(),
 					'ttl' => $attribute->ttl,
 					'paginated' => $attribute->paginated,
 				];
