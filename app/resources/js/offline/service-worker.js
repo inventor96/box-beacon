@@ -1,100 +1,203 @@
 import { db } from './db.js'
 
-// Keep SW alive for async work
+const ROUTE_META_TTL = 86400; // 1 day in seconds
+
+// keep service worker alive for async work
 self.addEventListener('install', (event) => {
-	self.skipWaiting()
-})
+	event.waitUntil(self.skipWaiting());
+});
 
+// take control of all unclaimed clients/pages immediately
 self.addEventListener('activate', (event) => {
-	event.waitUntil(self.clients.claim())
-})
+	event.waitUntil(self.clients.claim());
+});
 
-/**
- * Fetch handler: returns cached TTL-managed data for Inertia routes.
- */
-self.addEventListener('fetch', (event) => {
-	const url = new URL(event.request.url)
+// listen for messages from frontend
+self.addEventListener('message', event => {
+	const data = event.data || {};
 
-	// Only intercept API/inertia calls
-	if (!url.pathname.startsWith('/inertia/')) {
-		return
+	// remove the stored data (e.g. logout)
+	if (data.type === 'CLEAR_OFFLINE') {
+		event.waitUntil((async () => {
+			await Promise.all([
+				db.inertia.clear(),
+				db.routeMeta.clear()
+			]);
+		})());
 	}
 
+	// refresh all expired pages
+	if (data.type === 'REFRESH_EXPIRED') {
+		event.waitUntil(refreshAllExpired());
+	}
+});
+
+// intercept requests made by the frontend
+self.addEventListener('fetch', event => {
+	const req = event.request;
+
+	// only handle inertia requests
+	if (req.headers.get('X-Inertia') !== 'true') {
+		return;
+	}
+
+	// override the processing of the request
 	event.respondWith((async () => {
-		const cached = await db.pages.get(url.toString())
-		if (!cached) {
-			// Not in DB — fetch + store
-			return fetchAndStore(url.toString())
+		try {
+			// make the original request
+			const networkRes = await fetch(req);
+
+			// check the response code
+			if (networkRes && networkRes.status === 200) {
+				try {
+					// store the response
+					const data = await networkRes.clone().json();
+					await storePage(data);
+				} catch (err) {
+					// non-json or store error; ignore
+					console.warn('Failed to store page data', err);
+				}
+			}
+
+			// pass through the network response
+			return networkRes;
+		} catch (err) {
+			// network failure; try to serve from cache
+			const rec = await db.pages.get(req.url);
+			if (rec) {
+				// synthesize a response
+				return new Response(JSON.stringify({
+					url: rec.url,
+					component: rec.component,
+					props: rec.props,
+					version: rec.version,
+				}), {
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Inertia': 'true',
+					},
+				});
+			}
+
+			// no cache; return offline response
+			return new Response('Uh oh! This page or action does not have offline support.', { status: 503, statusText: 'offline' });
 		}
+	})());
+});
 
-		// Return stale data immediately
-		const body = new Response(JSON.stringify(cached.data), {
-			headers: { 'Content-Type': 'application/json' }
-		})
+// periodic sync handler (chrome / android pwa)
+self.addEventListener('periodicsync', (event) => {
+	if (event.tag === 'inertia-refresh' || event.tag === 'inertia-refresh:default') {
+		event.waitUntil(refreshAllExpired());
+	}
+});
 
-		// Kick off a background refresh if TTL exceeded
-		const expired =
-			Date.now() - cached.fetched_at > cached.ttl * 1000
+// push handler
+self.addEventListener('push', (event) => {
+	const data = event.data && event.data.json ? event.data.json() : {};
 
-		if (expired) {
-			event.waitUntil(fetchAndStore(url.toString()))
-		}
+	// refresh trigger
+	if (data?.type === 'refresh-offline') {
+		event.waitUntil(refreshAllExpired());
+	}
+});
 
-		return body
-	})())
-})
-
-/**
- * Fetch & store Inertia pages
- */
-async function fetchAndStore(url) {
-	const res = await fetch(url)
-	const json = await res.json()
-
-	// Look at headers or route meta returned by backend
-	const ttl = parseInt(res.headers.get('X-Inertia-TTL') ?? '300')
-
+// store an inertia page in the db
+async function storePage(data) {
 	await db.pages.put({
-		url,
-		data: json,
-		ttl,
-		fetched_at: Date.now()
-	})
-
-	return new Response(JSON.stringify(json), {
-		headers: { 'Content-Type': 'application/json' }
-	})
+		url: req.url,
+		component: data.component ?? null,
+		props: data.props ?? null,
+		version: data.version ?? null,
+		savedAt: Date.now() / 1000, // store as seconds
+	});
 }
 
-/**
- * Message handling (manual sync, debugging, forced refresh)
- */
-self.addEventListener('message', async (event) => {
-	const { type } = event.data
-
-	if (type === 'sync-all') {
-		await fullSync()
-	}
-})
-
-/**
- * Background Sync API (if available)
- */
-self.addEventListener('periodicsync', (event) => {
-	if (event.tag === 'offline-sync') {
-		event.waitUntil(fullSync())
-	}
-})
-
-async function fullSync() {
-	const pages = await db.pages.toArray()
-
-	for (const page of pages) {
-		const expired =
-			Date.now() - page.fetched_at > page.ttl * 1000
-
-		if (expired) {
-			await fetchAndStore(page.url)
+// updates the list of cacheable routes if needed, and returns the list
+async function refreshAndGetRouteList() {
+	try {
+		// check if we need to refresh the route list
+		const meta = await db.system.get('routeListFetchedAt');
+		const now = Date.now() / 1000;
+		if (meta && meta.value) {
+			const age = now - meta.value;
+			if (age < ROUTE_META_TTL) {
+				// still fresh; return existing list
+				return await db.routeMeta.toArray();
+			}
 		}
+
+		// get list of cacheable routes from backend
+		const routeRes = await fetch('/meta/offline-cache', { credentials: 'include' });
+		if (!routeRes.ok) {
+			console.warn('Failed to fetch route list', routeRes.statusText);
+			return [];
+		}
+		
+		// store route details
+		const list = await routeRes.json();
+		for (const r of list) {
+			await db.routeMeta.put({
+				url: r.url,
+				paginated: r.paginated,
+				ttl: r.ttl
+			});
+		}
+
+		// update fetch time
+		await db.system.put({ key: 'routeListFetchedAt', value: now });
+
+		// return the new list
+		return list;
+	} catch (err) {
+		console.warn('refreshRouteList failed', err);
+		return [];
+	}
+}
+
+// refresh expired pages
+async function refreshAllExpired() {
+	try {
+		// get list of cacheable routes
+		const list = await refreshAndGetRouteList();
+
+		// fetch every route (bounded concurrency to avoid spikes)
+		const CONCURRENCY = 3;
+		const queue = [...list];
+		const workers = Array.from({ length: CONCURRENCY }, async () => {
+			// check if there's more to process
+			while (queue.length) {
+				// get the next url from the queue
+				const next = queue.shift();
+				try {
+					// check if the page is due to be updated
+					const cached = await db.pages.get(next.url);
+					if (cached) {
+						const isExpired = (cached.savedAt + next.ttl) < (Date.now() / 1000);
+						if (!isExpired) {
+							// still fresh; skip
+							continue;
+						}
+					}
+
+					// fetch and store
+					const res = await fetch(next.url, { headers: {'X-Inertia': 'true', 'Accept': 'application/json'} , credentials: 'include' });
+					if (!res.ok) {
+						console.warn('Failed to fetch offline page', next.url, res.statusText);
+						continue;
+					}
+					const data = await res.json();
+					await storePage(data);
+				} catch (err) {
+					// fetch or store error; ignore
+					console.warn('Failed to refresh offline page', next.url, err);
+				}
+			}
+		});
+
+		// wait for all workers to complete
+		await Promise.all(workers.map(w => w()));
+	} catch (err) {
+		console.warn('refreshAllExpired failed', err);
 	}
 }

@@ -3,6 +3,12 @@ import Dexie from 'dexie';
 export const db = new Dexie('InertiaOfflineDB');
 
 db.version(1).stores({
-	pages: '&url, savedAt, expiresAt',      // url is primary key
-	routeMeta: '&url, ttl'                  // routes provided by backend
+	// individual page data
+	pages: '&url, component, props, version, savedAt',
+
+	// list of routes to cache
+	routeMeta: '&url, paginated, ttl',
+
+	// system info (e.g. last sync time, last route list fetch)
+	system: '&key, value',
 });
