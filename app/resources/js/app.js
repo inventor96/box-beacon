@@ -1,9 +1,9 @@
-import { createApp, h } from 'vue'
-import { createInertiaApp, router } from '@inertiajs/vue3'
+import { createApp, h, watch } from 'vue'
+import { createInertiaApp, router, usePage } from '@inertiajs/vue3'
 import Default from '@/Layouts/Default.vue'
 import 'vue-color/style.css';
 import '../scss/styles.scss'
-import { getPage, REFRESH_INTERVAL, startRefreshCycle } from './offline/inertia-offline';
+import { clearAllData, getPage, REFRESH_INTERVAL, startRefreshCycle } from './offline/inertia-offline';
 
 createInertiaApp({
 	resolve: (name) => {
@@ -75,6 +75,42 @@ createInertiaApp({
 						error: event.detail?.exception,
 					}
 				}));
+			}
+		});
+
+		// refresh cache after logging in or out
+		const page = usePage();
+		watch(() => page.props._authed, async (newStatus, oldStatus) => {
+			// logging in
+			if (newStatus && !oldStatus) {
+				console.log('User logged in; refreshing offline cache');
+
+				// stop existing timer
+				if (window.__OFFLINE_REFRESH_STOP) {
+					window.__OFFLINE_REFRESH_STOP();
+				}
+
+				// start fresh
+				await clearAllData();
+
+				// restart refresher
+				startRefreshCycle().then(stop => {
+					// you can keep stop reference to clear on logout
+					window.__OFFLINE_REFRESH_STOP = stop;
+				});
+			}
+
+			// logging out
+			if (!newStatus && oldStatus) {
+				console.log('User logged out; clearing offline cache');
+
+				// stop existing timer
+				if (window.__OFFLINE_REFRESH_STOP) {
+					window.__OFFLINE_REFRESH_STOP();
+				}
+
+				// clear all data
+				await clearAllData();
 			}
 		});
 	},
