@@ -51,6 +51,7 @@ createInertiaApp({
 
 			// check if page exists
 			if (cached) {
+				// manually load the page
 				event.preventDefault();
 				router.push({
 					url: cached.url,
@@ -64,6 +65,16 @@ createInertiaApp({
 					},
 					version: cached.version,
 				});
+			} else {
+				// no cache; emit a custom event
+				console.warn('No offline cache for', url);
+				window.dispatchEvent(new CustomEvent('inertia-offline:cache-miss', {
+					detail: {
+						url: rawUrl,
+						path: url,
+						error: event.detail?.exception,
+					}
+				}));
 			}
 		});
 	},
