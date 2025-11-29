@@ -1,8 +1,11 @@
 import Dexie from 'dexie';
 
+/**
+ * Database for storing offline Inertia pages
+ */
 export const db = new Dexie('InertiaOfflineDB');
 
-db.version(1).stores({
+db.version(2).stores({
 	// individual page data
 	pages: '&url, component, props, version, savedAt',
 

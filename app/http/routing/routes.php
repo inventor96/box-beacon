@@ -35,6 +35,7 @@ $routes->group([
 		],
 	], function (Routes $routes) {
 		$routes->get('/meta/offline-cache', [Offline::class, 'index'], 'offline:index');
+		$routes->get('/meta/offline-version', [Offline::class, 'version'], 'offline:version');
 		$routes->get('/assets/fonts/{font}', [Fonts::class, 'fonts'], 'fonts:fonts');
 
 		#region authentication

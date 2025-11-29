@@ -13,4 +13,9 @@ class Offline extends ControllerBase {
 		$routes = $offline->generateRoutes();
 		return $this->jsonResponse($routes);
 	}
+
+	public function version() {
+		$version = $this->config->get('inertia::version.0');
+		return $this->jsonResponse(['version' => $version]);
+	}
 }
