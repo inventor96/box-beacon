@@ -4,6 +4,8 @@ import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
+import { clearAllData } from '@/../js/offline/inertia-offline';
+import { format } from 'timeago.js';
 
 const props = defineProps({
 	_env: {
@@ -29,7 +31,17 @@ const props = defineProps({
 	_container_success: {
 		type: [Array, Object],
 		default: () => []
-	}
+	},
+	_offline: {
+		type: Boolean,
+		required: false,
+		default: false
+	},
+	_savedAt: {
+		type: Number,
+		required: false,
+		default: null
+	},
 });
 
 const collapseRef = ref(null);
@@ -67,6 +79,11 @@ const mailLink = computed(
 		return null;
 	}
 );
+
+async function cacheBust() {
+	await clearAllData();
+	alert('Offline cache cleared.');
+}
 </script>
 
 <template>
@@ -80,6 +97,9 @@ const mailLink = computed(
 		<a v-if="mailLink" :href="mailLink" target="_blank" class="icon-link">
 			Mailpit
 			<i class="bi bi-box-arrow-up-right"></i>
+		</a>
+		<a href="#" @click.prevent="cacheBust">
+			Clear Offline Cache
 		</a>
 	</div>
 
@@ -116,6 +136,11 @@ const mailLink = computed(
 			</div>
 		</div>
 	</nav>
+
+	<!-- offline alert -->
+	<div v-if="props._offline" class="alert alert-warning m-0 mt-n3 mb-3 p-1 text-center">
+		You appear to be offline. We're showing a page that was current as of {{ format(props._savedAt) }}. Changes will not be saved, and functionality may be limited.
+	</div>
 
 	<div id="container" class="container pb-5">
 		<!-- page alerts -->
