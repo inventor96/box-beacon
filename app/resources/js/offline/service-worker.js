@@ -15,8 +15,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', async (event) => {
 	const req = event.request;
 
-	// only handle inertia requests
-	if (req.headers.get('X-Inertia') !== 'true') {
+	// only handle inertia `get` requests
+	if (req.headers.get('X-Inertia') !== 'true' || req.method !== 'GET') {
 		return;
 	}
 
@@ -54,7 +54,13 @@ self.addEventListener('fetch', async (event) => {
 				return new Response(JSON.stringify({
 					url: rec.url,
 					component: rec.component,
-					props: rec.props,
+					props: {
+						...rec.props,
+
+						// inject offline indicators
+						_offline: true,
+						_savedAt: rec.savedAt,
+					},
 					version: rec.version,
 				}), {
 					headers: {
