@@ -1,6 +1,6 @@
 import { db } from "./db";
 
-const ROUTE_META_TTL = 86400; // 1 day in seconds
+const ROUTE_META_TTL = 86400000; // 1 day
 const ROUTE_META_PATH = '/meta/offline-cache'; // backend endpoint to fetch route list
 const ROUTE_VERSION_PATH = '/meta/offline-version'; // backend endpoint to fetch inertia version
 
@@ -10,7 +10,7 @@ const REFRESH_STAGGER = 500; // ms between requests to reduce burst
 /**
  * How often to check for local pages that need refreshing
  */
-export const REFRESH_INTERVAL = 15*60*1000; // 15 minutes
+export const REFRESH_INTERVAL = 900000; // 15 minutes
 
 /**
  * Stores an inertia page in the DB
@@ -23,7 +23,7 @@ export async function storePage(data) {
 		component: data.component ?? null,
 		props: data.props ?? null,
 		version: data.version ?? null,
-		savedAt: Math.floor(Date.now() / 1000), // store as seconds
+		savedAt: Date.now(),
 	});
 	console.debug('Stored offline page', data.url);
 }
@@ -36,7 +36,7 @@ export async function getRouteList() {
 	try {
 		// check if we need to refresh the route list
 		const meta = await db.system.get('routeListFetchedAt');
-		const now = Date.now() / 1000;
+		const now = Date.now();
 		if (meta && meta.value) {
 			const age = now - meta.value;
 			if (age < ROUTE_META_TTL) {
@@ -58,7 +58,7 @@ export async function getRouteList() {
 			await db.routeMeta.put({
 				url: r.url,
 				paginated: r.paginated,
-				ttl: r.ttl
+				ttl: r.ttl * 1000, // convert to ms
 			});
 		}
 
@@ -133,7 +133,7 @@ export async function refreshAllExpired() {
 				toRefresh.push(route);
 			} else if (route.ttl) {
 				// check if expired
-				const isExpired = (rec.savedAt + route.ttl) < (Date.now() / 1000);
+				const isExpired = (rec.savedAt + route.ttl) < Date.now();
 				if (isExpired) {
 					toRefresh.push(route);
 				}
