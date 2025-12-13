@@ -4,6 +4,9 @@ import Default from '@/Layouts/Default.vue'
 import 'vue-color/style.css';
 import '../scss/styles.scss'
 import { clearAllData, getPage, REFRESH_INTERVAL, startRefreshCycle } from './offline/inertia-offline';
+import { usePwa } from './composables/usePwa';
+
+const { createPwa } = usePwa();
 
 createInertiaApp({
 	resolve: (name) => {
@@ -15,6 +18,7 @@ createInertiaApp({
 		return page;
 	},
 	setup({ el, App, props, plugin }) {
+		createPwa();
 		createApp({ render: () => h(App, props) })
 			.use(plugin)
 			.mount(el);
