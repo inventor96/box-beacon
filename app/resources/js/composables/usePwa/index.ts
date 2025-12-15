@@ -16,7 +16,7 @@ export function usePwa() {
     // Verify is the browser is both online (has a network connection) and
     // connected (the network connection works)
     function getOnlineAndConnected() {
-        fetch('https://httpbin.org/get')
+        fetch('/pwa/online-check', { cache: 'no-store' })
             .then((response) => {
                 onlineAndConnected.value = navigator.onLine && response.status === 200
             })

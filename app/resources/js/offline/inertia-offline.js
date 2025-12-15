@@ -1,8 +1,8 @@
 import { db } from "./db";
 
-const ROUTE_META_TTL = 86400000; // 1 day
-const ROUTE_META_PATH = '/meta/offline-cache'; // backend endpoint to fetch route list
-const ROUTE_VERSION_PATH = '/meta/offline-version'; // backend endpoint to fetch inertia version
+const ROUTE_META_TTL = 86400000; // 1 day - TODO: backend configurable?
+const ROUTE_META_PATH = '/pwa/offline-routes'; // backend endpoint to fetch route list
+const ROUTE_VERSION_PATH = '/pwa/offline-version'; // backend endpoint to fetch inertia version
 
 const REFRESH_CONCURRENCY = 4; // number of concurrent requests
 const REFRESH_STAGGER = 500; // ms between requests to reduce burst
