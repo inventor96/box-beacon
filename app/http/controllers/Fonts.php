@@ -18,7 +18,7 @@ class Fonts extends Controller {
 		}
 
 		// set response headers
-		$info = new FileInfo($path);
+		$info = $fs->info($path);
 		$this->response->setType($info->getMimeType());
 		$this->response->setCharset($info->getMimeEncoding());
 		$this->response->headers->add('Content-Length', (string) $info->getSize(), true);
