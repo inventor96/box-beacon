@@ -6,12 +6,15 @@ use app\models\Item;
 use app\models\Move;
 use app\models\Room;
 use app\models\Tag;
+use app\modules\offline\OfflineCachable;
+use app\modules\offline\ParamGenerator;
 use app\traits\MoveSwitcherTrait;
 
 class Boxes extends ControllerBase
 {
 	use MoveSwitcherTrait;
 
+	#[OfflineCachable(3600, true, [ParamGenerator::class, 'userMovesParams'])]
 	public function home(Move $move, int $move_id)
 	{
 		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
@@ -75,6 +78,7 @@ class Boxes extends ControllerBase
 		return $this->safeRedirectResponse('printing:print', ['ids' => implode(',', $box_ids)]);
 	}
 
+	#[OfflineCachable(3600, false, [ParamGenerator::class, 'userBoxParams'])]
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		// get source

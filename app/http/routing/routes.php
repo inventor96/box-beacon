@@ -8,6 +8,7 @@ use app\http\controllers\Fonts;
 use app\http\controllers\Invites;
 use app\http\controllers\Items;
 use app\http\controllers\Moves;
+use app\http\controllers\PWA;
 use app\http\controllers\Printing;
 use app\http\controllers\Rooms;
 use app\http\controllers\Tags;
@@ -33,6 +34,11 @@ $routes->group([
 			[RequireAuth::class, ['require' => false]],
 		],
 	], function (Routes $routes) {
+		$routes->get('/sw.js', [PWA::class, 'serviceWorker'], 'pwa:serviceWorker');
+		$routes->get('/pwa/online-check', [PWA::class, 'onlineCheck'], 'pwa:onlineCheck');
+		$routes->get('/pwa/offline-routes', [PWA::class, 'offlineRoutes'], 'pwa:offlineRoutes');
+		$routes->get('/pwa/offline-version', [PWA::class, 'version'], 'pwa:version');
+
 		$routes->get('/assets/fonts/{font}', [Fonts::class, 'fonts'], 'fonts:fonts');
 
 		#region authentication
