@@ -7,6 +7,7 @@ import { clearAllData, getPage, REFRESH_INTERVAL, startRefreshCycle } from './of
 import { usePwa } from './composables/usePwa';
 
 const { createPwa } = usePwa();
+createPwa();
 
 createInertiaApp({
 	resolve: (name) => {
@@ -18,7 +19,6 @@ createInertiaApp({
 		return page;
 	},
 	setup({ el, App, props, plugin }) {
-		createPwa();
 		createApp({ render: () => h(App, props) })
 			.use(plugin)
 			.mount(el);

@@ -9,6 +9,7 @@ composer.phar
 node_modules/
 public/hot
 public/service-worker.js
+public/build/
 .vite/
 /app/config/*/*.php
 !app/config/docker/*.php

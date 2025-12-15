@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
 				},
 			}),
 			VitePWA({
-				//buildBase: '/../',
+				//buildBase: '/',
 				scope: '/',
 				base: '/',
 				registerType: 'prompt',
