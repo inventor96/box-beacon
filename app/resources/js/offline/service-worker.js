@@ -1,15 +1,28 @@
+import { precacheAndRoute } from 'workbox-precaching'
 import { db } from './db.js'
 import { clearAllData, refreshAllExpired, storePage } from './inertia-offline.js';
 
+// ================================
+// Workbox Precache (Build-Time  Only)
+// ================================
+
+// This is injected by vite-plugin-pwa at build time
+// DO NOT touch at runtime
+precacheAndRoute(self.__WB_MANIFEST)
+
+// ================================
+// Service Worker Lifecycle
+// ================================
+
 // keep service worker alive for async work
-self.addEventListener('install', (event) => {
+/* self.addEventListener('install', (event) => {
 	event.waitUntil(self.skipWaiting());
-});
+}); */
 
 // take control of all unclaimed clients/pages immediately
-self.addEventListener('activate', (event) => {
+/* self.addEventListener('activate', (event) => {
 	event.waitUntil(self.clients.claim());
-});
+}); */
 
 // intercept requests made by the frontend
 self.addEventListener('fetch', async (event) => {
@@ -78,16 +91,23 @@ self.addEventListener('fetch', async (event) => {
 
 // listen for messages from frontend
 self.addEventListener('message', (event) => {
-	const data = event.data || {};
+	const { type, payload } = event.data || {};
 
-	// remove the stored data (e.g. logout)
-	if (data.type === 'CLEAR_OFFLINE') {
-		event.waitUntil(clearAllData());
-	}
+	switch (type) {
+		// remove the stored data (e.g. logout)
+		case 'CLEAR_OFFLINE':
+			event.waitUntil(clearAllData());
+			break;
 
-	// refresh all expired pages
-	if (data.type === 'REFRESH_EXPIRED') {
-		event.waitUntil(refreshAllExpired());
+		// refresh all expired pages
+		case 'REFRESH_EXPIRED':
+			event.waitUntil(refreshAllExpired());
+			break;
+
+		// custom skip waiting trigger (e.g. from Inertia page reload when a new version is detected)
+		case 'SKIP_WAITING':
+			self.skipWaiting();
+			break;
 	}
 });
 

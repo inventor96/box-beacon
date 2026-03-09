@@ -20,4 +20,5 @@ composer.phar
 .env.*.local
 .env.local
 docker/caddy/certs/*
+.github/prompts/*
 !.gitkeep

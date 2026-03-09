@@ -4,7 +4,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:sw": "vite build --config ./vite.config.sw.js",
     "serve": "vite preview"
   },
   "devDependencies": {

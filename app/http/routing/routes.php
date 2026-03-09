@@ -34,6 +34,8 @@ $routes->group([
 			[RequireAuth::class, ['require' => false]],
 		],
 	], function (Routes $routes) {
+		// TODO: merge SW routes
+		$routes->get('/service-worker.js', [PWA::class, 'serviceWorker'], 'pwa:serviceWorker');
 		$routes->get('/sw.js', [PWA::class, 'serviceWorker'], 'pwa:serviceWorker');
 		$routes->get('/pwa/online-check', [PWA::class, 'onlineCheck'], 'pwa:onlineCheck');
 		$routes->get('/pwa/offline-routes', [PWA::class, 'offlineRoutes'], 'pwa:offlineRoutes');
