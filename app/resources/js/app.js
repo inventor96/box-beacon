@@ -3,37 +3,19 @@ import { createInertiaApp, router, usePage } from '@inertiajs/vue3'
 import Default from '@/Layouts/Default.vue'
 import 'vue-color/style.css';
 import '../scss/styles.scss'
-import { clearAllData, getPage, REFRESH_INTERVAL, startRefreshCycle } from './offline/inertia-offline';
 import { usePwa } from './composables/usePwa';
-import { registerSW } from 'virtual:pwa-register';
 
-// PWA setup - option 1
+// PWA setup
 const { createPwa } = usePwa();
 createPwa();
 
-// PWA setup - option 2
-/* const updateSW = registerSW({
-  immediate: false,
-
-  onNeedRefresh() {
-    if (window.__INERTIA_FORCED_RELOAD__) {
-      delete window.__INERTIA_FORCED_RELOAD__;
-      // Safe auto-update window
-      updateSW(true)
-    } else {
-      showUpdateModal()
-    }
-  },
-
-  onOfflineReady() {
-    console.info('App ready for offline use')
-  },
+// TODO: make sure this fires as expected, possibly move it to SW?
+// Mark Inertia 409 reloads so PWA update UX can skip the refresh notification.
+router.on('invalid', (event) => {
+	if (event?.detail?.response?.status === 409) {
+		window.__INERTIA_FORCED_RELOAD__ = true;
+	}
 });
-function showUpdateModal() {
-  // YOU OWN THIS UX
-  // When confirmed:
-  updateSW(true)
-} */
 
 createInertiaApp({
 	resolve: (name) => {

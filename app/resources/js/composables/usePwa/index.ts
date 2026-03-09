@@ -1,6 +1,83 @@
 import { registerSW } from 'virtual:pwa-register'
-import { installEvent, onlineAndConnected, showRefresh, updateSW } from './state'
+import {
+    installEvent,
+    onlineAndConnected,
+    refreshIntervalMs,
+    showRefresh,
+    swRegistration,
+    updateSW,
+} from './state'
 import type { BeforeInstallPromptEvent } from './types'
+
+const PERIODIC_SYNC_TAG = 'inertia-refresh:default'
+
+let refreshFallbackTimerId: ReturnType<typeof setInterval> | undefined
+
+function getMessageWorker() {
+    return navigator.serviceWorker.controller ?? swRegistration.value?.active
+}
+
+function postRefreshExpired() {
+    const worker = getMessageWorker()
+    if (!worker) {
+        return false
+    }
+
+    worker.postMessage({ type: 'REFRESH_EXPIRED' })
+    return true
+}
+
+function startRefreshFallbackTimer() {
+    if (refreshFallbackTimerId) {
+        return
+    }
+
+    refreshFallbackTimerId = window.setInterval(() => {
+        if (!navigator.onLine || !onlineAndConnected.value) {
+            return
+        }
+
+        const posted = postRefreshExpired()
+        if (!posted) {
+            console.debug('[PWA] REFRESH_EXPIRED fallback skipped (no active worker)')
+        }
+    }, refreshIntervalMs)
+
+    console.info(`[PWA] Using fallback refresh timer (${refreshIntervalMs}ms)`)
+}
+
+async function registerPeriodicSync(registration: ServiceWorkerRegistration) {
+    type PeriodicSyncCapableRegistration = ServiceWorkerRegistration & {
+        periodicSync?: {
+            register: (tag: string, options: { minInterval: number }) => Promise<void>
+        }
+    }
+
+    const withPeriodicSync = registration as PeriodicSyncCapableRegistration
+    if (!withPeriodicSync.periodicSync) {
+        console.info('[PWA] Periodic sync not supported in this browser; fallback timer enabled')
+        return false
+    }
+
+    try {
+        await withPeriodicSync.periodicSync.register(PERIODIC_SYNC_TAG, {
+            minInterval: refreshIntervalMs,
+        })
+        console.info(`[PWA] Periodic sync registered (${PERIODIC_SYNC_TAG}, ${refreshIntervalMs}ms)`)
+        return true
+    } catch (error) {
+        console.warn('[PWA] Periodic sync registration failed; fallback timer enabled', error)
+        return false
+    }
+}
+
+function triggerSkipWaiting(registration: ServiceWorkerRegistration | undefined) {
+    if (!registration?.waiting) {
+        return
+    }
+
+    registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+}
 
 export function usePwa() {
     // An event handler for when the user goes offline.
@@ -40,6 +117,12 @@ export function usePwa() {
         // showRefresh back to false so we don't need to take care of that.
         const updateSWFn = registerSW({
             onNeedRefresh() {
+                if (window.__INERTIA_FORCED_RELOAD__) {
+                    delete window.__INERTIA_FORCED_RELOAD__
+                    triggerSkipWaiting(swRegistration.value)
+                    return
+                }
+
                 showRefresh.value = true
             },
             onOfflineReady() {
@@ -55,6 +138,23 @@ export function usePwa() {
 
         // Work out if the user is both online AND cannected
         getOnlineAndConnected()
+
+        // Setup refresh triggers once the service worker is active.
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready
+                .then(async (registration) => {
+                    swRegistration.value = registration
+
+                    const periodicSyncRegistered = await registerPeriodicSync(registration)
+                    if (!periodicSyncRegistered) {
+                        startRefreshFallbackTimer()
+                    }
+                })
+                .catch((error) => {
+                    console.warn('[PWA] Failed to access service worker registration; fallback timer enabled', error)
+                    startRefreshFallbackTimer()
+                })
+        }
     }
 
     return { createPwa, updateSW, installEvent, showRefresh, onlineAndConnected }

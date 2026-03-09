@@ -1,6 +1,10 @@
 // Types taken from https://stackoverflow.com/a/67171375/3861550
 
 declare global {
+    interface Window {
+        __INERTIA_FORCED_RELOAD__?: boolean
+    }
+
     interface WindowEventMap {
         beforeinstallprompt: BeforeInstallPromptEvent
     }

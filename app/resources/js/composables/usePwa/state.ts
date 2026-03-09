@@ -2,6 +2,7 @@
 
 import { ref } from 'vue'
 import type { BeforeInstallPromptEvent } from './types'
+import { REFRESH_INTERVAL } from '../../offline/inertia-offline'
 
 // The PWA install event, which is captured and stored here so that we can
 // control the install process.
@@ -21,4 +22,18 @@ const updateSW = ref<(reloadPage?: boolean | undefined) => Promise<void>>(() => 
 // is both online AND connected.
 const onlineAndConnected = ref(true)
 
-export { installEvent, showRefresh, updateSW, onlineAndConnected }
+// Keep the current service worker registration in shared state so it can be
+// used by periodic sync and fallback messaging.
+const swRegistration = ref<ServiceWorkerRegistration | undefined>(undefined)
+
+// Single source for refresh cadence used by periodic sync and fallback timer.
+const refreshIntervalMs = REFRESH_INTERVAL
+
+export {
+    installEvent,
+    showRefresh,
+    updateSW,
+    onlineAndConnected,
+    swRegistration,
+    refreshIntervalMs,
+}
