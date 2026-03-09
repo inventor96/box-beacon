@@ -185,6 +185,7 @@ async function cacheBust() {
 	</div>
 
 	<Modal
+		id="offlineModal"
 		ref="offlineModalRef"
 		title="Network Error"
 		confirmText=""
