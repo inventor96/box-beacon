@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
 	// get environment variables
 	const env = loadEnv(mode, process.cwd(), '');
 	const viteDomain = env.VITE_DOMAIN || 'localhost';
+	const enablePwaDevServiceWorker = env.VITE_PWA_DEV_SW === 'true';
 
 	const manifestIcons = [
 		{
@@ -63,7 +64,7 @@ export default defineConfig(({ mode }) => {
 				base: '/',
 				registerType: 'prompt',
 				devOptions: {
-					enabled: true,
+					enabled: enablePwaDevServiceWorker,
 				},
 				includeAssets: [],
 				workbox: {
