@@ -116,6 +116,12 @@ export function usePwa() {
         // potentially losing their offline data.  The reload of the app resets
         // showRefresh back to false so we don't need to take care of that.
         const updateSWFn = registerSW({
+            onRegisteredSW(swUrl, registration) {
+                console.info(`[PWA] Service worker registration succeeded (${swUrl})`, registration)
+            },
+            onRegisterError(error) {
+                console.error('[PWA] Service worker registration failed', error)
+            },
             onNeedRefresh() {
                 if (window.__INERTIA_FORCED_RELOAD__) {
                     delete window.__INERTIA_FORCED_RELOAD__
