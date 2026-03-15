@@ -6,6 +6,28 @@ use mako\file\FileSystem;
 use mako\http\exceptions\NotFoundException;
 
 class PWA extends ControllerBase {
+	public function manifest(FileSystem $fs) {
+		$path = __DIR__ . '/../../../public/build/manifest.webmanifest';
+
+		// check if the manifest file exists
+		if (!$fs->has($path))
+		{
+			throw new NotFoundException('The requested manifest file does not exist.');
+		}
+
+		// set response headers
+		$info = $fs->info($path);
+		$this->response->setType('application/manifest+json');
+		$this->response->setCharset($info->getMimeEncoding());
+		$this->response->headers->add('Content-Length', (string) $info->getSize(), true);
+
+		// send the file
+		$file = $fs->file($path);
+		$file->rewind();
+		$file->fpassthru();
+		return null;
+	}
+
 	public function serviceWorker(FileSystem $fs) {
 		$path = __DIR__ . '/../../../public/build/sw.js';
 
@@ -17,10 +39,32 @@ class PWA extends ControllerBase {
 
 		// set response headers
 		$info = $fs->info($path);
-		$this->response->setType($info->getMimeType());
+		$this->response->setType('application/javascript' /* $info->getMimeType() */);
 		$this->response->setCharset($info->getMimeEncoding());
 		$this->response->headers->add('Content-Length', (string) $info->getSize(), true);
 		$this->response->headers->add('Service-Worker-Allowed', '/');
+
+		// send the file
+		$file = $fs->file($path);
+		$file->rewind();
+		$file->fpassthru();
+		return null;
+	}
+
+	public function workbox(FileSystem $fs, string $version) {
+		$path = __DIR__ . "/../../../public/build/workbox-$version.js";
+
+		// check if the workbox file exists
+		if (!$fs->has($path))
+		{
+			throw new NotFoundException('The requested Workbox file does not exist.');
+		}
+
+		// set response headers
+		$info = $fs->info($path);
+		$this->response->setType('application/javascript' /* $info->getMimeType() */);
+		$this->response->setCharset($info->getMimeEncoding());
+		$this->response->headers->add('Content-Length', (string) $info->getSize(), true);
 
 		// send the file
 		$file = $fs->file($path);

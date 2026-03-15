@@ -22,3 +22,4 @@ composer.phar
 docker/caddy/certs/*
 .github/prompts/*
 !.gitkeep
+/dev-dist
