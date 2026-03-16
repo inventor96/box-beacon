@@ -9,11 +9,26 @@ import { usePwa } from './composables/usePwa';
 const { createPwa } = usePwa();
 createPwa();
 
+function postServiceWorkerMessage(type) {
+	if (!navigator.serviceWorker.controller) {
+		return false;
+	}
+
+	navigator.serviceWorker.controller.postMessage({ type });
+	return true;
+}
+
 // TODO: make sure this fires as expected, possibly move it to SW?
 // Mark Inertia 409 reloads so PWA update UX can skip the refresh notification.
 router.on('invalid', (event) => {
-	if (event?.detail?.response?.status === 409) {
+	const status = event?.detail?.response?.status;
+	if (status === 409) {
 		window.__INERTIA_FORCED_RELOAD__ = true;
+		postServiceWorkerMessage('RESET_AND_PREWARM');
+	}
+
+	if (status === 401 || status === 403) {
+		postServiceWorkerMessage('CLEAR_OFFLINE');
 	}
 });
 
@@ -36,22 +51,14 @@ createInertiaApp({
 		watch(() => page.props._authed, async (newStatus, oldStatus) => {
 			// logging in
 			if (newStatus && !oldStatus) {
-				console.log('User logged in; refreshing offline cache');
-				if (navigator.serviceWorker.controller) {
-					navigator.serviceWorker.controller.postMessage({
-						type: 'REFRESH_EXPIRED',
-					});
-				}
+				console.log('User logged in; rebuilding offline cache');
+				postServiceWorkerMessage('RESET_AND_PREWARM');
 			}
 
 			// logging out
 			if (!newStatus && oldStatus) {
 				console.log('User logged out; clearing offline cache');
-				if (navigator.serviceWorker.controller) {
-					navigator.serviceWorker.controller.postMessage({
-						type: 'CLEAR_OFFLINE',
-					});
-				}
+				postServiceWorkerMessage('CLEAR_OFFLINE');
 			}
 		});
 	},
