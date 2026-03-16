@@ -66,7 +66,7 @@ async function registerPeriodicSync(registration: ServiceWorkerRegistration) {
         console.info(`[PWA] Periodic sync registered (${PERIODIC_SYNC_TAG}, ${refreshIntervalMs}ms)`)
         return true
     } catch (error) {
-        console.warn('[PWA] Periodic sync registration failed; fallback timer enabled', error)
+        console.warn('[PWA] Periodic sync registration failed; fallback timer enabled: ', error)
         return false
     }
 }
@@ -117,10 +117,10 @@ export function usePwa() {
         // showRefresh back to false so we don't need to take care of that.
         const updateSWFn = registerSW({
             onRegisteredSW(swUrl, registration) {
-                console.info(`[PWA] Service worker registration succeeded (${swUrl})`, registration)
+                console.info(`[PWA] Service worker registration succeeded (${swUrl}): `, registration)
             },
             onRegisterError(error) {
-                console.error('[PWA] Service worker registration failed', error)
+                console.error('[PWA] Service worker registration failed: ', error)
             },
             onNeedRefresh() {
                 if (window.__INERTIA_FORCED_RELOAD__) {
@@ -132,7 +132,7 @@ export function usePwa() {
                 showRefresh.value = true
             },
             onOfflineReady() {
-                console.log('Offline ready!')
+                console.log('[PWA] Offline ready!')
             }
         })
         updateSW.value = updateSWFn
@@ -157,7 +157,7 @@ export function usePwa() {
                     }
                 })
                 .catch((error) => {
-                    console.warn('[PWA] Failed to access service worker registration; fallback timer enabled', error)
+                    console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
                     startRefreshFallbackTimer()
                 })
         }
