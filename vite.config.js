@@ -59,25 +59,25 @@ export default defineConfig(({ mode }) => {
 				},
 			}),
 			VitePWA({
+				strategies: 'injectManifest',
+				srcDir: 'app/resources/js/offline',
+				filename: 'service-worker.js',
+				injectRegister: false, // we'll register the service worker manually in our app.js
+				injectManifest: {
+					globPatterns: ['**/*.{js,css,html,ico,jpg,png,svg,woff,woff2,ttf,eot}'],
+					maximumFileSizeToCacheInBytes: 5000000,
+				},
 				//buildBase: '/',
 				scope: '/',
 				base: '/',
 				registerType: 'prompt',
 				devOptions: {
 					enabled: enablePwaDevServiceWorker,
+					type: 'module',
 				},
 				includeAssets: [],
-				workbox: {
-					globPatterns: ['**/*.{js,css,html,ico,jpg,png,svg,woff,woff2,ttf,eot}'],
-					navigateFallback: '/',
-					navigateFallbackDenylist: [],
-					additionalManifestEntries: [
-						{ url: '/', revision: `${Date.now()}` },
-						...manifestIcons.map((icon) => ({ url: icon.src, revision: `${Date.now()}` })),
-						...publicIcons.map((icon) => ({ url: icon.src, revision: `${Date.now()}` })),
-						...additionalImages.map((img) => ({ url: img.src, revision: `${Date.now()}` })),
-					],
-					maximumFileSizeToCacheInBytes: 5000000,
+				pwaAssets: {
+					disabled: true,
 				},
 				manifest: {
 					name: 'Box Beacon',

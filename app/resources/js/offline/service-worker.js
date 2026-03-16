@@ -8,7 +8,7 @@ import { clearAllData, refreshAllExpired, storePage } from './inertia-offline.js
 
 // This is injected by vite-plugin-pwa at build time
 // DO NOT touch at runtime
-precacheAndRoute(self.__WB_MANIFEST)
+precacheAndRoute(self.__WB_MANIFEST || [])
 
 // ================================
 // Service Worker Lifecycle

@@ -83,12 +83,16 @@ class PWA extends ControllerBase {
 			return $this->jsonResponse([], status: 403);
 		}
 
+		$this->response->headers->add('Cache-Control', 'no-store, must-revalidate, private', true);
+
 		// TODO: figure out limiting routes based on user permissions
 		$routes = $offline->generateRoutes();
 		return $this->jsonResponse($routes);
 	}
 
 	public function version() {
+		$this->response->headers->add('Cache-Control', 'no-store, must-revalidate, private', true);
+
 		$version = $this->config->get('inertia::version.0');
 		return $this->jsonResponse(['version' => $version]);
 	}

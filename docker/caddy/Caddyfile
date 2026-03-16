@@ -7,7 +7,7 @@
     tls /certs/_wildcard.{$LISTEN_DOMAIN}.pem /certs/_wildcard.{$LISTEN_DOMAIN}-key.pem
 
     # Vite PWA dev endpoints must be same-origin for service worker registration.
-    @vite_pwa_dev path /dev-sw.js /registerSW.js /manifest.webmanifest /workbox-*.js /@vite-plugin-pwa/*
+    @vite_pwa_dev path /dev-sw.js /registerSW.js /manifest.webmanifest /workbox-*.js /@vite-plugin-pwa/* /app/resources/* /node_modules/*
     reverse_proxy @vite_pwa_dev frontend:5173
 
     reverse_proxy backend:80
