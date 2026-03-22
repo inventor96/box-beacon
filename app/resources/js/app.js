@@ -24,11 +24,8 @@ router.on('invalid', (event) => {
 	const status = event?.detail?.response?.status;
 	if (status === 409) {
 		window.__INERTIA_FORCED_RELOAD__ = true;
-		postServiceWorkerMessage('RESET_AND_PREWARM');
-	}
-
-	if (status === 401 || status === 403) {
 		postServiceWorkerMessage('CLEAR_OFFLINE');
+		postServiceWorkerMessage('REFRESH_EXPIRED');
 	}
 });
 
@@ -52,7 +49,8 @@ createInertiaApp({
 			// logging in
 			if (newStatus && !oldStatus) {
 				console.log('User logged in; rebuilding offline cache');
-				postServiceWorkerMessage('RESET_AND_PREWARM');
+				postServiceWorkerMessage('CLEAR_OFFLINE');
+				postServiceWorkerMessage('REFRESH_EXPIRED');
 			}
 
 			// logging out
