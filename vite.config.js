@@ -75,7 +75,10 @@ export default defineConfig(({ mode }) => {
 					enabled: enablePwaDevServiceWorker,
 					type: 'module',
 				},
-				includeAssets: [],
+				includeAssets: [
+					...publicIcons,
+					...additionalImages,
+				],
 				pwaAssets: {
 					disabled: true,
 				},
