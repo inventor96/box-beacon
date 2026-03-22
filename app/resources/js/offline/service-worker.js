@@ -2,6 +2,14 @@ import { precacheAndRoute } from 'workbox-precaching'
 import { db } from './db.js'
 import { clearAllData, refreshAllExpired, storePage } from './inertia-offline.js';
 
+const SW_VERSION = '2026-03-15-auth-rebuild-v1'
+
+console.info('[Service Worker] Loaded', {
+	version: SW_VERSION,
+	scope: self.registration?.scope,
+	scriptURL: self.location?.href,
+})
+
 // ================================
 // Workbox Precache (Build-Time  Only)
 // ================================
@@ -14,28 +22,33 @@ precacheAndRoute(self.__WB_MANIFEST || [])
 // Service Worker Lifecycle
 // ================================
 
-// keep service worker alive for async work
-/* self.addEventListener('install', (event) => {
-	event.waitUntil(self.skipWaiting());
-}); */
-
 // take control of all unclaimed clients/pages immediately
-/* self.addEventListener('activate', (event) => {
-	event.waitUntil(self.clients.claim());
-}); */
+self.addEventListener('activate', (event) => {
+	event.waitUntil((async () => {
+		await self.clients.claim()
+		console.info('[Service Worker] Activated', {
+			version: SW_VERSION,
+			scope: self.registration?.scope,
+			scriptURL: self.location?.href,
+		})
+	})())
+})
 
 // intercept requests made by the frontend
 self.addEventListener('fetch', async (event) => {
+	console.log('[Service Worker] Fetch event for:', event);
 	const req = event.request;
 
 	// only handle inertia `get` requests
 	if (req.headers.get('X-Inertia') !== 'true' || req.method !== 'GET') {
+		console.log('[Service Worker] Not an Inertia GET request, skipping:', req.url);
 		return;
 	}
 
 	// check if this request is cacheable
 	const isCacheable = await db.routeMeta.get(req.url);
 	if (!isCacheable) {
+		console.log('[Service Worker] Route not marked as cacheable, skipping:', req.url);
 		return;
 	}
 
@@ -43,10 +56,12 @@ self.addEventListener('fetch', async (event) => {
 	event.respondWith((async () => {
 		try {
 			// make the original request
+			console.log('[Service Worker] Fetching from network:', req.url);
 			const networkRes = await fetch(req);
 
 			// check the response code
 			if (networkRes && networkRes.status === 200) {
+				console.log('[Service Worker] Successful network response, caching page:', req.url);
 				try {
 					// store the response
 					const data = await networkRes.clone().json();
@@ -61,9 +76,11 @@ self.addEventListener('fetch', async (event) => {
 			return networkRes;
 		} catch (err) {
 			// network failure; try to serve from cache
+			console.warn('[Service Worker] Network request failed, attempting to serve from cache:', req.url, err);
 			const rec = await db.pages.get(req.url);
 			if (rec) {
 				// synthesize a response
+				console.log('[Service Worker] Serving from cache:', req.url);
 				return new Response(JSON.stringify({
 					url: rec.url,
 					component: rec.component,
@@ -84,6 +101,7 @@ self.addEventListener('fetch', async (event) => {
 			}
 
 			// no cache; return offline response
+			console.warn('[Service Worker] No cache available, returning offline response:', req.url);
 			return new Response('Uh oh! This page or action does not have offline support.', { status: 503, statusText: 'offline' });
 		}
 	})());
@@ -92,6 +110,7 @@ self.addEventListener('fetch', async (event) => {
 // listen for messages from frontend
 self.addEventListener('message', (event) => {
 	const { type, payload } = event.data || {};
+	console.log('[Service Worker] Message received:', event);
 
 	switch (type) {
 		// remove the stored data (e.g. logout)
