@@ -32,12 +32,12 @@ export async function storePage(data) {
  * Fetches the list of cacheable routes from the local DB, updating from backend if needed
  * @returns {Promise<Array>} The list of cacheable routes
  */
-export async function getRouteList() {
+export async function getRouteList(forceRefresh = false) {
 	try {
 		// check if we need to refresh the route list
 		const meta = await db.system.get('routeListFetchedAt');
 		const now = Date.now();
-		if (meta && meta.value) {
+		if (!forceRefresh && meta && meta.value) {
 			const age = now - meta.value;
 			if (age < ROUTE_META_TTL) {
 				// still fresh; return existing list
@@ -181,7 +181,7 @@ export async function refreshAllExpired() {
  * @param {string} url The URL of the page to cache
  * @returns {Promise<void>}
  */
-export async function cachePage(url) {
+export async function cachePage(url, options = { retryOnVersionMismatch: true }) {
 	try {
 		// get local inertia version
 		const localVersion = await getLocalInertiaVersion();
@@ -199,9 +199,15 @@ export async function cachePage(url) {
 		if (!res.ok) {
 			// check for 409 version mismatch
 			if (res.status === 409) {
-				console.warn('Version mismatch detected for offline page. Need to cache bust. Rebuild will happen on next refresh.', url);
+				if (!options.retryOnVersionMismatch) {
+					console.warn('Version mismatch persisted after one retry; leaving cache empty for route', url);
+					return;
+				}
+
+				console.warn('Version mismatch detected for offline page. Clearing stale state and retrying once.', url);
 				await cacheBust();
-				await cachePage(url); // retry once
+				await getRouteList(true);
+				await cachePage(url, { retryOnVersionMismatch: false });
 			} else {
 				console.warn('Failed to fetch offline page for caching', url, res.statusText);
 			}
