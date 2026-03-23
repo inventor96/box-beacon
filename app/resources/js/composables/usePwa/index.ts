@@ -46,7 +46,7 @@ function startRefreshFallbackTimer() {
     console.info(`[PWA] Using fallback refresh timer (${refreshIntervalMs}ms)`)
 }
 
-async function registerPeriodicSync(registration: ServiceWorkerRegistration) {
+function registerPeriodicSync(registration: ServiceWorkerRegistration): boolean | Promise<boolean> {
     type PeriodicSyncCapableRegistration = ServiceWorkerRegistration & {
         periodicSync?: {
             register: (tag: string, options: { minInterval: number }) => Promise<void>
@@ -59,16 +59,18 @@ async function registerPeriodicSync(registration: ServiceWorkerRegistration) {
         return false
     }
 
-    try {
-        await withPeriodicSync.periodicSync.register(PERIODIC_SYNC_TAG, {
+    return withPeriodicSync.periodicSync
+        .register(PERIODIC_SYNC_TAG, {
             minInterval: refreshIntervalMs,
         })
-        console.info(`[PWA] Periodic sync registered (${PERIODIC_SYNC_TAG}, ${refreshIntervalMs}ms)`)
-        return true
-    } catch (error) {
-        console.warn('[PWA] Periodic sync registration failed; fallback timer enabled: ', error)
-        return false
-    }
+        .then(() => {
+            console.info(`[PWA] Periodic sync registered (${PERIODIC_SYNC_TAG}, ${refreshIntervalMs}ms)`)
+            return true
+        })
+        .catch((error) => {
+            console.warn('[PWA] Periodic sync registration failed; fallback timer enabled: ', error)
+            return false
+        })
 }
 
 function triggerSkipWaiting(registration: ServiceWorkerRegistration | undefined) {
@@ -137,8 +139,7 @@ export function usePwa() {
         })
         updateSW.value = updateSWFn
 
-        // Online/offline - add event handlers to track when the user goes on and
-        // offline.
+        // Online/offline - add event handlers to track when the user goes on and offline.
         window.addEventListener('offline', onOffline)
         window.addEventListener('online', onOnline)
 
@@ -148,13 +149,22 @@ export function usePwa() {
         // Setup refresh triggers once the service worker is active.
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.ready
-                .then(async (registration) => {
+                .then((registration) => {
                     swRegistration.value = registration
 
-                    const periodicSyncRegistered = await registerPeriodicSync(registration)
-                    if (!periodicSyncRegistered) {
-                        startRefreshFallbackTimer()
+                    const periodicSyncRegistration = registerPeriodicSync(registration)
+                    if (typeof periodicSyncRegistration === 'boolean') {
+                        if (!periodicSyncRegistration) {
+                            startRefreshFallbackTimer()
+                        }
+                        return
                     }
+
+                    return periodicSyncRegistration.then((periodicSyncRegistered) => {
+                        if (!periodicSyncRegistered) {
+                            startRefreshFallbackTimer()
+                        }
+                    })
                 })
                 .catch((error) => {
                     console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
