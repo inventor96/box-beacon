@@ -13,6 +13,32 @@ const PERIODIC_SYNC_TAG = 'inertia-refresh:default'
 
 let refreshFallbackTimerId: ReturnType<typeof setInterval> | undefined
 
+function onBeforeInstallPrompt(event: BeforeInstallPromptEvent) {
+    installEvent.value = event
+}
+
+// An event handler for when the user goes offline.
+function onOffline() {
+    onlineAndConnected.value = false
+}
+
+// An event handler for when the user goes online.
+function onOnline() {
+    getOnlineAndConnected()
+}
+
+// Verify if the browser is both online (has a network connection) and
+// connected (the network connection works).
+function getOnlineAndConnected() {
+    fetch('/pwa/online-check', { cache: 'no-store' })
+        .then((response) => {
+            onlineAndConnected.value = navigator.onLine && response.status === 200
+        })
+        .catch(() => {
+            onlineAndConnected.value = false
+        })
+}
+
 function getMessageWorker() {
     return navigator.serviceWorker.controller ?? swRegistration.value?.active
 }
@@ -82,35 +108,17 @@ function triggerSkipWaiting(registration: ServiceWorkerRegistration | undefined)
 }
 
 export function usePwa() {
-    // An event handler for when the user goes offline.
-    function onOffline() {
-        onlineAndConnected.value = false
-    }
-
-    // An event handler for when the user goes offline.
-    function onOnline() {
-        getOnlineAndConnected()
-    }
-
-    // Verify is the browser is both online (has a network connection) and
-    // connected (the network connection works)
-    function getOnlineAndConnected() {
-        fetch('/pwa/online-check', { cache: 'no-store' })
-            .then((response) => {
-                onlineAndConnected.value = navigator.onLine && response.status === 200
-            })
-            .catch(() => {
-                onlineAndConnected.value = false
-            })
-    }
-
     function createPwa() {
+        if (window.__PWA_INITIALIZED__) {
+            console.log('[PWA] Already initialized');
+            return
+        }
+        window.__PWA_INITIALIZED__ = true
+
         // PWA setup - capture the install event and put it in the store (when available)
         // for the UI to use it later to ask the user to install the app. Does not work
-        // on every browser - eg won;t work on Safari for Mac or iOS.
-        window.addEventListener('beforeinstallprompt', (event: BeforeInstallPromptEvent) => {
-            installEvent.value = event
-        })
+        // on every browser - e.g. won't work on Safari for Mac or iOS.
+        window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
 
         // PWA setup - register the service worker and supply a callback if the
         // service worker detects that the app needs a refresh event. We can use this
