@@ -25,7 +25,7 @@ export async function storePage(data) {
 		version: data.version ?? null,
 		savedAt: Date.now(),
 	});
-	console.debug('Stored offline page', data.url);
+	console.debug('[Inertia Offline] Stored offline page', data.url);
 }
 
 /**
@@ -48,7 +48,7 @@ export async function getRouteList(forceRefresh = false) {
 		// get list of cacheable routes from backend
 		const routeRes = await fetch(ROUTE_META_PATH, { credentials: 'include' });
 		if (!routeRes.ok) {
-			console.warn('Failed to fetch route list', routeRes.statusText);
+			console.warn('[Inertia Offline] Failed to fetch route list', routeRes.statusText);
 			return [];
 		}
 		
@@ -68,7 +68,7 @@ export async function getRouteList(forceRefresh = false) {
 		// return the new list
 		return list;
 	} catch (err) {
-		console.warn('getRouteList failed', err);
+		console.warn('[Inertia Offline] getRouteList failed', err);
 		return [];
 	}
 }
@@ -91,7 +91,7 @@ export async function getRemoteInertiaVersion() {
 		// get current version
 		const res = await fetch(ROUTE_VERSION_PATH, { credentials: 'include' });
 		if (!res.ok) {
-			console.warn('Failed to fetch inertia version', res.statusText);
+			console.warn('[Inertia Offline] Failed to fetch inertia version', res.statusText);
 			return null;
 		}
 		
@@ -101,7 +101,7 @@ export async function getRemoteInertiaVersion() {
 
 		return data.version || null;
 	} catch (err) {
-		console.warn('getInertiaVersion failed', err);
+		console.warn('[Inertia Offline] getInertiaVersion failed', err);
 		return null;
 	}
 }
@@ -142,7 +142,7 @@ export async function refreshAllExpired() {
 
 		// return early if there's nothing to refresh
 		if (toRefresh.length === 0) {
-			console.debug('No pages to refresh');
+			console.debug('[Inertia Offline] No pages to refresh');
 			return;
 		}
 
@@ -166,7 +166,7 @@ export async function refreshAllExpired() {
 				try {
 					await cachePage(route.url);
 				} catch (err) {
-					console.warn('Failed refreshing route', route.url, err);
+					console.warn('[Inertia Offline] Failed refreshing route', route.url, err);
 				}
 
 				if (REFRESH_STAGGER > 0) {
@@ -177,7 +177,7 @@ export async function refreshAllExpired() {
 
 		await Promise.all(workers);
 	} catch (err) {
-		console.warn('refreshAllExpired failed', err);
+		console.warn('[Inertia Offline] refreshAllExpired failed', err);
 	}
 }
 
@@ -205,16 +205,16 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true })
 			// check for 409 version mismatch
 			if (res.status === 409) {
 				if (!options.retryOnVersionMismatch) {
-					console.warn('Version mismatch persisted after one retry; leaving cache empty for route', url);
+					console.warn('[Inertia Offline] Version mismatch persisted after one retry; leaving cache empty for route', url);
 					return;
 				}
 
-				console.warn('Version mismatch detected for offline page. Clearing stale state and retrying once.', url);
+				console.warn('[Inertia Offline] Version mismatch detected for offline page. Clearing stale state and retrying once.', url);
 				await cacheBust();
 				await getRouteList(true);
 				await cachePage(url, { retryOnVersionMismatch: false });
 			} else {
-				console.warn('Failed to fetch offline page for caching', url, res.statusText);
+				console.warn('[Inertia Offline] Failed to fetch offline page for caching', url, res.statusText);
 			}
 			return;
 		}
@@ -223,7 +223,7 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true })
 		const data = await res.json();
 		await storePage(data);
 	} catch (err) {
-		console.warn('Failed to cache offline page', url, err);
+		console.warn('[Inertia Offline] Failed to cache offline page', url, err);
 	}
 }
 
@@ -239,7 +239,7 @@ export async function cacheBust() {
 		// fetch new inertia version
 		await getRemoteInertiaVersion();
 	} catch (err) {
-		console.warn('cacheBust failed', err);
+		console.warn('[Inertia Offline] cacheBust failed', err);
 	}
 }
 
@@ -253,7 +253,7 @@ export async function clearAllData() {
 		db.pages.clear(),
 		db.system.clear(),
 	]);
-	console.debug('Cleared all offline data');
+	console.debug('[Inertia Offline] Cleared all offline data');
 }
 
 /**
@@ -264,7 +264,7 @@ export async function clearAllData() {
 export async function startRefreshCycle(intervalMs = REFRESH_INTERVAL) {
 	// run once now
 	if (navigator.onLine) {
-		console.debug('Running offline refresh cycle');
+		console.debug('[Inertia Offline] Running offline refresh cycle');
 		await refreshAllExpired();
 	}
 
@@ -272,7 +272,7 @@ export async function startRefreshCycle(intervalMs = REFRESH_INTERVAL) {
 	const id = setInterval(async () => {
 		// only run when online
 		if (navigator.onLine) {
-			console.debug('Running offline refresh cycle');
+			console.debug('[Inertia Offline] Running offline refresh cycle');
 			await refreshAllExpired();
 		}
 	}, intervalMs);
