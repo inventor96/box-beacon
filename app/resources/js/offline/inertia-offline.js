@@ -150,27 +150,32 @@ export async function refreshAllExpired() {
 		const firstPage = toRefresh.pop();
 		await cachePage(firstPage.url);
 
-		// fetch every route (bounded concurrency to avoid spikes)
-		const active = [];
-		for (const item of toRefresh) {
-			const p = (async () => {
-				await cachePage(item.url);
-				await new Promise(r => setTimeout(r, REFRESH_STAGGER));
-			})();
-			active.push(p);
-			if (active.length >= REFRESH_CONCURRENCY) {
-				// wait for one to complete, ignoring errors
-				await Promise.race(active).catch(()=>{});
-
-				// remove settled
-				for (let i = active.length - 1; i >= 0; i--) {
-					if (active[i].isFulfilled || active[i].isRejected) active.splice(i,1);
-				}
-			}
+		if (toRefresh.length === 0) {
+			return;
 		}
 
-		// wait for all workers to complete
-		await Promise.all(active);
+		// deterministic queue worker model
+		let index = 0;
+		const workerCount = Math.min(REFRESH_CONCURRENCY, toRefresh.length);
+		const workers = Array.from({ length: workerCount }, async () => {
+			while (index < toRefresh.length) {
+				const currentIndex = index;
+				index += 1;
+
+				const route = toRefresh[currentIndex];
+				try {
+					await cachePage(route.url);
+				} catch (err) {
+					console.warn('Failed refreshing route', route.url, err);
+				}
+
+				if (REFRESH_STAGGER > 0) {
+					await new Promise((resolve) => setTimeout(resolve, REFRESH_STAGGER));
+				}
+			}
+		});
+
+		await Promise.all(workers);
 	} catch (err) {
 		console.warn('refreshAllExpired failed', err);
 	}
