@@ -12,6 +12,11 @@ const REFRESH_STAGGER = 500; // ms between requests to reduce burst
  */
 export const REFRESH_INTERVAL = 900000; // 15 minutes
 
+export async function isCachable(url) {
+	const route = await db.routeMeta.get(url);
+	return !!route;
+}
+
 /**
  * Stores an inertia page in the DB
  * @param {object} data The inertia page data

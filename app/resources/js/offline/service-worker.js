@@ -1,6 +1,5 @@
 import { precacheAndRoute } from 'workbox-precaching'
-import { db } from './db.js'
-import { clearAllData, refreshAllExpired, storePage } from './inertia-offline.js';
+import { clearAllData, getPage, isCachable, refreshAllExpired, storePage } from './inertia-offline.js';
 
 const SW_VERSION = '2026-03-15-auth-rebuild-v1'
 
@@ -54,7 +53,7 @@ self.addEventListener('fetch', async (event) => {
 	}
 
 	// check if this request is cacheable
-	const isCacheable = await db.routeMeta.get(path);
+	const isCacheable = await isCachable(path);
 	if (!isCacheable) {
 		console.log('[Service Worker] Route not marked as cacheable, skipping:', path);
 		return;
@@ -85,7 +84,7 @@ self.addEventListener('fetch', async (event) => {
 		} catch (err) {
 			// network failure; try to serve from cache
 			console.warn('[Service Worker] Network request failed, attempting to serve from cache:', path, err);
-			const rec = await db.pages.get(path);
+			const rec = await getPage(path);
 			if (rec) {
 				// synthesize a response
 				console.log('[Service Worker] Serving from cache:', path);
