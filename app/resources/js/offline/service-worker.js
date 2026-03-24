@@ -10,10 +10,6 @@ console.info('[Service Worker] Loaded', {
 	scriptURL: self.location?.href,
 })
 
-// ================================
-// Workbox Precache (Build-Time  Only)
-// ================================
-
 // This is injected by vite-plugin-pwa at build time
 // DO NOT touch at runtime
 precacheAndRoute(self.__WB_MANIFEST || [])
@@ -44,10 +40,6 @@ async function getCachedPageResponse(path) {
 	})
 }
 
-// ================================
-// Service Worker Lifecycle
-// ================================
-
 // take control of all unclaimed clients/pages immediately
 self.addEventListener('activate', (event) => {
 	event.waitUntil((async () => {
@@ -65,7 +57,7 @@ self.addEventListener('fetch', (event) => {
 	console.log('[Service Worker] Fetch event for:', event);
 	const req = event.request;
 	const reqUrl = new URL(req.url);
-	const path = reqUrl.href.replace(reqUrl.origin, '') || '/';
+	const path = reqUrl.href.replace(reqUrl.origin, '');
 
 	// only handle same-origin requests
 	if (reqUrl.origin !== self.location.origin) {

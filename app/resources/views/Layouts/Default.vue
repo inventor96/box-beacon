@@ -3,6 +3,7 @@ import { /* Dropdown, */ Collapse } from 'bootstrap'
 import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
 import Modal from '@/Components/Modal.vue';
+import UpdateAvailableModal from '@/Components/UpdateAvailableModal.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { clearAllData } from '@/../js/offline/inertia-offline';
@@ -192,4 +193,6 @@ async function cacheBust() {
 	>
 		<p>You appear to be offline, and unfortunately this action is not supported while offline. Please check your network connection and try again.</p>
 	</Modal>
+
+	<UpdateAvailableModal />
 </template>
