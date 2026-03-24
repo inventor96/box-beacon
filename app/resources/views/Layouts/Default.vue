@@ -6,7 +6,7 @@ import Modal from '@/Components/Modal.vue';
 import UpdateAvailableModal from '@/Components/UpdateAvailableModal.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
-import { clearAllData } from '@/../js/offline/inertia-offline';
+
 import { format } from 'timeago.js';
 
 const props = defineProps({
@@ -96,8 +96,10 @@ const mailLink = computed(
 	}
 );
 
-async function cacheBust() {
-	await clearAllData();
+function cacheBust() {
+	if (navigator.serviceWorker?.controller) {
+		navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_OFFLINE' });
+	}
 	alert('Offline cache cleared.');
 }
 </script>
