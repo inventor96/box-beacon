@@ -64,7 +64,7 @@ export async function getRouteList(forceRefresh = false) {
 			await db.routeMeta.put({
 				url: r.url,
 				paginated: r.paginated,
-				ttl: r.ttl * 1000, // convert to ms
+				ttl: r.ttl,
 			});
 		}
 
@@ -122,7 +122,7 @@ export async function getPage(url) {
 }
 
 /**
- * Refresh all expired cached pages based on routeMeta TTLs
+ * Refresh cached pages once their minimum refresh interval has elapsed
  * @returns {Promise<void>}
  */
 export async function refreshAllExpired() {
@@ -130,7 +130,7 @@ export async function refreshAllExpired() {
 		// get list of cacheable routes
 		const list = await getRouteList();
 
-		// build list of pages that need refreshing
+		// build list of pages that are now eligible for refresh
 		const toRefresh = [];
 		for (const route of list) {
 			const rec = await db.pages.get(route.url);
@@ -138,8 +138,8 @@ export async function refreshAllExpired() {
 				// not cached yet
 				toRefresh.push(route);
 			} else if (route.ttl) {
-				// check if expired
-				const isExpired = (rec.savedAt + route.ttl) < Date.now();
+				// ttl is the minimum time between refreshes (in seconds) for this route
+				const isExpired = (rec.savedAt + route.ttl * 1000) < Date.now();
 				if (isExpired) {
 					toRefresh.push(route);
 				}
