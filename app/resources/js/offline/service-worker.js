@@ -34,7 +34,7 @@ self.addEventListener('activate', (event) => {
 })
 
 // intercept requests made by the frontend
-self.addEventListener('fetch', async (event) => {
+self.addEventListener('fetch', (event) => {
 	console.log('[Service Worker] Fetch event for:', event);
 	const req = event.request;
 	const reqUrl = new URL(req.url);
@@ -68,15 +68,16 @@ self.addEventListener('fetch', async (event) => {
 
 			// check the response code
 			if (networkRes && networkRes.status === 200) {
-				console.log('[Service Worker] Successful network response, caching page:', path);
-				try {
-					// store the response
-					const data = await networkRes.clone().json();
-					await storePage(data);
-				} catch (err) {
-					// non-json or store error
-					console.warn('Failed to store page data', err);
-				}
+				console.log('[Service Worker] Successful network response, caching page in background:', path);
+				event.waitUntil((async () => {
+					try {
+						const data = await networkRes.clone().json();
+						await storePage(data);
+					} catch (err) {
+						// non-json or store error
+						console.warn('Failed to store page data', err);
+					}
+				})());
 			}
 
 			// pass through the network response
