@@ -1,7 +1,8 @@
 import { precacheAndRoute } from 'workbox-precaching'
 import { clearAllData, getPage, isCachable, refreshAllExpired, storePage } from './inertia-offline.js';
 
-const SW_VERSION = '2026-03-15-auth-rebuild-v1'
+const SW_VERSION = '2026-03-23-network-error-fallback-v1'
+const OFFLINE_FALLBACK_STATUSES = new Set([502, 503, 504])
 
 console.info('[Service Worker] Loaded', {
 	version: SW_VERSION,
@@ -16,6 +17,32 @@ console.info('[Service Worker] Loaded', {
 // This is injected by vite-plugin-pwa at build time
 // DO NOT touch at runtime
 precacheAndRoute(self.__WB_MANIFEST || [])
+
+async function getCachedPageResponse(path) {
+	const rec = await getPage(path)
+	if (!rec) {
+		return null
+	}
+
+	console.log('[Service Worker] Serving from cache:', path)
+	return new Response(JSON.stringify({
+		url: rec.url,
+		component: rec.component,
+		props: {
+			...rec.props,
+
+			// inject offline indicators
+			_offline: true,
+			_savedAt: rec.savedAt,
+		},
+		version: rec.version,
+	}), {
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Inertia': 'true',
+		},
+	})
+}
 
 // ================================
 // Service Worker Lifecycle
@@ -66,6 +93,16 @@ self.addEventListener('fetch', (event) => {
 			console.log('[Service Worker] Fetching from network:', path);
 			const networkRes = await fetch(req);
 
+			if (OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
+				console.warn('[Service Worker] Server unavailable response, attempting to serve from cache:', path, networkRes.status)
+				const cachedRes = await getCachedPageResponse(path)
+				if (cachedRes) {
+					return cachedRes
+				}
+
+				console.warn('[Service Worker] No cache available for unavailable server response, passing through:', path, networkRes.status)
+			}
+
 			// check the response code
 			if (networkRes && networkRes.status === 200) {
 				console.log('[Service Worker] Successful network response, caching page in background:', path);
@@ -85,27 +122,9 @@ self.addEventListener('fetch', (event) => {
 		} catch (err) {
 			// network failure; try to serve from cache
 			console.warn('[Service Worker] Network request failed, attempting to serve from cache:', path, err);
-			const rec = await getPage(path);
-			if (rec) {
-				// synthesize a response
-				console.log('[Service Worker] Serving from cache:', path);
-				return new Response(JSON.stringify({
-					url: rec.url,
-					component: rec.component,
-					props: {
-						...rec.props,
-
-						// inject offline indicators
-						_offline: true,
-						_savedAt: rec.savedAt,
-					},
-					version: rec.version,
-				}), {
-					headers: {
-						'Content-Type': 'application/json',
-						'X-Inertia': 'true',
-					},
-				});
+			const cachedRes = await getCachedPageResponse(path)
+			if (cachedRes) {
+				return cachedRes
 			}
 
 			// no cache; return offline response
