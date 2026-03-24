@@ -38,17 +38,25 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', async (event) => {
 	console.log('[Service Worker] Fetch event for:', event);
 	const req = event.request;
+	const reqUrl = new URL(req.url);
+	const path = reqUrl.href.replace(reqUrl.origin, '') || '/';
+
+	// only handle same-origin requests
+	if (reqUrl.origin !== self.location.origin) {
+		console.log('[Service Worker] Not a same-origin request, skipping:', path);
+		return;
+	}
 
 	// only handle inertia `get` requests
 	if (req.headers.get('X-Inertia') !== 'true' || req.method !== 'GET') {
-		console.log('[Service Worker] Not an Inertia GET request, skipping:', req.url);
+		console.log('[Service Worker] Not an Inertia GET request, skipping:', path);
 		return;
 	}
 
 	// check if this request is cacheable
-	const isCacheable = await db.routeMeta.get(req.url);
+	const isCacheable = await db.routeMeta.get(path);
 	if (!isCacheable) {
-		console.log('[Service Worker] Route not marked as cacheable, skipping:', req.url);
+		console.log('[Service Worker] Route not marked as cacheable, skipping:', path);
 		return;
 	}
 
@@ -56,12 +64,12 @@ self.addEventListener('fetch', async (event) => {
 	event.respondWith((async () => {
 		try {
 			// make the original request
-			console.log('[Service Worker] Fetching from network:', req.url);
+			console.log('[Service Worker] Fetching from network:', path);
 			const networkRes = await fetch(req);
 
 			// check the response code
 			if (networkRes && networkRes.status === 200) {
-				console.log('[Service Worker] Successful network response, caching page:', req.url);
+				console.log('[Service Worker] Successful network response, caching page:', path);
 				try {
 					// store the response
 					const data = await networkRes.clone().json();
@@ -76,11 +84,11 @@ self.addEventListener('fetch', async (event) => {
 			return networkRes;
 		} catch (err) {
 			// network failure; try to serve from cache
-			console.warn('[Service Worker] Network request failed, attempting to serve from cache:', req.url, err);
-			const rec = await db.pages.get(req.url);
+			console.warn('[Service Worker] Network request failed, attempting to serve from cache:', path, err);
+			const rec = await db.pages.get(path);
 			if (rec) {
 				// synthesize a response
-				console.log('[Service Worker] Serving from cache:', req.url);
+				console.log('[Service Worker] Serving from cache:', path);
 				return new Response(JSON.stringify({
 					url: rec.url,
 					component: rec.component,
@@ -101,7 +109,7 @@ self.addEventListener('fetch', async (event) => {
 			}
 
 			// no cache; return offline response
-			console.warn('[Service Worker] No cache available, returning offline response:', req.url);
+			console.warn('[Service Worker] No cache available, returning offline response:', path);
 			return new Response('Uh oh! This page or action does not have offline support.', { status: 503, statusText: 'offline' });
 		}
 	})());
