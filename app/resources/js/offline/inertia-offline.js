@@ -59,6 +59,7 @@ export async function getRouteList(forceRefresh = false) {
 		
 		// store route details
 		const list = await routeRes.json();
+		await db.routeMeta.clear();
 		for (const r of list) {
 			await db.routeMeta.put({
 				url: r.url,
