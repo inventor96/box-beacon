@@ -52,15 +52,15 @@ self.addEventListener('fetch', async (event) => {
 		return;
 	}
 
-	// check if this request is cacheable
-	const isCacheable = await isCachable(path);
-	if (!isCacheable) {
-		console.log('[Service Worker] Route not marked as cacheable, skipping:', path);
-		return;
-	}
-
 	// override the processing of the request
 	event.respondWith((async () => {
+		// check if this request is cacheable
+		const isCacheable = await isCachable(path);
+		if (!isCacheable) {
+			console.log('[Service Worker] Route not marked as cacheable, skipping:', path);
+			return fetch(req);
+		}
+
 		try {
 			// make the original request
 			console.log('[Service Worker] Fetching from network:', path);
