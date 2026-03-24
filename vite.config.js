@@ -37,9 +37,9 @@ export default defineConfig(({ mode }) => {
 	];
 
 	const publicIcons = [
-		{ src: '/favicon.ico' },
-		//{ src: '/favicon.svg' },
-		{ src: '/apple-touch-icon.png' }
+		'/favicon.ico',
+		//'/favicon.svg',
+		'/apple-touch-icon.png'
 	];
 
 	const additionalImages = [];
