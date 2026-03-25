@@ -5,6 +5,7 @@ import Alert from '@/Components/Alert.vue';
 import UpdateAvailableModal from '@/Components/UpdateAvailableModal.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
+import { usePwa } from '@/../js/composables/usePwa';
 
 import { format } from 'timeago.js';
 
@@ -55,6 +56,7 @@ onMounted(() => {
 });
 
 const page = usePage();
+const { onlineAndConnected } = usePwa();
 watch(
 	() => page.url,
 	() => {
@@ -86,6 +88,10 @@ function cacheBust() {
 		navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_OFFLINE' });
 	}
 	alert('Offline cache cleared.');
+}
+
+function refreshPage() {
+	window.location.reload();
 }
 </script>
 
@@ -141,8 +147,18 @@ function cacheBust() {
 	</nav>
 
 	<!-- offline alert -->
-	<div v-if="props._offline" class="alert alert-warning m-0 mt-n3 mb-3 p-1 text-center">
-		You appear to be offline. We're showing a page that was current as of {{ format(props._savedAt) }}. Changes will not be saved, and functionality may be limited.
+	<div
+		v-if="props._offline"
+		:class="['alert', onlineAndConnected ? 'alert-info' : 'alert-warning', 'm-0', 'mt-n3', 'mb-3', 'p-1', 'text-center']"
+	>
+		<template v-if="onlineAndConnected">
+			Looks like you're back online.
+			<a href="#" @click.prevent="refreshPage">Click here</a>
+			to refresh the page.
+		</template>
+		<template v-else>
+			You appear to be offline. We're showing a page that was current as of {{ format(props._savedAt) }}. Changes will not be saved, and functionality may be limited.
+		</template>
 	</div>
 
 	<div id="container" class="container pb-5">
