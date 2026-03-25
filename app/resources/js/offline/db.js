@@ -5,9 +5,9 @@ import Dexie from 'dexie';
  */
 export const db = new Dexie('InertiaOfflineDB');
 
-db.version(2).stores({
+db.version(3).stores({
 	// individual page data
-	pages: '&url, component, props, version, savedAt',
+	pages: '&url, component, props, version, savedAt, etag',
 
 	// list of routes to cache
 	routeMeta: '&url, paginated, ttl',

@@ -16,20 +16,30 @@ export async function isCachable(url) {
 	return !!route;
 }
 
+function getResponseEtag(response) {
+	return response.headers.get('ETag');
+}
+
 /**
  * Stores an inertia page in the DB
  * @param {object} data The inertia page data
  * @returns {Promise<void>}
  */
-export async function storePage(data) {
+export async function storePage(data, metadata = {}) {
 	await db.pages.put({
 		url: data.url,
 		component: data.component ?? null,
 		props: data.props ?? null,
 		version: data.version ?? null,
-		savedAt: Date.now(),
+		savedAt: metadata.savedAt ?? Date.now(),
+		etag: metadata.etag ?? null,
 	});
 	console.debug('[Inertia Offline] Stored offline page', data.url);
+}
+
+export async function touchPage(url, savedAt = Date.now()) {
+	await db.pages.update(url, { savedAt });
+	console.debug('[Inertia Offline] Refreshed offline page timestamp', url);
 }
 
 /**
@@ -51,8 +61,23 @@ export async function getRouteList(forceRefresh = false) {
 			}
 		}
 
+		const routeListEtag = await db.system.get('routeListETag');
+		const headers = {};
+		if (routeListEtag?.value) {
+			headers['If-None-Match'] = routeListEtag.value;
+		}
+
 		// get list of cacheable routes from backend
-		const routeRes = await fetch(ROUTE_META_PATH, { credentials: 'include' });
+		const routeRes = await fetch(ROUTE_META_PATH, {
+			credentials: 'include',
+			headers,
+		});
+		if (routeRes.status === 304) {
+			await db.system.put({ key: 'routeListFetchedAt', value: now });
+			console.debug('[Inertia Offline] Route list not modified');
+			return await db.routeMeta.toArray();
+		}
+
 		if (!routeRes.ok) {
 			console.warn('[Inertia Offline] Failed to fetch route list', routeRes.statusText);
 			return [];
@@ -75,6 +100,12 @@ export async function getRouteList(forceRefresh = false) {
 		// update fetch time and store TTL
 		await db.system.put({ key: 'routeListFetchedAt', value: now });
 		await db.system.put({ key: 'routeListTTL', value: ttl || 0 });
+		const etag = getResponseEtag(routeRes);
+		if (etag) {
+			await db.system.put({ key: 'routeListETag', value: etag });
+		} else {
+			await db.system.delete('routeListETag');
+		}
 
 		// return the routes array
 		return routes;
@@ -201,17 +232,32 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true })
 	try {
 		// get local inertia version
 		const localVersion = await getLocalInertiaVersion();
+		const existingPage = await getPage(url);
+		const headers = {
+			'X-Inertia': 'true',
+			'X-Inertia-Version': localVersion || '',
+			'X-Requested-With': 'XMLHttpRequest',
+			'Accept': 'application/json',
+		};
+		if (existingPage?.etag) {
+			headers['If-None-Match'] = existingPage.etag;
+		}
 
 		// make the inertia-like request
 		const res = await fetch(url, {
-			headers: {
-				'X-Inertia': 'true',
-				'X-Inertia-Version': localVersion || '',
-				'X-Requested-With': 'XMLHttpRequest',
-				'Accept': 'application/json',
-			},
+			headers,
 			credentials: 'include',
 		});
+		if (res.status === 304) {
+			if (existingPage) {
+				await touchPage(url);
+				return;
+			}
+
+			console.warn('[Inertia Offline] Received 304 for uncached page', url);
+			return;
+		}
+
 		if (!res.ok) {
 			// check for 409 version mismatch
 			if (res.status === 409) {
@@ -232,7 +278,7 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true })
 
 		// update the local db
 		const data = await res.json();
-		await storePage(data);
+		await storePage(data, { etag: getResponseEtag(res) });
 	} catch (err) {
 		console.warn('[Inertia Offline] Failed to cache offline page', url, err);
 	}

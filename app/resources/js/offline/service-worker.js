@@ -72,6 +72,14 @@ async function getCachedPageResponse(path) {
 	}
 
 	console.log('[Service Worker] Serving from cache:', path)
+	const headers = {
+		'Content-Type': 'application/json',
+		'X-Inertia': 'true',
+	}
+	if (rec.etag) {
+		headers['ETag'] = rec.etag
+	}
+
 	return new Response(JSON.stringify({
 		url: rec.url,
 		component: rec.component,
@@ -84,10 +92,7 @@ async function getCachedPageResponse(path) {
 		},
 		version: rec.version,
 	}), {
-		headers: {
-			'Content-Type': 'application/json',
-			'X-Inertia': 'true',
-		},
+		headers,
 	})
 }
 
@@ -196,7 +201,7 @@ self.addEventListener('fetch', (event) => {
 					event.waitUntil((async () => {
 						try {
 							const data = await networkRes.clone().json();
-							await storePage(data);
+							await storePage(data, { etag: networkRes.headers.get('ETag') });
 						} catch (err) {
 							// non-json or store error
 							console.warn('Failed to store page data', err);
