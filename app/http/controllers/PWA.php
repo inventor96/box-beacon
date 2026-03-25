@@ -6,6 +6,11 @@ use mako\file\FileSystem;
 use mako\http\exceptions\NotFoundException;
 
 class PWA extends ControllerBase {
+	/**
+	 * TTL for cacheable routes metadata, in seconds
+	 */
+	private const ROUTES_META_TTL = 86400; // 1 day
+
 	public function manifest(FileSystem $fs) {
 		$path = __DIR__ . '/../../../public/build/manifest.webmanifest';
 
@@ -74,20 +79,27 @@ class PWA extends ControllerBase {
 	}
 
 	public function onlineCheck() {
+		$this->response->headers->add('Cache-Control', 'no-store, must-revalidate, private', true);
 		return $this->jsonResponse(['status' => 'ok']);
 	}
 
 	public function offlineRoutes(OfflineRoutes $offline) {
 		// disallow guests
 		if (!$this->getUser()) {
-			return $this->jsonResponse([], status: 403);
+			return $this->jsonResponse([
+				'ttl' => self::ROUTES_META_TTL,
+				'routes' => [],
+			], status: 403);
 		}
 
 		$this->response->headers->add('Cache-Control', 'no-store, must-revalidate, private', true);
 
 		// TODO: figure out limiting routes based on user permissions
 		$routes = $offline->generateRoutes();
-		return $this->jsonResponse($routes);
+		return $this->jsonResponse([
+			'ttl' => self::ROUTES_META_TTL,
+			'routes' => $routes,
+		]);
 	}
 
 	public function version() {

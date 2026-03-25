@@ -1,6 +1,5 @@
 import { db } from "./db";
 
-const ROUTE_META_TTL = 86400000; // 1 day - TODO: backend configurable?
 const ROUTE_META_PATH = '/pwa/offline-routes'; // backend endpoint to fetch route list
 const ROUTE_VERSION_PATH = '/pwa/offline-version'; // backend endpoint to fetch inertia version
 
@@ -41,10 +40,12 @@ export async function getRouteList(forceRefresh = false) {
 	try {
 		// check if we need to refresh the route list
 		const meta = await db.system.get('routeListFetchedAt');
+		const ttlMeta = await db.system.get('routeListTTL');
 		const now = Date.now();
-		if (!forceRefresh && meta && meta.value) {
+		if (!forceRefresh && meta && meta.value && ttlMeta && ttlMeta.value) {
 			const age = now - meta.value;
-			if (age < ROUTE_META_TTL) {
+			const ttlMs = ttlMeta.value * 1000; // convert from seconds to ms
+			if (age < ttlMs) {
 				// still fresh; return existing list
 				return await db.routeMeta.toArray();
 			}
@@ -57,10 +58,13 @@ export async function getRouteList(forceRefresh = false) {
 			return [];
 		}
 		
+		// parse response with new structure: {ttl, routes}
+		const response = await routeRes.json();
+		const { ttl, routes } = response;
+		
 		// store route details
-		const list = await routeRes.json();
 		await db.routeMeta.clear();
-		for (const r of list) {
+		for (const r of routes) {
 			await db.routeMeta.put({
 				url: r.url,
 				paginated: r.paginated,
@@ -68,11 +72,12 @@ export async function getRouteList(forceRefresh = false) {
 			});
 		}
 
-		// update fetch time
+		// update fetch time and store TTL
 		await db.system.put({ key: 'routeListFetchedAt', value: now });
+		await db.system.put({ key: 'routeListTTL', value: ttl || 0 });
 
-		// return the new list
-		return list;
+		// return the routes array
+		return routes;
 	} catch (err) {
 		console.warn('[Inertia Offline] getRouteList failed', err);
 		return [];
