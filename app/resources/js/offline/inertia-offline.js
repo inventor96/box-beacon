@@ -173,9 +173,9 @@ export async function refreshAllExpired() {
 			if (!rec) {
 				// not cached yet
 				toRefresh.push(route);
-			} else if (route.ttl) {
+			} else {
 				// ttl is the minimum time between refreshes (in seconds) for this route
-				const isExpired = (rec.savedAt + route.ttl * 1000) < Date.now();
+				const isExpired = (rec.savedAt + (route.ttl || 0) * 1000) < Date.now();
 				if (isExpired) {
 					toRefresh.push(route);
 				}
