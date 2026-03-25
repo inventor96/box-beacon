@@ -2,10 +2,9 @@
 import { /* Dropdown, */ Collapse } from 'bootstrap'
 import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
-import Modal from '@/Components/Modal.vue';
 import UpdateAvailableModal from '@/Components/UpdateAvailableModal.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { format } from 'timeago.js';
 
@@ -49,24 +48,10 @@ const props = defineProps({
 const collapseRef = ref(null);
 let collapse = null;
 
-const offlineModalRef = ref(null);
-function showOfflineModal() {
-	if (offlineModalRef.value) {
-		offlineModalRef.value.show();
-	}
-}
-
 onMounted(() => {
 	if (collapseRef.value) {
 		collapse = new Collapse(collapseRef.value, { toggle: false });
 	}
-
-	// listen for cache misses
-	window.addEventListener('inertia-offline:cache-miss', showOfflineModal);
-});
-
-onBeforeUnmount(() => {
-	window.removeEventListener('inertia-offline:cache-miss', showOfflineModal);
 });
 
 const page = usePage();
@@ -186,15 +171,6 @@ function cacheBust() {
 		<!-- page content -->
 		<slot />
 	</div>
-
-	<Modal
-		id="offlineModal"
-		ref="offlineModalRef"
-		title="Network Error"
-		confirmText=""
-	>
-		<p>You appear to be offline, and unfortunately this action is not supported while offline. Please check your network connection and try again.</p>
-	</Modal>
 
 	<UpdateAvailableModal />
 </template>

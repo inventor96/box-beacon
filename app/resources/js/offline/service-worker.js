@@ -1,8 +1,59 @@
 import { precacheAndRoute } from 'workbox-precaching'
 import { clearAllData, getPage, isCachable, refreshAllExpired, storePage } from './inertia-offline.js';
 
-const SW_VERSION = '2026-03-23-network-error-fallback-v1'
+const SW_VERSION = '2026-03-24-offline-cache-miss-ux-v1'
 const OFFLINE_FALLBACK_STATUSES = new Set([502, 503, 504])
+
+/**
+ * Builds an app-agnostic HTML page shown by Inertia's error overlay on a cache miss.
+ * @param {string} path The requested path that had no cached version.
+ * @returns {string} HTML string
+ */
+function buildOfflineHtml(path) {
+	return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offline</title>
+<style>
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	body {
+		font-family: system-ui, -apple-system, sans-serif;
+		background: #f8f9fa;
+		color: #212529;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 100vh;
+		padding: 2rem;
+	}
+	.card {
+		background: #fff;
+		border: 1px solid #dee2e6;
+		border-radius: 0.5rem;
+		max-width: 480px;
+		width: 100%;
+		padding: 2rem;
+		text-align: center;
+		box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+	}
+	.icon { font-size: 3rem; margin-bottom: 1rem; }
+	h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; }
+	p { color: #6c757d; line-height: 1.5; margin-bottom: 0.5rem; }
+	.path { font-family: monospace; font-size: 0.85rem; color: #adb5bd; }
+</style>
+</head>
+<body>
+<div class="card">
+	<div class="icon">⚡</div>
+	<h1>You\'re Offline</h1>
+	<p>This page is not available offline. Please check your connection and try again.</p>
+	<p class="path">${path}</p>
+</div>
+</body>
+</html>`;
+}
 
 console.info('[Service Worker] Loaded', {
 	version: SW_VERSION,
@@ -52,6 +103,40 @@ self.addEventListener('activate', (event) => {
 	})())
 })
 
+/**
+ * Returns true when the request carries the Inertia header.
+ * @param {Request} req
+ * @returns {boolean}
+ */
+function isInertiaRequest(req) {
+	return req.headers.get('X-Inertia') === 'true';
+}
+
+/**
+ * Returns true when the browser is performing a top-level navigation or the
+ * request Accept header signals an HTML response is expected.
+ * @param {Request} req
+ * @returns {boolean}
+ */
+function isNavigationRequest(req) {
+	if (req.mode === 'navigate') return true;
+	return (req.headers.get('Accept') || '').includes('text/html');
+}
+
+/**
+ * Returns true when the request looks like a non-Inertia XHR or JSON fetch
+ * (i.e. something that expects a machine-readable response, not a full page).
+ * @param {Request} req
+ * @returns {boolean}
+ */
+function isNonInertiaXhrLike(req) {
+	if (isInertiaRequest(req)) return false;
+	const xrw = (req.headers.get('X-Requested-With') || '').toLowerCase();
+	const accept = req.headers.get('Accept') || '';
+	return xrw === 'xmlhttprequest'
+		|| (accept.includes('application/json') && !accept.includes('text/html'));
+}
+
 // intercept requests made by the frontend
 self.addEventListener('fetch', (event) => {
 	console.log('[Service Worker] Fetch event for:', event);
@@ -65,63 +150,95 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// only handle inertia `get` requests
-	if (req.headers.get('X-Inertia') !== 'true' || req.method !== 'GET') {
-		console.log('[Service Worker] Not an Inertia GET request, skipping:', path);
+	const inertia = isInertiaRequest(req);
+	const navigation = !inertia && isNavigationRequest(req);
+	const xhrLike = !inertia && !navigation && isNonInertiaXhrLike(req);
+
+	// only intercept requests we have an offline policy for
+	if (!inertia && !navigation && !xhrLike) {
+		console.log('[Service Worker] No offline policy for request, skipping:', path);
 		return;
 	}
 
 	// override the processing of the request
 	event.respondWith((async () => {
-		// check if this request is cacheable
-		const isCacheable = await isCachable(path);
-		if (!isCacheable) {
-			console.log('[Service Worker] Route not marked as cacheable, skipping:', path);
-			return fetch(req);
-		}
-
 		try {
-			// make the original request
-			console.log('[Service Worker] Fetching from network:', path);
-			const networkRes = await fetch(req);
-
-			if (OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
-				console.warn('[Service Worker] Server unavailable response, attempting to serve from cache:', path, networkRes.status)
-				const cachedRes = await getCachedPageResponse(path)
-				if (cachedRes) {
-					return cachedRes
+			if (inertia && req.method === 'GET') {
+				// check if this request is cacheable
+				const isCacheable = await isCachable(path);
+				if (!isCacheable) {
+					console.log('[Service Worker] Inertia route not marked as cacheable, passing through:', path);
+					return await fetch(req);
 				}
 
-				console.warn('[Service Worker] No cache available for unavailable server response, passing through:', path, networkRes.status)
-			}
+				// make the original request
+				console.log('[Service Worker] Fetching from network:', path);
+				const networkRes = await fetch(req);
 
-			// check the response code
-			if (networkRes && networkRes.status === 200) {
-				console.log('[Service Worker] Successful network response, caching page in background:', path);
-				event.waitUntil((async () => {
-					try {
-						const data = await networkRes.clone().json();
-						await storePage(data);
-					} catch (err) {
-						// non-json or store error
-						console.warn('Failed to store page data', err);
+				if (OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
+					console.warn('[Service Worker] Server unavailable response, attempting to serve from cache:', path, networkRes.status);
+					const cachedRes = await getCachedPageResponse(path);
+					if (cachedRes) {
+						return cachedRes;
 					}
-				})());
+
+					console.warn('[Service Worker] No cache available for unavailable server response, returning offline page:', path, networkRes.status);
+					return new Response(buildOfflineHtml(path), {
+						status: 503,
+						statusText: 'Service Unavailable',
+						headers: { 'Content-Type': 'text/html; charset=utf-8' },
+					});
+				}
+
+				// check the response code
+				if (networkRes && networkRes.status === 200) {
+					console.log('[Service Worker] Successful network response, caching page in background:', path);
+					event.waitUntil((async () => {
+						try {
+							const data = await networkRes.clone().json();
+							await storePage(data);
+						} catch (err) {
+							// non-json or store error
+							console.warn('Failed to store page data', err);
+						}
+					})());
+				}
+
+				// pass through the network response
+				return networkRes;
 			}
 
-			// pass through the network response
-			return networkRes;
+			// for all other intercepted request types, pass the request through
+			return await fetch(req);
 		} catch (err) {
-			// network failure; try to serve from cache
-			console.warn('[Service Worker] Network request failed, attempting to serve from cache:', path, err);
-			const cachedRes = await getCachedPageResponse(path)
-			if (cachedRes) {
-				return cachedRes
+			// network failure
+			console.warn('[Service Worker] Network request failed:', path, err);
+
+			if (inertia && req.method === 'GET') {
+				// try to serve from cache
+				const cachedRes = await getCachedPageResponse(path);
+				if (cachedRes) {
+					return cachedRes;
+				}
 			}
 
-			// no cache; return offline response
-			console.warn('[Service Worker] No cache available, returning offline response:', path);
-			return new Response('Uh oh! This page or action does not have offline support.', { status: 503, statusText: 'offline' });
+			if (xhrLike) {
+				// non-Inertia XHR/fetch: return empty 503 so the caller can handle it
+				console.warn('[Service Worker] Returning empty 503 for XHR-like request:', path);
+				return new Response('', {
+					status: 503,
+					statusText: 'Service Unavailable',
+					headers: { 'Content-Type': 'text/plain' },
+				});
+			}
+
+			// browser-rendered requests (navigation, non-GET, uncached Inertia): return HTML 503
+			console.warn('[Service Worker] No cache available, returning HTML offline response:', path);
+			return new Response(buildOfflineHtml(path), {
+				status: 503,
+				statusText: 'Service Unavailable',
+				headers: { 'Content-Type': 'text/html; charset=utf-8' },
+			});
 		}
 	})());
 });
