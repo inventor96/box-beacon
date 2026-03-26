@@ -20,6 +20,7 @@ public/hot
 .php-cs-fixer.php
 .phpstorm.meta.php
 jsconfig.json
+tsconfig.json
 LICENSE
 phpstan.neon
 README.md
@@ -29,3 +30,4 @@ app/storage/cache/views/*
 app/storage/database/*
 app/storage/logs/*
 app/storage/sessions/*
+dev-dist/
