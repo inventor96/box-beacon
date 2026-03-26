@@ -1,4 +1,4 @@
-import { precacheAndRoute } from 'workbox-precaching'
+import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import { clearAllData, getPage, isCachable, refreshAllExpired, storePage } from './inertia-offline.js';
 
 const SW_VERSION = '2026-03-24-offline-cache-miss-ux-v1'
@@ -60,6 +60,9 @@ console.info('[Service Worker] Loaded', {
 	scope: self.registration?.scope,
 	scriptURL: self.location?.href,
 })
+
+// clean up old precaches automatically
+cleanupOutdatedCaches()
 
 // This is injected by vite-plugin-pwa at build time
 // DO NOT touch at runtime

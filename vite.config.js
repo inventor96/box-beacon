@@ -62,9 +62,11 @@ export default defineConfig(({ mode }) => {
 				strategies: 'injectManifest',
 				srcDir: 'app/resources/js/offline',
 				filename: 'service-worker.js',
+				outDir: 'public', // output the injected SW to public/ so it matches the /service-worker.js registration URL
 				injectRegister: false, // we'll register the service worker manually in our app.js
 				injectManifest: {
 					globPatterns: ['**/*.{js,css,html,ico,jpg,png,svg,woff,woff2,ttf,eot}'],
+					globIgnores: ['service-worker.js'], // prevent the SW from precaching itself
 					maximumFileSizeToCacheInBytes: 5000000,
 				},
 				//buildBase: '/',
