@@ -1,6 +1,7 @@
 <?php
 namespace app\http\controllers;
 
+use app\http\renderers\OfflineTemplateRenderer;
 use app\modules\offline\OfflineRoutes;
 use mako\file\FileSystem;
 use mako\http\exceptions\NotFoundException;
@@ -10,6 +11,7 @@ class PWA extends ControllerBase {
 	 * TTL for cacheable routes metadata, in seconds
 	 */
 	private const ROUTES_META_TTL = 86400; // 1 day
+	private const TEMPLATE_PLACEHOLDER_MAX_LENGTH = 128;
 
 	public function manifest(FileSystem $fs) {
 		$path = __DIR__ . '/../../../public/build/manifest.webmanifest';
@@ -107,5 +109,26 @@ class PWA extends ControllerBase {
 
 		$version = $this->config->get('inertia::version.0');
 		return $this->jsonResponse(['version' => $version]);
+	}
+
+	public function offlineTemplate(OfflineTemplateRenderer $renderer) {
+		$placeholder = (string)$this->request->getQuery()->get('placeholder', '');
+		if ($this->isInvalidTemplatePlaceholder($placeholder)) {
+			$this->response->setStatus(400);
+			$this->response->setType('text/plain');
+			$this->response->headers->add('Cache-Control', 'no-store, must-revalidate, private', true);
+			return 'Invalid placeholder value.';
+		}
+
+		$this->response->headers->add('Cache-Control', 'no-store, must-revalidate, private', true);
+		return $renderer->renderTemplateWithPlaceholder($placeholder);
+	}
+
+	private function isInvalidTemplatePlaceholder(string $placeholder): bool {
+		if ($placeholder === '' || strlen($placeholder) > self::TEMPLATE_PLACEHOLDER_MAX_LENGTH) {
+			return true;
+		}
+
+		return !preg_match('/^[A-Za-z0-9:_-]+$/', $placeholder);
 	}
 }

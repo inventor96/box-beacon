@@ -1,5 +1,15 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
-import { clearAllData, getPage, isCachable, refreshAllExpired, storePage } from './inertia-offline.js';
+import {
+	clearAllData,
+	getCachedPageResponse,
+	getOfflineNavigationResponse,
+	getRefreshOptions,
+	getRootRedirectResponse,
+	isCachable,
+	maybeRecordRootRedirect,
+	refreshAllExpired,
+	storePage,
+} from './inertia-offline.js';
 
 const SW_VERSION = '2026-03-24-offline-cache-miss-ux-v1'
 const OFFLINE_FALLBACK_STATUSES = new Set([502, 503, 504])
@@ -67,37 +77,6 @@ cleanupOutdatedCaches()
 // This is injected by vite-plugin-pwa at build time
 // DO NOT touch at runtime
 precacheAndRoute(self.__WB_MANIFEST || [])
-
-async function getCachedPageResponse(path) {
-	const rec = await getPage(path)
-	if (!rec) {
-		return null
-	}
-
-	console.log('[Service Worker] Serving from cache:', path)
-	const headers = {
-		'Content-Type': 'application/json',
-		'X-Inertia': 'true',
-	}
-	if (rec.etag) {
-		headers['ETag'] = rec.etag
-	}
-
-	return new Response(JSON.stringify({
-		url: rec.url,
-		component: rec.component,
-		props: {
-			...rec.props,
-
-			// inject offline indicators
-			_offline: true,
-			_savedAt: rec.savedAt,
-		},
-		version: rec.version,
-	}), {
-		headers,
-	})
-}
 
 // take control of all unclaimed clients/pages immediately
 self.addEventListener('activate', (event) => {
@@ -176,15 +155,25 @@ self.addEventListener('fetch', (event) => {
 				const isCacheable = await isCachable(path);
 				if (!isCacheable) {
 					console.log('[Service Worker] Inertia route not marked as cacheable, passing through:', path);
-					return await fetch(req);
+					const passthroughRes = await fetch(req);
+					await maybeRecordRootRedirect(path, passthroughRes);
+					return passthroughRes;
 				}
 
 				// make the original request
 				console.log('[Service Worker] Fetching from network:', path);
 				const networkRes = await fetch(req);
+				await maybeRecordRootRedirect(path, networkRes);
 
 				if (OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
 					console.warn('[Service Worker] Server unavailable response, attempting to serve from cache:', path, networkRes.status);
+					if (path === '/') {
+						const redirectRes = await getRootRedirectResponse(path, inertia);
+						if (redirectRes) {
+							return redirectRes;
+						}
+					}
+
 					const cachedRes = await getCachedPageResponse(path);
 					if (cachedRes) {
 						return cachedRes;
@@ -204,6 +193,7 @@ self.addEventListener('fetch', (event) => {
 					event.waitUntil((async () => {
 						try {
 							const data = await networkRes.clone().json();
+							await maybeRecordRootRedirect(path, networkRes, data);
 							await storePage(data, { etag: networkRes.headers.get('ETag') });
 						} catch (err) {
 							// non-json or store error
@@ -216,13 +206,29 @@ self.addEventListener('fetch', (event) => {
 				return networkRes;
 			}
 
+			// for non-Inertia requests, just pass through the network response and handle offline fallback in case of failure or unavailable server status
+			const networkRes = await fetch(req);
+			if (navigation && OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
+				const offlineHtmlRes = await getOfflineNavigationResponse(path);
+				if (offlineHtmlRes) {
+					return offlineHtmlRes;
+				}
+			}
+
 			// for all other intercepted request types, pass the request through
-			return await fetch(req);
+			return networkRes;
 		} catch (err) {
 			// network failure
 			console.warn('[Service Worker] Network request failed:', path, err);
 
 			if (inertia && req.method === 'GET') {
+				if (path === '/') {
+					const redirectRes = await getRootRedirectResponse(path, inertia);
+					if (redirectRes) {
+						return redirectRes;
+					}
+				}
+
 				// try to serve from cache
 				const cachedRes = await getCachedPageResponse(path);
 				if (cachedRes) {
@@ -238,6 +244,13 @@ self.addEventListener('fetch', (event) => {
 					statusText: 'Service Unavailable',
 					headers: { 'Content-Type': 'text/plain' },
 				});
+			}
+
+			if (navigation) {
+				const offlineHtmlRes = await getOfflineNavigationResponse(path);
+				if (offlineHtmlRes) {
+					return offlineHtmlRes;
+				}
 			}
 
 			// browser-rendered requests (navigation, non-GET, uncached Inertia): return HTML 503
@@ -264,7 +277,7 @@ self.addEventListener('message', (event) => {
 
 		// refresh all expired pages
 		case 'REFRESH_EXPIRED':
-			event.waitUntil(refreshAllExpired());
+			event.waitUntil(refreshAllExpired(getRefreshOptions()));
 			break;
 
 		// custom skip waiting trigger (e.g. from Inertia page reload when a new version is detected)
@@ -277,7 +290,7 @@ self.addEventListener('message', (event) => {
 // periodic sync handler (chrome / android pwa)
 self.addEventListener('periodicsync', (event) => {
 	if (event.tag === 'inertia-refresh' || event.tag === 'inertia-refresh:default') {
-		event.waitUntil(refreshAllExpired());
+		event.waitUntil(refreshAllExpired(getRefreshOptions()));
 	}
 });
 
@@ -287,6 +300,6 @@ self.addEventListener('push', (event) => {
 
 	// refresh trigger
 	if (data?.type === 'refresh-offline') {
-		event.waitUntil(refreshAllExpired());
+		event.waitUntil(refreshAllExpired(getRefreshOptions()));
 	}
 });
