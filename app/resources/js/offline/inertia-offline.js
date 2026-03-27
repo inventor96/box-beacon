@@ -225,6 +225,15 @@ async function ensureInertiaVersion(options = {}) {
 	});
 	const remoteVersion = await getRemoteInertiaVersion();
 	if (remoteVersion) {
+		if (remoteVersion !== localVersion) {
+			console.warn('[Inertia Offline] Inertia version changed; clearing offline cache before downloading updates', {
+				localVersion,
+				remoteVersion,
+			});
+			await clearAllData();
+			await db.system.put({ key: 'inertiaVersion', value: remoteVersion });
+		}
+
 		console.debug('[Inertia Offline] Updated Inertia version for refresh work', { remoteVersion });
 		return remoteVersion;
 	}

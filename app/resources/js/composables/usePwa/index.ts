@@ -192,7 +192,6 @@ export function usePwa() {
                     return;
                 }
 
-
                 // post the REFRESH_EXPIRED message to the service worker
                 const posted = postRefreshExpired()
                 if (!posted) {
