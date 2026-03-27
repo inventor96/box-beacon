@@ -178,6 +178,27 @@ export function usePwa() {
                     console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
                     startRefreshFallbackTimer()
                 })
+
+            // kick off the first refresh check sooner so that we don't have to wait for the first interval to elapse
+            setTimeout(() => {
+                // check if we're online
+                if (!navigator.onLine || !onlineAndConnected.value) {
+                    return
+                }
+
+                // check if a service worker update is pending
+                if (swRegistration.value?.waiting) {
+                    // don't do it now, hopefully the user will update first and then we'll make it back here
+                    return;
+                }
+
+
+                // post the REFRESH_EXPIRED message to the service worker
+                const posted = postRefreshExpired()
+                if (!posted) {
+                    console.debug('[PWA] Initial REFRESH_EXPIRED fallback skipped (no active worker)')
+                }
+            }, 10000) // 10s
         }
     }
 
