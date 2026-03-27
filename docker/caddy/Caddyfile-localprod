@@ -1,0 +1,9 @@
+{
+    auto_https off
+}
+
+{$LISTEN_DOMAIN} {
+    tls /certs/_wildcard.{$LISTEN_DOMAIN}.pem /certs/_wildcard.{$LISTEN_DOMAIN}-key.pem
+
+    reverse_proxy backend:80
+}
