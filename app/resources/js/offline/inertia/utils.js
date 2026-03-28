@@ -7,7 +7,7 @@ export function getResponseEtag(response) {
 	return response.headers.get('ETag');
 }
 
-const SHOULD_LOG_DEV = true;
+const SHOULD_LOG_DEV = process.env.NODE_ENV === 'development';
 
 function withPrefix(method, args) {
 	// styles from workbox
