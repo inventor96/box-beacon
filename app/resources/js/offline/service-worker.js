@@ -9,7 +9,7 @@ import {
 	maybeRecordRootRedirect,
 	refreshAllExpired,
 	storePage,
-} from './inertia-offline.js';
+} from './inertia/index.js';
 
 const SW_VERSION = '2026-03-24-offline-cache-miss-ux-v1'
 const OFFLINE_FALLBACK_STATUSES = new Set([502, 503, 504])

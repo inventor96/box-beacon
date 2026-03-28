@@ -2,7 +2,6 @@ import { registerSW } from 'virtual:pwa-register'
 import {
     installEvent,
     onlineAndConnected,
-    refreshIntervalMs,
     showRefresh,
     swRegistration,
     updateSW,
@@ -10,8 +9,13 @@ import {
 import type { BeforeInstallPromptEvent } from './types'
 
 const PERIODIC_SYNC_TAG = 'inertia-refresh:default'
+const DEFAULT_REFRESH_INTERVAL_MS = 900000
 
 let refreshFallbackTimerId: ReturnType<typeof setInterval> | undefined
+
+type UsePwaOptions = {
+    refreshIntervalMs?: number
+}
 
 function onBeforeInstallPrompt(event: BeforeInstallPromptEvent) {
     installEvent.value = event
@@ -53,7 +57,7 @@ function postRefreshExpired() {
     return true
 }
 
-function startRefreshFallbackTimer() {
+function startRefreshFallbackTimer(refreshIntervalMs: number) {
     if (refreshFallbackTimerId) {
         return
     }
@@ -72,7 +76,7 @@ function startRefreshFallbackTimer() {
     console.info(`[PWA] Using fallback refresh timer (${refreshIntervalMs}ms)`)
 }
 
-function registerPeriodicSync(registration: ServiceWorkerRegistration): boolean | Promise<boolean> {
+function registerPeriodicSync(registration: ServiceWorkerRegistration, refreshIntervalMs: number): boolean | Promise<boolean> {
     type PeriodicSyncCapableRegistration = ServiceWorkerRegistration & {
         periodicSync?: {
             register: (tag: string, options: { minInterval: number }) => Promise<void>
@@ -107,7 +111,7 @@ function triggerSkipWaiting(registration: ServiceWorkerRegistration | undefined)
     registration.waiting.postMessage({ type: 'SKIP_WAITING' })
 }
 
-export function usePwa() {
+export function usePwa({ refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS }: UsePwaOptions = {}) {
     function createPwa() {
         if (window.__PWA_INITIALIZED__) {
             console.log('[PWA] Already initialized');
@@ -160,23 +164,23 @@ export function usePwa() {
                 .then((registration) => {
                     swRegistration.value = registration
 
-                    const periodicSyncRegistration = registerPeriodicSync(registration)
+                    const periodicSyncRegistration = registerPeriodicSync(registration, refreshIntervalMs)
                     if (typeof periodicSyncRegistration === 'boolean') {
                         if (!periodicSyncRegistration) {
-                            startRefreshFallbackTimer()
+                            startRefreshFallbackTimer(refreshIntervalMs)
                         }
                         return
                     }
 
                     return periodicSyncRegistration.then((periodicSyncRegistered) => {
                         if (!periodicSyncRegistered) {
-                            startRefreshFallbackTimer()
+                            startRefreshFallbackTimer(refreshIntervalMs)
                         }
                     })
                 })
                 .catch((error) => {
                     console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
-                    startRefreshFallbackTimer()
+                    startRefreshFallbackTimer(refreshIntervalMs)
                 })
 
             // kick off the first refresh check sooner so that we don't have to wait for the first interval to elapse

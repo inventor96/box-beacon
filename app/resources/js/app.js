@@ -1,12 +1,14 @@
 import { createApp, h, watch } from 'vue'
-import { createInertiaApp, router, usePage } from '@inertiajs/vue3'
+import { createInertiaApp, usePage } from '@inertiajs/vue3'
 import Default from '@/Layouts/Default.vue'
 import 'vue-color/style.css';
 import '../scss/styles.scss'
 import { usePwa } from './composables/usePwa';
 
 // PWA setup
-const { createPwa } = usePwa();
+const { createPwa } = usePwa({
+	refreshIntervalMs: 900000,
+});
 createPwa();
 
 function postServiceWorkerMessage(type) {
@@ -17,17 +19,6 @@ function postServiceWorkerMessage(type) {
 	navigator.serviceWorker.controller.postMessage({ type });
 	return true;
 }
-
-// TODO: make sure this fires as expected, possibly move it to SW?
-// Mark Inertia 409 reloads so PWA update UX can skip the refresh notification.
-router.on('invalid', (event) => {
-	const status = event?.detail?.response?.status;
-	if (status === 409) {
-		window.__INERTIA_FORCED_RELOAD__ = true;
-		postServiceWorkerMessage('CLEAR_OFFLINE');
-		postServiceWorkerMessage('REFRESH_EXPIRED');
-	}
-});
 
 createInertiaApp({
 	resolve: (name) => {
