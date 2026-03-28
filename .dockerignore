@@ -8,6 +8,8 @@ vendor/
 composer.phar
 node_modules/
 public/hot
+public/build/
+public/service-worker.js
 .vite/
 .vscode/
 .env

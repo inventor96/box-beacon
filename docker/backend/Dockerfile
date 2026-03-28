@@ -1,5 +1,5 @@
 # ------- Frontend build stage -------
-FROM node:21.6 AS frontend-build
+FROM node:22 AS frontend-build
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
@@ -35,6 +35,7 @@ COPY . .
 
 # Copy frontend assets
 COPY --from=frontend-build /app/public/build /var/www/html/public/build
+COPY --from=frontend-build /app/public/service-worker.js /var/www/html/public/service-worker.js
 
 # Generate inertia version
 RUN echo "<?php return ['$(date +%Y%m%d%H%M%S)'];" \
