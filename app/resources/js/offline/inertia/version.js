@@ -1,6 +1,7 @@
 import { db } from './db.js';
 import { ROUTE_VERSION_PATH } from './constants.js';
 import { clearAllData } from './data.js';
+import { logDebug, logWarn } from './utils.js';
 
 /**
  * Retrieves the local Inertia version stored in the database.
@@ -20,7 +21,7 @@ export async function getRemoteInertiaVersion() {
 		// fetch the Inertia version from the server
 		const res = await fetch(ROUTE_VERSION_PATH, { credentials: 'include' });
 		if (!res.ok) {
-			console.warn('[Inertia Offline] Failed to fetch inertia version', res.statusText);
+			logWarn('Failed to fetch inertia version', res.statusText);
 			return null;
 		}
 
@@ -30,7 +31,7 @@ export async function getRemoteInertiaVersion() {
 
 		return data.version || null;
 	} catch (err) {
-		console.warn('[Inertia Offline] getInertiaVersion failed', err);
+		logWarn('getInertiaVersion failed', err);
 		return null;
 	}
 }
@@ -50,11 +51,11 @@ export async function ensureInertiaVersion(options = {}) {
 
 	// if we have a local version and we're not forcing a refresh, return it
 	if (!forceRefresh && localVersion) {
-		console.debug('[Inertia Offline] Reusing local Inertia version', { localVersion });
+		logDebug('Reusing local Inertia version', { localVersion });
 		return localVersion;
 	}
 
-	console.debug('[Inertia Offline] Refreshing Inertia version before backend cache update requests', {
+	logDebug('Refreshing Inertia version before backend cache update requests', {
 		forceRefresh,
 		localVersion,
 	});
@@ -65,7 +66,7 @@ export async function ensureInertiaVersion(options = {}) {
 	if (remoteVersion) {
 		// if we got a remote version, compare it to the local version and clear cache if it has changed
 		if (remoteVersion !== localVersion) {
-			console.warn('[Inertia Offline] Inertia version changed; clearing offline cache before downloading updates', {
+			logWarn('Inertia version changed; clearing offline cache before downloading updates', {
 				localVersion,
 				remoteVersion,
 			});
@@ -73,11 +74,11 @@ export async function ensureInertiaVersion(options = {}) {
 			await db.system.put({ key: 'inertiaVersion', value: remoteVersion });
 		}
 
-		console.debug('[Inertia Offline] Updated Inertia version for refresh work', { remoteVersion });
+		logDebug('Updated Inertia version for refresh work', { remoteVersion });
 		return remoteVersion;
 	}
 
-	console.warn('[Inertia Offline] Failed to refresh Inertia version; falling back to local version if available', {
+	logWarn('Failed to refresh Inertia version; falling back to local version if available', {
 		localVersion,
 	});
 	return localVersion;

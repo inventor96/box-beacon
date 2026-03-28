@@ -1,5 +1,5 @@
 import { db } from './db.js';
-import { getResponseEtag } from './utils.js';
+import { getResponseEtag, logDebug, logWarn } from './utils.js';
 
 /**
  * Retrieves the offline template for the given system key.
@@ -9,11 +9,11 @@ import { getResponseEtag } from './utils.js';
 export async function getOfflineTemplate(systemKey) {
 	const rec = await db.system.get(systemKey);
 	if (!rec?.value || typeof rec.value !== 'object') {
-		console.debug('[Inertia Offline] Offline template cache miss', { systemKey });
+		logDebug('Offline template cache miss', { systemKey });
 		return null;
 	}
 
-	console.debug('[Inertia Offline] Offline template cache hit', {
+	logDebug('Offline template cache hit', {
 		systemKey,
 		savedAt: rec.value.savedAt,
 	});
@@ -30,7 +30,7 @@ export async function getOfflineTemplate(systemKey) {
 export async function refreshOfflineTemplate(templatePath, placeholder, systemKey) {
 	// require all inputs
 	if (!templatePath || !placeholder || !systemKey) {
-		console.debug('[Inertia Offline] Skipping offline template refresh due to missing inputs', {
+		logDebug('Skipping offline template refresh due to missing inputs', {
 			templatePath,
 			placeholder,
 			systemKey,
@@ -39,7 +39,7 @@ export async function refreshOfflineTemplate(templatePath, placeholder, systemKe
 	}
 
 	try {
-		console.debug('[Inertia Offline] Refreshing offline template', {
+		logDebug('Refreshing offline template', {
 			templatePath,
 			placeholder,
 			systemKey,
@@ -71,13 +71,13 @@ export async function refreshOfflineTemplate(templatePath, placeholder, systemKe
 				});
 			}
 
-			console.debug('[Inertia Offline] Offline template unchanged (304)', { systemKey });
+			logDebug('Offline template unchanged (304)', { systemKey });
 			return existing;
 		}
 
 		// if the response is not successful, we can't refresh the template
 		if (!templateRes.ok) {
-			console.warn('[Inertia Offline] Failed to fetch offline template', templateRes.status, templateRes.statusText);
+			logWarn('Failed to fetch offline template', templateRes.status, templateRes.statusText);
 			return null;
 		}
 
@@ -93,7 +93,7 @@ export async function refreshOfflineTemplate(templatePath, placeholder, systemKe
 
 		// store the refreshed template in the database
 		await db.system.put({ key: systemKey, value: rec });
-		console.debug('[Inertia Offline] Offline template stored', {
+		logDebug('Offline template stored', {
 			systemKey,
 			hasEtag: !!rec.etag,
 			savedAt: rec.savedAt,
@@ -101,7 +101,7 @@ export async function refreshOfflineTemplate(templatePath, placeholder, systemKe
 
 		return rec;
 	} catch (err) {
-		console.warn('[Inertia Offline] refreshOfflineTemplate failed', err);
+		logWarn('refreshOfflineTemplate failed', err);
 		return null;
 	}
 }

@@ -1,6 +1,6 @@
 import { db } from './db.js';
 import { ROUTE_META_PATH } from './constants.js';
-import { getResponseEtag } from './utils.js';
+import { getResponseEtag, logDebug, logWarn } from './utils.js';
 
 /**
  * Checks if a route is cacheable.
@@ -49,13 +49,13 @@ export async function getRouteList(forceRefresh = false) {
 		// if we get a 304 Not Modified, we can just update the fetched timestamp and return the cached list
 		if (routeRes.status === 304) {
 			await db.system.put({ key: 'routeListFetchedAt', value: now });
-			console.debug('[Inertia Offline] Route list not modified');
+			logDebug('Route list not modified');
 			return await db.routeMeta.toArray();
 		}
 
 		// can't do anything without a successful response
 		if (!routeRes.ok) {
-			console.warn('[Inertia Offline] Failed to fetch route list', routeRes.statusText);
+			logWarn('Failed to fetch route list', routeRes.statusText);
 			return [];
 		}
 
@@ -85,7 +85,7 @@ export async function getRouteList(forceRefresh = false) {
 
 		return routes;
 	} catch (err) {
-		console.warn('[Inertia Offline] getRouteList failed', err);
+		logWarn('getRouteList failed', err);
 		return [];
 	}
 }

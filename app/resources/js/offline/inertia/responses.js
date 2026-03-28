@@ -7,6 +7,7 @@ import { getPage } from './pages.js';
 import { getOfflineTemplate } from './template.js';
 import { isCachable } from './routes.js';
 import { getRootRedirectResponse } from './redirects.js';
+import { logDebug, logWarn } from './utils.js';
 
 /**
  * Escapes special characters in a string for use in HTML attributes.
@@ -54,11 +55,11 @@ export async function getCachedPageResponse(path) {
 	// attempt to get the cached page data for the requested path
 	const rec = await getPage(path)
 	if (!rec) {
-		console.debug('[Inertia Offline] Cached page miss', { path })
+		logDebug('Cached page miss', { path })
 		return null
 	}
 
-	console.log('[Inertia Offline] Serving cached Inertia page response', { path, savedAt: rec.savedAt })
+	logDebug('Serving cached Inertia page response', { path, savedAt: rec.savedAt })
 
 	// build the response headers
 	const headers = {
@@ -99,14 +100,14 @@ export async function getOfflineNavigationResponse(path, options = {}) {
 		templatePlaceholder = OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
 	} = options
 
-	console.debug('[Inertia Offline] Attempting offline navigation response', { path, templateSystemKey })
+	logDebug('Attempting offline navigation response', { path, templateSystemKey })
 
 	// if the requested path is the root redirect source, we should attempt to serve
 	// the root redirect response if available
 	if (path === ROOT_REDIRECT_SOURCE_PATH) {
 		const redirectRes = await getRootRedirectResponse(path, false)
 		if (redirectRes) {
-			console.debug('[Inertia Offline] Offline navigation using root redirect response')
+			logDebug('Offline navigation using root redirect response')
 			return redirectRes
 		}
 	}
@@ -116,7 +117,7 @@ export async function getOfflineNavigationResponse(path, options = {}) {
 	// check if the target path is cacheable before doing any more work to attempt to serve it offline
 	const routeIsCacheable = await isCachable(targetPath)
 	if (!routeIsCacheable) {
-		console.debug('[Inertia Offline] Offline navigation route is not cacheable', { targetPath })
+		logDebug('Offline navigation route is not cacheable', { targetPath })
 		return null
 	}
 
@@ -128,7 +129,7 @@ export async function getOfflineNavigationResponse(path, options = {}) {
 
 	// if we don't have either the template or the cached page, we can't serve an offline navigation response
 	if (!templateRec?.html || !pageRec) {
-		console.debug('[Inertia Offline] Offline navigation missing template or cached page', {
+		logDebug('Offline navigation missing template or cached page', {
 			hasTemplate: !!templateRec?.html,
 			hasPage: !!pageRec,
 			targetPath,
@@ -151,11 +152,11 @@ export async function getOfflineNavigationResponse(path, options = {}) {
 	// escape the payload and replace the placeholder in the template
 	const html = replaceSinglePlaceholder(templateRec.html, templatePlaceholder, escapeHtmlAttribute(payload))
 	if (!html) {
-		console.warn('[Inertia Offline] Offline template placeholder validation failed')
+		logWarn('Offline template placeholder validation failed')
 		return null
 	}
 
-	console.debug('[Inertia Offline] Returning assembled offline navigation HTML', {
+	logDebug('Returning assembled offline navigation HTML', {
 		targetPath,
 		savedAt: pageRec.savedAt,
 	})

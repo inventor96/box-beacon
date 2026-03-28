@@ -1,4 +1,5 @@
 import { db } from './db.js';
+import { logDebug } from './utils.js';
 
 /**
  * Stores an inertia page for offline use in the database.
@@ -17,7 +18,7 @@ export async function storePage(data, metadata = {}) {
 		savedAt: metadata.savedAt ?? Date.now(),
 		etag: metadata.etag ?? null,
 	});
-	console.debug('[Inertia Offline] Stored offline page', data.url);
+	logDebug('Stored offline page', data.url);
 }
 
 /**
@@ -29,7 +30,7 @@ export async function storePage(data, metadata = {}) {
  */
 export async function touchPage(url, savedAt = Date.now()) {
 	await db.pages.update(url, { savedAt });
-	console.debug('[Inertia Offline] Refreshed offline page timestamp', url);
+	logDebug('Refreshed offline page timestamp', url);
 }
 
 /**

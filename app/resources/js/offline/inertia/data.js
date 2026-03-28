@@ -1,4 +1,5 @@
 import { db } from './db.js';
+import { logDebug } from './utils.js';
 
 /**
  * Clears all offline data, including route metadata, cached pages, and system
@@ -12,5 +13,5 @@ export async function clearAllData() {
 		db.pages.clear(),
 		db.system.clear(),
 	]);
-	console.debug('[Inertia Offline] Cleared all offline data');
+	logDebug('Cleared all offline data');
 }

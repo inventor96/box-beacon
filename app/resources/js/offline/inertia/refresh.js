@@ -4,7 +4,7 @@ import { getRouteList } from './routes.js';
 import { ensureInertiaVersion } from './version.js';
 import { refreshOfflineTemplate } from './template.js';
 import { refreshRootRedirect } from './redirects.js';
-import { getResponseEtag } from './utils.js';
+import { getResponseEtag, logDebug, logWarn } from './utils.js';
 import { clearAllData } from './data.js';
 
 /**
@@ -19,7 +19,7 @@ export function getRefreshOptions() {
 		templateSystemKey: OFFLINE_TEMPLATE_SYSTEM_KEY,
 		rootRedirectPath: ROOT_REDIRECT_SOURCE_PATH,
 	}
-	console.debug('[Inertia Offline] Built refresh options', options)
+	logDebug('Built refresh options', options)
 	return options
 }
 
@@ -36,14 +36,14 @@ export async function refreshAllExpired(options = {}) {
 	try {
 		// extract options
 		const { templatePath, templatePlaceholder, templateSystemKey, rootRedirectPath } = options;
-		console.debug('[Inertia Offline] refreshAllExpired started', {
+		logDebug('refreshAllExpired started', {
 			hasTemplateOptions: !!(templatePath && templatePlaceholder && templateSystemKey),
 			rootRedirectPath,
 		});
 
 		// ensure we have the current Inertia version
 		const inertiaVersion = await ensureInertiaVersion({ forceRefresh: true });
-		console.debug('[Inertia Offline] refreshAllExpired using Inertia version', { inertiaVersion });
+		logDebug('refreshAllExpired using Inertia version', { inertiaVersion });
 
 		// refresh the offline template if we have the necessary options
 		if (templatePath && templatePlaceholder && templateSystemKey) {
@@ -80,7 +80,7 @@ export async function refreshAllExpired(options = {}) {
 
 		// if there are no pages to refresh, we can exit early
 		if (toRefresh.length === 0) {
-			console.debug('[Inertia Offline] No pages to refresh');
+			logDebug('No pages to refresh');
 			return;
 		}
 
@@ -109,7 +109,7 @@ export async function refreshAllExpired(options = {}) {
 					// attempt to cache the page
 					await cachePage(route.url, { inertiaVersion });
 				} catch (err) {
-					console.warn('[Inertia Offline] Failed refreshing route', route.url, err);
+					logWarn('Failed refreshing route', route.url, err);
 				}
 
 				// stagger the next refresh to avoid overwhelming the network or server
@@ -122,7 +122,7 @@ export async function refreshAllExpired(options = {}) {
 		// wait for all workers to finish
 		await Promise.all(workers);
 	} catch (err) {
-		console.warn('[Inertia Offline] refreshAllExpired failed', err);
+		logWarn('refreshAllExpired failed', err);
 	}
 }
 
@@ -139,7 +139,7 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true, i
 		// ensure we have the current Inertia version for the request
 		const currentVersion = options.inertiaVersion || await ensureInertiaVersion();
 		if (!currentVersion) {
-			console.warn('[Inertia Offline] Skipping cachePage because no Inertia version is available', { url });
+			logWarn('Skipping cachePage because no Inertia version is available', { url });
 			return;
 		}
 
@@ -168,7 +168,7 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true, i
 				return;
 			}
 
-			console.warn('[Inertia Offline] Received 304 for uncached page', url);
+			logWarn('Received 304 for uncached page', url);
 			return;
 		}
 
@@ -178,20 +178,20 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true, i
 				// if we've already retried once due to a version mismatch,
 				// we should not retry again to avoid potential infinite loops
 				if (!options.retryOnVersionMismatch) {
-					console.warn('[Inertia Offline] Version mismatch persisted after one retry; leaving cache empty for route', url);
+					logWarn('Version mismatch persisted after one retry; leaving cache empty for route', url);
 					return;
 				}
 
 				// if we have a version mismatch, it's likely that the route list or inertia version is stale,
 				// so we should clear the cache and retry once to get the updated version and route list
-				console.warn('[Inertia Offline] Version mismatch detected for offline page. Clearing stale state and retrying once.', url);
+				logWarn('Version mismatch detected for offline page. Clearing stale state and retrying once.', url);
 				await clearAllData();
 				await getRouteList(true);
 				const refreshedVersion = await ensureInertiaVersion({ forceRefresh: true });
 				await cachePage(url, { retryOnVersionMismatch: false, inertiaVersion: refreshedVersion });
 			} else {
 				// for other types of errors, we can log a warning and skip caching this page for now
-				console.warn('[Inertia Offline] Failed to fetch offline page for caching', url, res.statusText);
+				logWarn('Failed to fetch offline page for caching', url, res.statusText);
 			}
 			return;
 		}
@@ -200,6 +200,6 @@ export async function cachePage(url, options = { retryOnVersionMismatch: true, i
 		const data = await res.json();
 		await storePage(data, { etag: getResponseEtag(res) });
 	} catch (err) {
-		console.warn('[Inertia Offline] Failed to cache offline page', url, err);
+		logWarn('Failed to cache offline page', url, err);
 	}
 }

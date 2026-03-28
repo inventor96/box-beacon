@@ -1,6 +1,7 @@
 import { db } from './db.js';
 import { ROOT_REDIRECT_KEY_PREFIX, ROOT_REDIRECT_SOURCE_PATH } from './constants.js';
 import { ensureInertiaVersion } from './version.js';
+import { logDebug, logWarn } from './utils.js';
 
 /**
  * Converts a URL-like string to a relative path if it is on the same origin.
@@ -54,7 +55,7 @@ export async function setRootRedirect(sourcePath, targetPath) {
 
 	// can't store it if we don't have both source and target, or if they are the same (no redirect)
 	if (!source || !target || source === target) {
-		console.debug('[Inertia Offline] Skipping root redirect set', {
+		logDebug('Skipping root redirect set', {
 			sourcePath,
 			targetPath,
 			source,
@@ -71,7 +72,7 @@ export async function setRootRedirect(sourcePath, targetPath) {
 			savedAt: Date.now(),
 		},
 	});
-	console.debug('[Inertia Offline] Stored root redirect', { source, target });
+	logDebug('Stored root redirect', { source, target });
 }
 
 /**
@@ -85,7 +86,7 @@ export async function getRootRedirect(sourcePath = '/') {
 
 	// can't retrieve it if we don't have a valid source
 	if (!source) {
-		console.debug('[Inertia Offline] Root redirect lookup skipped due to invalid source', { sourcePath });
+		logDebug('Root redirect lookup skipped due to invalid source', { sourcePath });
 		return null;
 	}
 
@@ -95,7 +96,7 @@ export async function getRootRedirect(sourcePath = '/') {
 
 	// ensure target is still same-origin and valid
 	const normalizedTarget = toRelativeSameOriginPath(target);
-	console.debug('[Inertia Offline] Root redirect lookup result', {
+	logDebug('Root redirect lookup result', {
 		source,
 		target,
 		normalizedTarget,
@@ -112,7 +113,7 @@ export async function getRootRedirect(sourcePath = '/') {
  * @returns {Promise<Response|null>} A promise that resolves with the redirect response, or null if no redirect is needed.
  */
 export async function getRootRedirectResponse(path, inertiaRequest = false) {
-	console.debug('[Inertia Offline] Resolving root redirect response', { path, inertiaRequest })
+	logDebug('Resolving root redirect response', { path, inertiaRequest })
 
 	// root redirects only apply to the defined source path
 	if (path !== ROOT_REDIRECT_SOURCE_PATH) {
@@ -122,13 +123,13 @@ export async function getRootRedirectResponse(path, inertiaRequest = false) {
 	// look up the target path for the root redirect and ensure it's valid
 	const targetPath = await getRootRedirect(ROOT_REDIRECT_SOURCE_PATH)
 	if (!targetPath || targetPath === ROOT_REDIRECT_SOURCE_PATH) {
-		console.debug('[Inertia Offline] No root redirect mapping found for response generation')
+		logDebug('No root redirect mapping found for response generation')
 		return null
 	}
 
 	// if it's an Inertia request, return a 409 with the target in the X-Inertia-Location header
 	if (inertiaRequest) {
-		console.debug('[Inertia Offline] Returning Inertia root redirect response', { targetPath })
+		logDebug('Returning Inertia root redirect response', { targetPath })
 		return new Response('', {
 			status: 409,
 			headers: {
@@ -139,7 +140,7 @@ export async function getRootRedirectResponse(path, inertiaRequest = false) {
 	}
 
 	// otherwise, return a standard 302 redirect response
-	console.debug('[Inertia Offline] Returning standard root redirect response', { targetPath })
+	logDebug('Returning standard root redirect response', { targetPath })
 	return Response.redirect(targetPath, 302)
 }
 
@@ -190,7 +191,7 @@ export async function maybeRecordRootRedirect(path, networkRes, pageData = null)
 		return
 	}
 
-	console.debug('[Inertia Offline] Evaluating potential root redirect mapping from network response', {
+	logDebug('Evaluating potential root redirect mapping from network response', {
 		path,
 		status: networkRes.status,
 		redirected: networkRes.redirected,
@@ -205,14 +206,14 @@ export async function maybeRecordRootRedirect(path, networkRes, pageData = null)
 	// if we have a valid target path that is different from the source, record the root redirect mapping
 	if (targetPath && targetPath !== ROOT_REDIRECT_SOURCE_PATH) {
 		await setRootRedirect(ROOT_REDIRECT_SOURCE_PATH, targetPath)
-		console.debug('[Inertia Offline] Root redirect mapping recorded from network response', {
+		logDebug('Root redirect mapping recorded from network response', {
 			source: ROOT_REDIRECT_SOURCE_PATH,
 			targetPath,
 		})
 		return
 	}
 
-	console.debug('[Inertia Offline] Network response did not yield a root redirect mapping')
+	logDebug('Network response did not yield a root redirect mapping')
 }
 
 /**
@@ -225,17 +226,17 @@ export async function refreshRootRedirect(sourcePath = '/', inertiaVersion = nul
 	// ensure source path is same-origin
 	const source = toRelativeSameOriginPath(sourcePath);
 	if (!source) {
-		console.debug('[Inertia Offline] Root redirect refresh skipped due to invalid source', { sourcePath });
+		logDebug('Root redirect refresh skipped due to invalid source', { sourcePath });
 		return null;
 	}
 
 	try {
-		console.debug('[Inertia Offline] Refreshing root redirect mapping', { source });
+		logDebug('Refreshing root redirect mapping', { source });
 
 		// ensure we have the current Inertia version
 		const currentVersion = inertiaVersion || await ensureInertiaVersion();
 		if (!currentVersion) {
-			console.warn('[Inertia Offline] Root redirect refresh skipped because no Inertia version is available', { source });
+			logWarn('Root redirect refresh skipped because no Inertia version is available', { source });
 			return null;
 		}
 
@@ -259,16 +260,16 @@ export async function refreshRootRedirect(sourcePath = '/', inertiaVersion = nul
 		// if we have a valid target path that is different from the source, update the root redirect mapping
 		if (target && target !== source) {
 			await setRootRedirect(source, target);
-			console.debug('[Inertia Offline] Root redirect refreshed', { source, target });
+			logDebug('Root redirect refreshed', { source, target });
 			return target;
 		}
 
 		// if we don't have a valid target, or the target is the same as the source, clear any existing root redirect mapping
 		await db.system.delete(getRootRedirectSystemKey(source));
-		console.debug('[Inertia Offline] Root redirect cleared because source no longer redirects', { source });
+		logDebug('Root redirect cleared because source no longer redirects', { source });
 		return null;
 	} catch (err) {
-		console.warn('[Inertia Offline] refreshRootRedirect failed', err);
+		logWarn('refreshRootRedirect failed', err);
 		return null;
 	}
 }
