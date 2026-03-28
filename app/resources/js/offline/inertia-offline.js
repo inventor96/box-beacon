@@ -11,10 +11,20 @@ export const OFFLINE_TEMPLATE_SYSTEM_KEY = `offlineTemplate:v1:${OFFLINE_TEMPLAT
 const REFRESH_CONCURRENCY = 4; // number of concurrent requests
 const REFRESH_STAGGER = 500; // ms between requests to reduce burst
 
+/**
+ * Generates the system key for storing a root redirect mapping for a given source path
+ * @param {string} path The source path for the root redirect (e.g. '/')
+ * @returns {string} The system key to use for storing the root redirect mapping in the DB
+ */
 function getRootRedirectSystemKey(path = '/') {
 	return `${ROOT_REDIRECT_KEY_PREFIX}${path}`;
 }
 
+/**
+ * Escapes a string for use in HTML attributes
+ * @param {string} value The string to escape
+ * @returns {string} The escaped string
+ */
 function escapeHtmlAttribute(value) {
 	return value
 		.replace(/&/g, '&amp;')
@@ -24,6 +34,13 @@ function escapeHtmlAttribute(value) {
 		.replace(/'/g, '&#39;')
 }
 
+/**
+ * Replaces a single placeholder in a template string with a replacement value
+ * @param {string} templateHtml The template string containing the placeholder
+ * @param {string} placeholder The placeholder to replace
+ * @param {string} replacement The value to replace the placeholder with
+ * @returns {string|null} The resulting string with the placeholder replaced, or null if the placeholder is not found exactly once
+ */
 function replaceSinglePlaceholder(templateHtml, placeholder, replacement) {
 	if (typeof templateHtml !== 'string') {
 		return null
@@ -37,6 +54,10 @@ function replaceSinglePlaceholder(templateHtml, placeholder, replacement) {
 	return templateHtml.replace(placeholder, replacement)
 }
 
+/**
+ * Builds the options needed for the frontend to trigger an offline cache refresh, including fetching the latest inertia version and route list if needed
+ * @returns {object} The options needed to perform an offline cache refresh, which the frontend should pass to the service worker when triggering a refresh
+ */
 export function getRefreshOptions() {
 	const options = {
 		templatePath: OFFLINE_TEMPLATE_PATH,
@@ -48,6 +69,11 @@ export function getRefreshOptions() {
 	return options
 }
 
+/**
+ * Converts a URL-like value to a relative path if it is same-origin
+ * @param {string|URL} urlLike The URL-like value to convert
+ * @returns {string|null} The relative path if same-origin, or null otherwise
+ */
 function toRelativeSameOriginPath(urlLike) {
 	if (!urlLike) {
 		return null;
@@ -74,11 +100,21 @@ function toRelativeSameOriginPath(urlLike) {
  */
 export const REFRESH_INTERVAL = 900000; // 15 minutes
 
+/**
+ * Checks if a URL is cacheable based on the local route metadata
+ * @param {string} url The URL to check
+ * @returns {Promise<boolean>} True if the URL is cacheable, false otherwise
+ */
 export async function isCachable(url) {
 	const route = await db.routeMeta.get(url);
 	return !!route;
 }
 
+/**
+ * Gets the ETag from a response
+ * @param {Response} response The fetch response
+ * @returns {string|null} The ETag value or null if not present
+ */
 function getResponseEtag(response) {
 	return response.headers.get('ETag');
 }
@@ -100,6 +136,11 @@ export async function storePage(data, metadata = {}) {
 	console.debug('[Inertia Offline] Stored offline page', data.url);
 }
 
+/**
+ * Updates the timestamp of a stored offline page
+ * @param {string} url The URL of the page to update
+ * @param {number} savedAt The timestamp to set
+ */
 export async function touchPage(url, savedAt = Date.now()) {
 	await db.pages.update(url, { savedAt });
 	console.debug('[Inertia Offline] Refreshed offline page timestamp', url);
@@ -211,6 +252,12 @@ export async function getRemoteInertiaVersion() {
 	}
 }
 
+/**
+ * Ensures the local inertia version is up-to-date, optionally forcing a refresh
+ * @param {object} options Options for ensuring the inertia version
+ * @param {boolean} options.forceRefresh Whether to force a refresh of the inertia version
+ * @returns {Promise<string|null>} The current inertia version
+ */
 async function ensureInertiaVersion(options = {}) {
 	const { forceRefresh = false } = options;
 	const localVersion = await getLocalInertiaVersion();
@@ -244,6 +291,11 @@ async function ensureInertiaVersion(options = {}) {
 	return localVersion;
 }
 
+/**
+ * Fetches an offline template from the local DB
+ * @param {string} systemKey The system key for the offline template
+ * @returns {Promise<object|null>} The offline template or null if not found
+ */
 export async function getOfflineTemplate(systemKey) {
 	const rec = await db.system.get(systemKey);
 	if (!rec?.value || typeof rec.value !== 'object') {
@@ -258,6 +310,14 @@ export async function getOfflineTemplate(systemKey) {
 	return rec.value;
 }
 
+/**
+ * Refreshes an offline template and updates the local DB
+ * @param {object} param0 The parameters for refreshing the offline template
+ * @param {string} param0.templatePath The path to the template
+ * @param {string} param0.placeholder The placeholder for the template
+ * @param {string} param0.systemKey The system key for the offline template
+ * @returns {Promise<object|null>} The refreshed offline template or null on failure
+ */
 export async function refreshOfflineTemplate({ templatePath, placeholder, systemKey }) {
 	if (!templatePath || !placeholder || !systemKey) {
 		console.debug('[Inertia Offline] Skipping offline template refresh due to missing inputs', {
@@ -327,6 +387,12 @@ export async function refreshOfflineTemplate({ templatePath, placeholder, system
 	}
 }
 
+/**
+ * Sets a root redirect in the local DB
+ * @param {string} sourcePath The source path for the redirect
+ * @param {string} targetPath The target path for the redirect
+ * @returns {Promise<void>}
+ */
 export async function setRootRedirect(sourcePath, targetPath) {
 	const source = toRelativeSameOriginPath(sourcePath);
 	const target = toRelativeSameOriginPath(targetPath);
@@ -350,6 +416,11 @@ export async function setRootRedirect(sourcePath, targetPath) {
 	console.debug('[Inertia Offline] Stored root redirect', { source, target });
 }
 
+/**
+ * Gets the target path for a root redirect from the local DB
+ * @param {string} sourcePath The source path for the root redirect
+ * @returns {Promise<string|null>} The target path for the root redirect or null if not found
+ */
 export async function getRootRedirect(sourcePath = '/') {
 	const source = toRelativeSameOriginPath(sourcePath);
 	if (!source) {
@@ -369,6 +440,11 @@ export async function getRootRedirect(sourcePath = '/') {
 	return normalizedTarget;
 }
 
+/**
+ * Fetches a cached Inertia page response from the local DB
+ * @param {string} path The path of the cached page
+ * @returns {Promise<Response|null>} The cached page response or null if not found
+ */
 export async function getCachedPageResponse(path) {
 	const rec = await getPage(path)
 	if (!rec) {
@@ -401,6 +477,12 @@ export async function getCachedPageResponse(path) {
 	})
 }
 
+/**
+ * Fetches a root redirect response from the local DB
+ * @param {string} path The path for the root redirect
+ * @param {boolean} inertiaRequest Whether the request is an Inertia request
+ * @returns {Promise<Response|null>} The root redirect response or null if not found
+ */
 export async function getRootRedirectResponse(path, inertiaRequest = false) {
 	console.debug('[Inertia Offline] Resolving root redirect response', { path, inertiaRequest })
 	if (path !== ROOT_REDIRECT_SOURCE_PATH) {
@@ -428,6 +510,14 @@ export async function getRootRedirectResponse(path, inertiaRequest = false) {
 	return Response.redirect(targetPath, 302)
 }
 
+/**
+ * Fetches an offline navigation response from the local DB
+ * @param {string} path The path for the offline navigation
+ * @param {object} options The options for the offline navigation
+ * @param {string} options.templateSystemKey The system key for the offline template
+ * @param {string} options.templatePlaceholder The placeholder for the offline template
+ * @returns {Promise<Response|null>} The offline navigation response or null if not found
+ */
 export async function getOfflineNavigationResponse(path, options = {}) {
 	const {
 		templateSystemKey = OFFLINE_TEMPLATE_SYSTEM_KEY,
@@ -495,6 +585,13 @@ export async function getOfflineNavigationResponse(path, options = {}) {
 	})
 }
 
+/**
+ * Evaluates a network response and page data to potentially record a root redirect mapping
+ * @param {string} path The path for the root redirect
+ * @param {Response} networkRes The network response to evaluate
+ * @param {Object|null} pageData The page data to evaluate
+ * @returns {Promise<void>}
+ */
 export async function maybeRecordRootRedirect(path, networkRes, pageData = null) {
 	if (path !== ROOT_REDIRECT_SOURCE_PATH) {
 		return
@@ -536,6 +633,12 @@ export async function maybeRecordRootRedirect(path, networkRes, pageData = null)
 	console.debug('[Inertia Offline] Network response did not yield a root redirect mapping')
 }
 
+/**
+ * Refreshes the root redirect mapping for a given source path
+ * @param {string} sourcePath The source path for the root redirect
+ * @param {string|null} inertiaVersion The Inertia version to use for the request
+ * @returns {Promise<string|null>} The target path of the root redirect or null if not found
+ */
 async function refreshRootRedirect(sourcePath = '/', inertiaVersion = null) {
 	const source = toRelativeSameOriginPath(sourcePath);
 	if (!source) {
@@ -786,28 +889,4 @@ export async function clearAllData() {
 		db.system.clear(),
 	]);
 	console.debug('[Inertia Offline] Cleared all offline data');
-}
-
-/**
- * Starts a periodic refresh cycle to refresh expired pages
- * @param {number} intervalMs Interval in milliseconds between refresh cycles. Default is 5 minutes.
- * @returns {Function} A function to stop the refresh cycle
- */
-export async function startRefreshCycle(intervalMs = REFRESH_INTERVAL) {
-	// run once now
-	if (navigator.onLine) {
-		console.debug('[Inertia Offline] Running offline refresh cycle');
-		await refreshAllExpired();
-	}
-
-	// then run periodic timer while app stays open
-	const id = setInterval(async () => {
-		// only run when online
-		if (navigator.onLine) {
-			console.debug('[Inertia Offline] Running offline refresh cycle');
-			await refreshAllExpired();
-		}
-	}, intervalMs);
-
-	return () => clearInterval(id); // returns stop function
 }
