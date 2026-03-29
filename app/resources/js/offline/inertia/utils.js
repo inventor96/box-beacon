@@ -9,6 +9,12 @@ export function getResponseEtag(response) {
 
 const SHOULD_LOG_DEV = process.env.NODE_ENV === 'development';
 
+/**
+ * Formats log messages with a consistent prefix and styling for better visibility in the console.
+ * @param {string} method - The console method to use (e.g., 'debug', 'log', 'warn', 'error').
+ * @param {...*} args - Arguments to pass through to the console method.
+ * @returns {Array} An array of arguments formatted for the console method.
+ */
 function withPrefix(method, args) {
 	// styles from workbox
 	const methodToColorMap = {

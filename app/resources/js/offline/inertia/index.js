@@ -6,7 +6,7 @@ export {
 } from './constants.js';
 
 export { getRefreshOptions, refreshAllExpired, cachePage } from './refresh.js';
-export { isCachable, getRouteList } from './routes.js';
+export { isCachable, isCachableSync, getRouteList } from './routes.js';
 export { storePage, touchPage, getPage } from './pages.js';
 export { getLocalInertiaVersion, getRemoteInertiaVersion } from './version.js';
 export { getOfflineTemplate, refreshOfflineTemplate } from './template.js';

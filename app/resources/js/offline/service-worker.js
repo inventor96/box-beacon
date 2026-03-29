@@ -2,16 +2,17 @@ import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
 import {
 	clearAllData,
 	getCachedPageResponse,
+	getRouteList,
 	getOfflineNavigationResponse,
 	getRefreshOptions,
 	getRootRedirectResponse,
-	isCachable,
+	isCachableSync,
 	maybeRecordRootRedirect,
 	refreshAllExpired,
 	storePage,
 } from './inertia/index.js';
 
-const SW_VERSION = '2026-03-24-offline-cache-miss-ux-v1'
+const SW_VERSION = '2026-03-28-offline-sync-cacheability-v1'
 const OFFLINE_FALLBACK_STATUSES = new Set([502, 503, 504])
 
 /**
@@ -81,6 +82,13 @@ precacheAndRoute(self.__WB_MANIFEST || [])
 // take control of all unclaimed clients/pages immediately
 self.addEventListener('activate', (event) => {
 	event.waitUntil((async () => {
+		try {
+			await getRouteList()
+			console.info('[Service Worker] Route cacheability index warmed')
+		} catch (err) {
+			console.warn('[Service Worker] Failed to warm route cacheability index', err)
+		}
+
 		await self.clients.claim()
 		console.info('[Service Worker] Activated', {
 			version: SW_VERSION,
@@ -147,19 +155,19 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
+	// For Inertia GET requests, check if route is cacheable before intercepting
+	if (inertia && req.method === 'GET') {
+		if (!isCachableSync(path)) {
+			console.log('[Service Worker] Inertia route not cacheable, skipping interception:', path);
+			return;
+		}
+		console.log('[Service Worker] Inertia route cacheable, intercepting:', path);
+	}
+
 	// override the processing of the request
 	event.respondWith((async () => {
 		try {
 			if (inertia && req.method === 'GET') {
-				// check if this request is cacheable
-				const isCacheable = await isCachable(path);
-				if (!isCacheable) {
-					console.log('[Service Worker] Inertia route not marked as cacheable, passing through:', path);
-					const passthroughRes = await fetch(req);
-					await maybeRecordRootRedirect(path, passthroughRes);
-					return passthroughRes;
-				}
-
 				// make the original request
 				console.log('[Service Worker] Fetching from network:', path);
 				const networkRes = await fetch(req);
