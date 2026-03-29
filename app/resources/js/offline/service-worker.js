@@ -145,6 +145,12 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
+	// only intercept GET requests
+	if (req.method !== 'GET') {
+		console.log('[Service Worker] Non-GET request, skipping interception:', path);
+		return;
+	}
+
 	const inertia = isInertiaRequest(req);
 	const navigation = !inertia && isNavigationRequest(req);
 	const xhrLike = !inertia && !navigation && isNonInertiaXhrLike(req);
@@ -155,33 +161,31 @@ self.addEventListener('fetch', (event) => {
 		return;
 	}
 
-	// For Inertia GET requests, check if route is cacheable before intercepting
-	if (inertia && req.method === 'GET') {
-		if (!isCachableSync(path)) {
-			console.log('[Service Worker] Inertia route not cacheable, skipping interception:', path);
-			return;
-		}
-		console.log('[Service Worker] Inertia route cacheable, intercepting:', path);
+	// for Inertia requests, check if route is cacheable before intercepting
+	if (inertia && !isCachableSync(path)) {
+		console.log('[Service Worker] Inertia route not cacheable, skipping interception:', path);
+		return;
 	}
 
 	// override the processing of the request
+	console.log('[Service Worker] Inertia route cacheable, intercepting:', path);
 	event.respondWith((async () => {
 		try {
-			if (inertia && req.method === 'GET') {
-				// make the original request
-				console.log('[Service Worker] Fetching from network:', path);
-				const networkRes = await fetch(req);
-				await maybeRecordRootRedirect(path, networkRes);
-
+			// make the original request
+			console.log('[Service Worker] Fetching from network:', path);
+			const networkRes = await fetch(req);
+			await maybeRecordRootRedirect(path, networkRes);
+			
+			if (inertia) {
 				if (OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
-					console.warn('[Service Worker] Server unavailable response, attempting to serve from cache:', path, networkRes.status);
 					if (path === '/') {
 						const redirectRes = await getRootRedirectResponse(path, inertia);
 						if (redirectRes) {
 							return redirectRes;
 						}
 					}
-
+					
+					console.warn('[Service Worker] Server unavailable response, attempting to serve from cache:', path, networkRes.status);
 					const cachedRes = await getCachedPageResponse(path);
 					if (cachedRes) {
 						return cachedRes;
@@ -214,8 +218,8 @@ self.addEventListener('fetch', (event) => {
 				return networkRes;
 			}
 
-			// for non-Inertia requests, just pass through the network response and handle offline fallback in case of failure or unavailable server status
-			const networkRes = await fetch(req);
+			// for non-Inertia requests, just pass through the network response
+			// and handle offline fallback in case of failure or unavailable server status
 			if (navigation && OFFLINE_FALLBACK_STATUSES.has(networkRes.status)) {
 				const offlineHtmlRes = await getOfflineNavigationResponse(path);
 				if (offlineHtmlRes) {
@@ -229,7 +233,7 @@ self.addEventListener('fetch', (event) => {
 			// network failure
 			console.warn('[Service Worker] Network request failed:', path, err);
 
-			if (inertia && req.method === 'GET') {
+			if (inertia) {
 				if (path === '/') {
 					const redirectRes = await getRootRedirectResponse(path, inertia);
 					if (redirectRes) {
