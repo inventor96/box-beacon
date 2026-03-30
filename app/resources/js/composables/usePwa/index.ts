@@ -6,13 +6,14 @@ import {
     swRegistration,
     updateSW,
 } from './state'
+import { logDebug, logWarn } from './utils'
 import type { BeforeInstallPromptEvent } from './types'
 
 const DEFAULT_PERIODIC_SYNC_TAG = 'inertia-refresh:default'
 const DEFAULT_REFRESH_INTERVAL_MS = 900000
 const DEFAULT_INITIAL_REFRESH_DELAY_MS = 10000
 
-let refreshFallbackTimerId: ReturnType<typeof setInterval> | undefined
+let refreshFallbackTimerId: number | undefined
 
 type UsePwaOptions = {
     refreshIntervalMs?: number | null
@@ -72,11 +73,11 @@ function startRefreshFallbackTimer(refreshIntervalMs: number) {
 
         const posted = postRefreshExpired()
         if (!posted) {
-            console.debug('[PWA] REFRESH_EXPIRED fallback skipped (no active worker)')
+            logDebug('REFRESH_EXPIRED fallback skipped (no active worker)')
         }
     }, refreshIntervalMs)
 
-    console.info(`[PWA] Using fallback refresh timer (${refreshIntervalMs}ms)`)
+    logDebug(`Using fallback refresh timer (${refreshIntervalMs}ms)`)
 }
 
 function registerPeriodicSync(
@@ -92,7 +93,7 @@ function registerPeriodicSync(
 
     const withPeriodicSync = registration as PeriodicSyncCapableRegistration
     if (!withPeriodicSync.periodicSync) {
-        console.info('[PWA] Periodic sync not supported in this browser; fallback timer enabled')
+        logDebug('Periodic sync not supported in this browser; fallback timer enabled')
         return false
     }
 
@@ -101,11 +102,11 @@ function registerPeriodicSync(
             minInterval: refreshIntervalMs,
         })
         .then(() => {
-            console.info(`[PWA] Periodic sync registered (${periodicSyncTag}, ${refreshIntervalMs}ms)`)
+            logDebug(`Periodic sync registered (${periodicSyncTag}, ${refreshIntervalMs}ms)`)
             return true
         })
         .catch((error) => {
-            console.warn('[PWA] Periodic sync registration failed; fallback timer enabled: ', error)
+            logWarn('Periodic sync registration failed; fallback timer enabled:', error)
             return false
         })
 }
@@ -117,7 +118,7 @@ export function usePwa({
 }: UsePwaOptions = {}) {
     function createPwa() {
         if (window.__PWA_INITIALIZED__) {
-            console.log('[PWA] Already initialized');
+            logDebug('Already initialized')
             return
         }
         window.__PWA_INITIALIZED__ = true
@@ -134,16 +135,16 @@ export function usePwa({
         // showRefresh back to false so we don't need to take care of that.
         const updateSWFn = registerSW({
             onRegisteredSW(swUrl, registration) {
-                console.info(`[PWA] Service worker registration succeeded (${swUrl}): `, registration)
+                logDebug(`Service worker registration succeeded (${swUrl}):`, registration)
             },
             onRegisterError(error) {
-                console.error('[PWA] Service worker registration failed: ', error)
+                logWarn('Service worker registration failed:', error)
             },
             onNeedRefresh() {
                 showRefresh.value = true
             },
             onOfflineReady() {
-                console.log('[PWA] Offline ready!')
+                logDebug('Offline ready!')
             }
         })
         updateSW.value = updateSWFn
@@ -181,7 +182,7 @@ export function usePwa({
                         })
                     })
                     .catch((error) => {
-                        console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
+                        logWarn('Failed to access service worker registration; fallback timer enabled:', error)
                         startRefreshFallbackTimer(refreshIntervalMs)
                     })
             }
@@ -189,10 +190,10 @@ export function usePwa({
                 navigator.serviceWorker.ready
                     .then((registration) => {
                         swRegistration.value = registration
-                        console.info('[PWA] Refresh interval disabled; periodic background refresh is off')
+                        logDebug('Refresh interval disabled; periodic background refresh is off')
                     })
                     .catch((error) => {
-                        console.warn('[PWA] Failed to access service worker registration while refresh interval is disabled:', error)
+                        logWarn('Failed to access service worker registration while refresh interval is disabled:', error)
                     })
             }
 
@@ -213,12 +214,12 @@ export function usePwa({
                     // post the REFRESH_EXPIRED message to the service worker
                     const posted = postRefreshExpired()
                     if (!posted) {
-                        console.debug('[PWA] Initial REFRESH_EXPIRED fallback skipped (no active worker)')
+                        logDebug('Initial REFRESH_EXPIRED fallback skipped (no active worker)')
                     }
                 }, initialRefreshDelayMs)
             }
             else {
-                console.info('[PWA] Initial refresh check disabled')
+                logDebug('Initial refresh check disabled')
             }
         }
     }
