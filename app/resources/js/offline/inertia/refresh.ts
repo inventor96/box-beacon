@@ -29,6 +29,10 @@ export interface RefreshOptions {
 	templateElementSelector?: string;
 	/** PWA start URL for handling redirects (from manifest.start_url) */
 	startUrl?: string;
+	/** Maximum number of concurrent page refresh operations (default: 4) */
+	refreshConcurrency?: number;
+	/** Delay in milliseconds between staggered refresh operations (default: 500) */
+	refreshStagger?: number;
 }
 
 /**
@@ -50,6 +54,8 @@ export function getRefreshOptions(): RefreshOptions {
 		templateFetchPath: OFFLINE_TEMPLATE_FETCH_PATH,
 		templateElementSelector: OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 		startUrl: DEFAULT_START_URL,
+		refreshConcurrency: REFRESH_CONCURRENCY,
+		refreshStagger: REFRESH_STAGGER,
 	};
 }
 
@@ -64,10 +70,12 @@ export async function refreshAllExpired(options: RefreshOptions = {}): Promise<v
 		const {
 			templateFetchPath = OFFLINE_TEMPLATE_FETCH_PATH,
 			templateElementSelector = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
-		startUrl = DEFAULT_START_URL,
-	} = options;
+			startUrl = DEFAULT_START_URL,
+			refreshConcurrency = REFRESH_CONCURRENCY,
+			refreshStagger = REFRESH_STAGGER,
+		} = options;
 
-	logDebug('refreshAllExpired started. Options: ', { templateFetchPath, templateElementSelector, startUrl });
+	logDebug('refreshAllExpired started. Options: ', { templateFetchPath, templateElementSelector, startUrl, refreshConcurrency, refreshStagger });
 
 	// Ensure current Inertia version
 	const inertiaVersion = await ensureInertiaVersion({ forceRefresh: true });
@@ -119,7 +127,7 @@ export async function refreshAllExpired(options: RefreshOptions = {}): Promise<v
 
 		// Refresh remaining pages with concurrency control and staggering
 		let index: number = 0;
-		const workerCount = Math.min(REFRESH_CONCURRENCY, toRefresh.length);
+		const workerCount = Math.min(refreshConcurrency, toRefresh.length);
 		const workers: Promise<void>[] = Array.from({ length: workerCount }, async () => {
 			// Each worker processes items from the queue
 			while (index < toRefresh.length) {
@@ -133,8 +141,8 @@ export async function refreshAllExpired(options: RefreshOptions = {}): Promise<v
 				}
 
 				// Stagger requests to avoid overwhelming server
-				if (REFRESH_STAGGER > 0) {
-					await new Promise((resolve) => setTimeout(resolve, REFRESH_STAGGER));
+				if (refreshStagger > 0) {
+					await new Promise((resolve) => setTimeout(resolve, refreshStagger));
 				}
 			}
 		});
