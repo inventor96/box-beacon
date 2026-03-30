@@ -2,7 +2,6 @@
 
 declare global {
     interface Window {
-        __INERTIA_FORCED_RELOAD__?: boolean
         __PWA_INITIALIZED__?: boolean
     }
 

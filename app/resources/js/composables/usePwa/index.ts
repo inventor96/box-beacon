@@ -103,14 +103,6 @@ function registerPeriodicSync(registration: ServiceWorkerRegistration, refreshIn
         })
 }
 
-function triggerSkipWaiting(registration: ServiceWorkerRegistration | undefined) {
-    if (!registration?.waiting) {
-        return
-    }
-
-    registration.waiting.postMessage({ type: 'SKIP_WAITING' })
-}
-
 export function usePwa({ refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS }: UsePwaOptions = {}) {
     function createPwa() {
         if (window.__PWA_INITIALIZED__) {
@@ -137,12 +129,6 @@ export function usePwa({ refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS }: UseP
                 console.error('[PWA] Service worker registration failed: ', error)
             },
             onNeedRefresh() {
-                if (window.__INERTIA_FORCED_RELOAD__) {
-                    delete window.__INERTIA_FORCED_RELOAD__
-                    triggerSkipWaiting(swRegistration.value)
-                    return
-                }
-
                 showRefresh.value = true
             },
             onOfflineReady() {
