@@ -8,13 +8,16 @@ import {
 } from './state'
 import type { BeforeInstallPromptEvent } from './types'
 
-const PERIODIC_SYNC_TAG = 'inertia-refresh:default'
+const DEFAULT_PERIODIC_SYNC_TAG = 'inertia-refresh:default'
 const DEFAULT_REFRESH_INTERVAL_MS = 900000
+const DEFAULT_INITIAL_REFRESH_DELAY_MS = 10000
 
 let refreshFallbackTimerId: ReturnType<typeof setInterval> | undefined
 
 type UsePwaOptions = {
-    refreshIntervalMs?: number
+    refreshIntervalMs?: number | null
+    initialRefreshDelayMs?: number | null
+    periodicSyncTag?: string
 }
 
 function onBeforeInstallPrompt(event: BeforeInstallPromptEvent) {
@@ -76,7 +79,11 @@ function startRefreshFallbackTimer(refreshIntervalMs: number) {
     console.info(`[PWA] Using fallback refresh timer (${refreshIntervalMs}ms)`)
 }
 
-function registerPeriodicSync(registration: ServiceWorkerRegistration, refreshIntervalMs: number): boolean | Promise<boolean> {
+function registerPeriodicSync(
+    registration: ServiceWorkerRegistration,
+    refreshIntervalMs: number,
+    periodicSyncTag: string,
+): boolean | Promise<boolean> {
     type PeriodicSyncCapableRegistration = ServiceWorkerRegistration & {
         periodicSync?: {
             register: (tag: string, options: { minInterval: number }) => Promise<void>
@@ -90,11 +97,11 @@ function registerPeriodicSync(registration: ServiceWorkerRegistration, refreshIn
     }
 
     return withPeriodicSync.periodicSync
-        .register(PERIODIC_SYNC_TAG, {
+        .register(periodicSyncTag, {
             minInterval: refreshIntervalMs,
         })
         .then(() => {
-            console.info(`[PWA] Periodic sync registered (${PERIODIC_SYNC_TAG}, ${refreshIntervalMs}ms)`)
+            console.info(`[PWA] Periodic sync registered (${periodicSyncTag}, ${refreshIntervalMs}ms)`)
             return true
         })
         .catch((error) => {
@@ -103,7 +110,11 @@ function registerPeriodicSync(registration: ServiceWorkerRegistration, refreshIn
         })
 }
 
-export function usePwa({ refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS }: UsePwaOptions = {}) {
+export function usePwa({
+    refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS,
+    initialRefreshDelayMs = DEFAULT_INITIAL_REFRESH_DELAY_MS,
+    periodicSyncTag = DEFAULT_PERIODIC_SYNC_TAG,
+}: UsePwaOptions = {}) {
     function createPwa() {
         if (window.__PWA_INITIALIZED__) {
             console.log('[PWA] Already initialized');
@@ -146,48 +157,69 @@ export function usePwa({ refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS }: UseP
 
         // Setup refresh triggers once the service worker is active.
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.ready
-                .then((registration) => {
-                    swRegistration.value = registration
+            if (refreshIntervalMs !== null) {
+                navigator.serviceWorker.ready
+                    .then((registration) => {
+                        swRegistration.value = registration
 
-                    const periodicSyncRegistration = registerPeriodicSync(registration, refreshIntervalMs)
-                    if (typeof periodicSyncRegistration === 'boolean') {
-                        if (!periodicSyncRegistration) {
-                            startRefreshFallbackTimer(refreshIntervalMs)
+                        const periodicSyncRegistration = registerPeriodicSync(
+                            registration,
+                            refreshIntervalMs,
+                            periodicSyncTag,
+                        )
+                        if (typeof periodicSyncRegistration === 'boolean') {
+                            if (!periodicSyncRegistration) {
+                                startRefreshFallbackTimer(refreshIntervalMs)
+                            }
+                            return
                         }
+
+                        return periodicSyncRegistration.then((periodicSyncRegistered) => {
+                            if (!periodicSyncRegistered) {
+                                startRefreshFallbackTimer(refreshIntervalMs)
+                            }
+                        })
+                    })
+                    .catch((error) => {
+                        console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
+                        startRefreshFallbackTimer(refreshIntervalMs)
+                    })
+            }
+            else {
+                navigator.serviceWorker.ready
+                    .then((registration) => {
+                        swRegistration.value = registration
+                        console.info('[PWA] Refresh interval disabled; periodic background refresh is off')
+                    })
+                    .catch((error) => {
+                        console.warn('[PWA] Failed to access service worker registration while refresh interval is disabled:', error)
+                    })
+            }
+
+            // kick off the first refresh check sooner so that we don't have to wait for the first interval to elapse
+            if (initialRefreshDelayMs !== null) {
+                setTimeout(() => {
+                    // check if we're online
+                    if (!navigator.onLine || !onlineAndConnected.value) {
                         return
                     }
 
-                    return periodicSyncRegistration.then((periodicSyncRegistered) => {
-                        if (!periodicSyncRegistered) {
-                            startRefreshFallbackTimer(refreshIntervalMs)
-                        }
-                    })
-                })
-                .catch((error) => {
-                    console.warn('[PWA] Failed to access service worker registration; fallback timer enabled:', error)
-                    startRefreshFallbackTimer(refreshIntervalMs)
-                })
+                    // check if a service worker update is pending
+                    if (swRegistration.value?.waiting) {
+                        // don't do it now, hopefully the user will update first and then we'll make it back here
+                        return;
+                    }
 
-            // kick off the first refresh check sooner so that we don't have to wait for the first interval to elapse
-            setTimeout(() => {
-                // check if we're online
-                if (!navigator.onLine || !onlineAndConnected.value) {
-                    return
-                }
-
-                // check if a service worker update is pending
-                if (swRegistration.value?.waiting) {
-                    // don't do it now, hopefully the user will update first and then we'll make it back here
-                    return;
-                }
-
-                // post the REFRESH_EXPIRED message to the service worker
-                const posted = postRefreshExpired()
-                if (!posted) {
-                    console.debug('[PWA] Initial REFRESH_EXPIRED fallback skipped (no active worker)')
-                }
-            }, 10000) // 10s
+                    // post the REFRESH_EXPIRED message to the service worker
+                    const posted = postRefreshExpired()
+                    if (!posted) {
+                        console.debug('[PWA] Initial REFRESH_EXPIRED fallback skipped (no active worker)')
+                    }
+                }, initialRefreshDelayMs)
+            }
+            else {
+                console.info('[PWA] Initial refresh check disabled')
+            }
         }
     }
 
