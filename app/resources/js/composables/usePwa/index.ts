@@ -7,7 +7,7 @@ import {
     updateSW,
 } from './state'
 import { logDebug, logWarn } from './utils'
-import type { BeforeInstallPromptEvent } from './types'
+import type { BeforeInstallPromptEvent, UsePwaOptions } from './types'
 
 const DEFAULT_PERIODIC_SYNC_TAG = 'inertia-refresh:default'
 const DEFAULT_REFRESH_INTERVAL_MS = 900000
@@ -17,12 +17,6 @@ const DEFAULT_INITIAL_REFRESH_DELAY_MS = 10000
  * The timer ID for the fallback refresh timer.
  */
 let refreshFallbackTimerId: number | undefined
-
-type UsePwaOptions = {
-    refreshIntervalMs?: number | null
-    initialRefreshDelayMs?: number | null
-    periodicSyncTag?: string
-}
 
 /**
  * An event handler for the beforeinstallprompt event, which is fired by the

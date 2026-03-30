@@ -19,4 +19,10 @@ interface BeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>
 }
 
-export type { BeforeInstallPromptEvent }
+interface UsePwaOptions {
+    refreshIntervalMs?: number | null
+    initialRefreshDelayMs?: number | null
+    periodicSyncTag?: string
+}
+
+export type { BeforeInstallPromptEvent, UsePwaOptions }
