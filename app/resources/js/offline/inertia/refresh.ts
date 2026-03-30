@@ -6,7 +6,7 @@
 import {
 	REFRESH_CONCURRENCY,
 	REFRESH_STAGGER,
-	ROOT_REDIRECT_SOURCE_PATH,
+	DEFAULT_START_URL,
 	OFFLINE_TEMPLATE_FETCH_PATH,
 	OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 } from './constants';
@@ -27,8 +27,8 @@ export interface RefreshOptions {
 	templateFetchPath?: string;
 	/** CSS selector for the Inertia page element in template (default: '[data-page]') */
 	templateElementSelector?: string;
-	/** Root path for handling redirects */
-	rootRedirectPath?: string;
+	/** PWA start URL for handling redirects (from manifest.start_url) */
+	startUrl?: string;
 }
 
 /**
@@ -49,7 +49,7 @@ export function getRefreshOptions(): RefreshOptions {
 	return {
 		templateFetchPath: OFFLINE_TEMPLATE_FETCH_PATH,
 		templateElementSelector: OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
-		rootRedirectPath: ROOT_REDIRECT_SOURCE_PATH,
+		startUrl: DEFAULT_START_URL,
 	};
 }
 
@@ -64,21 +64,21 @@ export async function refreshAllExpired(options: RefreshOptions = {}): Promise<v
 		const {
 			templateFetchPath = OFFLINE_TEMPLATE_FETCH_PATH,
 			templateElementSelector = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
-			rootRedirectPath = ROOT_REDIRECT_SOURCE_PATH,
-		} = options;
+		startUrl = DEFAULT_START_URL,
+	} = options;
 
-		logDebug('refreshAllExpired started. Options: ', { templateFetchPath, templateElementSelector, rootRedirectPath });
+	logDebug('refreshAllExpired started. Options: ', { templateFetchPath, templateElementSelector, startUrl });
 
-		// Ensure current Inertia version
-		const inertiaVersion = await ensureInertiaVersion({ forceRefresh: true });
-		logDebug('refreshAllExpired using Inertia version', { inertiaVersion });
+	// Ensure current Inertia version
+	const inertiaVersion = await ensureInertiaVersion({ forceRefresh: true });
+	logDebug('refreshAllExpired using Inertia version', { inertiaVersion });
 
-		// Refresh offline template from app
-		await refreshOfflineTemplate(templateFetchPath, templateElementSelector);
+	// Refresh offline template from app
+	await refreshOfflineTemplate(templateFetchPath, templateElementSelector);
 
-		// Refresh root redirect if configured
-		if (rootRedirectPath) {
-			await refreshRootRedirect(rootRedirectPath, inertiaVersion);
+	// Refresh root redirect if configured
+	if (startUrl) {
+		await refreshRootRedirect(startUrl, inertiaVersion);
 		}
 
 		// Get list of cacheable routes

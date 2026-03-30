@@ -6,7 +6,7 @@
 import {
 	OFFLINE_TEMPLATE_FETCH_PATH,
 	OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
-	ROOT_REDIRECT_SOURCE_PATH,
+	DEFAULT_START_URL,
 } from './constants';
 import { getPage } from './pages';
 import { getOfflineTemplate, generateOfflineTemplateSystemKey } from './template';
@@ -24,8 +24,8 @@ interface OfflineNavigationResponseOptions {
 	templateFetchPath?: string;
 	/** CSS selector for the Inertia page element in template */
 	templateElementSelector?: string;
-	/** Root path for redirect handling */
-	rootRedirectPath?: string;
+	/** PWA start URL (from manifest.start_url) */
+	startUrl?: string;
 }
 
 /**
@@ -85,7 +85,7 @@ export async function getOfflineNavigationResponse(
 	const {
 		templateFetchPath = OFFLINE_TEMPLATE_FETCH_PATH,
 		templateElementSelector = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
-		rootRedirectPath = ROOT_REDIRECT_SOURCE_PATH,
+		startUrl = DEFAULT_START_URL,
 	} = options;
 
 	logDebug('Attempting offline navigation response', { 
@@ -94,9 +94,9 @@ export async function getOfflineNavigationResponse(
 		templateElementSelector,
 	});
 
-	// For root path, attempt to serve root redirect if available
-	if (path === rootRedirectPath) {
-		const redirectRes = await getRootRedirectResponse(path, false, rootRedirectPath);
+	// For start URL, attempt to serve root redirect if available
+	if (path === startUrl) {
+		const redirectRes = await getRootRedirectResponse(path, false, startUrl);
 		if (redirectRes) {
 			logDebug('Offline navigation using root redirect response');
 			return redirectRes;

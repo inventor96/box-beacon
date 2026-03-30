@@ -4,7 +4,7 @@
  */
 
 import { db } from './db';
-import { ROOT_REDIRECT_KEY_PREFIX, ROOT_REDIRECT_SOURCE_PATH } from './constants';
+import { ROOT_REDIRECT_KEY_PREFIX, DEFAULT_START_URL } from './constants';
 import { ensureInertiaVersion } from './version';
 import { logDebug, logWarn } from './utils';
 
@@ -54,7 +54,7 @@ function toRelativeSameOriginPath(urlLike: any): string | null {
  * @param path - The source path for the redirect
  * @returns System key for storing/retrieving the redirect
  */
-function getRootRedirectSystemKey(path: string = ROOT_REDIRECT_SOURCE_PATH): string {
+function getRootRedirectSystemKey(path: string = DEFAULT_START_URL): string {
 	return `${ROOT_REDIRECT_KEY_PREFIX}${path}`;
 }
 
@@ -96,7 +96,7 @@ export async function setRootRedirect(sourcePath: string, targetPath: string): P
  * @param sourcePath - Source path to look up
  * @returns Target path if redirect exists, otherwise null
  */
-export async function getRootRedirect(sourcePath: string = ROOT_REDIRECT_SOURCE_PATH): Promise<string | null> {
+export async function getRootRedirect(sourcePath: string = DEFAULT_START_URL): Promise<string | null> {
 	// Normalize source path
 	const source = toRelativeSameOriginPath(sourcePath);
 
@@ -134,7 +134,7 @@ export async function getRootRedirect(sourcePath: string = ROOT_REDIRECT_SOURCE_
 export async function getRootRedirectResponse(
 	path: string,
 	inertiaRequest: boolean = false,
-	sourcePath: string = ROOT_REDIRECT_SOURCE_PATH,
+	sourcePath: string = DEFAULT_START_URL,
 ): Promise<Response | null> {
 	logDebug('Resolving root redirect response', { path, inertiaRequest });
 
@@ -213,7 +213,7 @@ export async function maybeRecordRootRedirect(
 	path: string,
 	networkRes: Response,
 	pageData: any = null,
-	sourcePath: string = ROOT_REDIRECT_SOURCE_PATH,
+	sourcePath: string = DEFAULT_START_URL,
 ): Promise<void> {
 	// Root redirects only apply to the defined source path
 	if (path !== sourcePath) {

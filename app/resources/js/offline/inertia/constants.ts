@@ -12,8 +12,8 @@ export const ROUTE_VERSION_PATH: string = '/pwa/offline-version';
 /** Key prefix for storing root URL redirect information */
 export const ROOT_REDIRECT_KEY_PREFIX: string = 'rootRedirect:';
 
-/** The source path for root redirects (the root URL) */
-export const ROOT_REDIRECT_SOURCE_PATH: string = '/';
+/** The default start URL for the PWA (from manifest.start_url) */
+export const DEFAULT_START_URL: string = '/';
 
 /** Path to fetch the offline template from (default: /) */
 export const OFFLINE_TEMPLATE_FETCH_PATH: string = '/';
