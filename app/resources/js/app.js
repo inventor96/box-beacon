@@ -6,19 +6,8 @@ import '../scss/styles.scss'
 import { usePwa } from './composables/usePwa';
 
 // PWA setup
-const { createPwa } = usePwa({
-	refreshIntervalMs: 900000,
-});
+const { createPwa, postServiceWorkerMessage } = usePwa();
 createPwa();
-
-function postServiceWorkerMessage(type) {
-	if (!navigator.serviceWorker.controller) {
-		return false;
-	}
-
-	navigator.serviceWorker.controller.postMessage({ type });
-	return true;
-}
 
 createInertiaApp({
 	resolve: (name) => {
