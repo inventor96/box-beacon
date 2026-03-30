@@ -15,14 +15,14 @@ export const ROOT_REDIRECT_KEY_PREFIX: string = 'rootRedirect:';
 /** The source path for root redirects (the root URL) */
 export const ROOT_REDIRECT_SOURCE_PATH: string = '/';
 
-/** Endpoint path for fetching the offline template */
-export const OFFLINE_TEMPLATE_PATH: string = '/pwa/offline-template';
+/** Path to fetch the offline template from (default: /) */
+export const OFFLINE_TEMPLATE_FETCH_PATH: string = '/';
 
-/** Placeholder string in the offline template for inserting page content */
-export const OFFLINE_TEMPLATE_PAGE_PLACEHOLDER: string = 'INERTIA_PAGE';
+/** CSS selector for the Inertia page data element (default: [data-page]) */
+export const OFFLINE_TEMPLATE_ELEMENT_SELECTOR: string = '[data-page]';
 
-/** System key for storing the offline template */
-export const OFFLINE_TEMPLATE_SYSTEM_KEY: string = `offlineTemplate:v1:${OFFLINE_TEMPLATE_PATH}:${OFFLINE_TEMPLATE_PAGE_PLACEHOLDER}`;
+/** Prefix for system keys storing offline templates, followed by fetch path and selector */
+export const OFFLINE_TEMPLATE_SYSTEM_KEY_PREFIX: string = 'offlineTemplate:v2';
 
 /** Maximum number of concurrent page refresh operations */
 export const REFRESH_CONCURRENCY: number = 4;

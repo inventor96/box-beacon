@@ -1,23 +1,39 @@
 /**
  * Offline template management for PWA.
  * Stores and refreshes HTML templates used for offline pages.
+ * Fetches templates from the application (derived approach) rather than special backend route.
  */
 
 import { db } from './db';
+import { OFFLINE_TEMPLATE_FETCH_PATH, OFFLINE_TEMPLATE_ELEMENT_SELECTOR, OFFLINE_TEMPLATE_SYSTEM_KEY_PREFIX } from './constants';
+import { clearDataPageAttribute } from './dom-utils';
 import { getResponseEtag, logDebug, logWarn } from './utils';
+
+/**
+ * Generates a system key for storing offline template cached from a specific path.
+ * @param fetchPath - The path the template was fetched from
+ * @param elementSelector - The CSS selector for the page element
+ * @returns System key for storage in IndexedDB
+ */
+export function generateOfflineTemplateSystemKey(
+	fetchPath: string = OFFLINE_TEMPLATE_FETCH_PATH,
+	elementSelector: string = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
+): string {
+	return `${OFFLINE_TEMPLATE_SYSTEM_KEY_PREFIX}:${fetchPath}:${elementSelector}`;
+}
 
 /**
  * Offline template record stored in the system table.
  */
 interface OfflineTemplateRecord {
-	/** The HTML template content */
+	/** The raw HTML template content */
 	html: string;
 	/** ETag from server response for cache validation */
 	etag: string | null;
 	/** Path where the template was fetched from */
-	templatePath: string;
-	/** Placeholder string to replace with page data */
-	placeholder: string;
+	fetchPath: string;
+	/** CSS selector for the Inertia page element in the template */
+	elementSelector: string;
 	/** Timestamp when template was saved */
 	savedAt: number;
 }
@@ -42,45 +58,40 @@ export async function getOfflineTemplate(systemKey: string): Promise<OfflineTemp
 }
 
 /**
- * Refreshes the offline template from the server.
+ * Refreshes the offline template by fetching from the application.
+ * Uses a derived approach: fetches the real app HTML and caches it.
  * Uses ETags for efficient cache validation.
- * Stores template with metadata for future reference.
- * @param templatePath - Server path to fetch template from
- * @param placeholder - Placeholder identifier used in template
- * @param systemKey - System key for storing the template
+ * @param fetchPath - Application path to fetch template from (default: '/')
+ * @param elementSelector - CSS selector for the Inertia page element (default: '[data-page]')
  * @returns Updated template record, or null if refresh failed
  */
 export async function refreshOfflineTemplate(
-	templatePath: string,
-	placeholder: string,
-	systemKey: string,
+	fetchPath: string = OFFLINE_TEMPLATE_FETCH_PATH,
+	elementSelector: string = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 ): Promise<OfflineTemplateRecord | null> {
-	// All inputs required
-	if (!templatePath || !placeholder || !systemKey) {
-		logDebug('Skipping offline template refresh due to missing inputs', {
-			templatePath,
-			placeholder,
-			systemKey,
-		});
-		return null;
-	}
+	// Generate system key from path and selector
+	const systemKey = generateOfflineTemplateSystemKey(fetchPath, elementSelector);
 
 	try {
-		logDebug('Refreshing offline template', {
-			templatePath,
-			placeholder,
+		logDebug('Refreshing offline template from app', {
+			fetchPath,
+			elementSelector,
 			systemKey,
 		});
 
 		// Get current ETag if available for conditional request
 		const existing = await getOfflineTemplate(systemKey);
-		const headers: Record<string, string> = {};
+		const headers: Record<string, string> = {
+			// Request HTML, not Inertia JSON (avoid X-Inertia header)
+			'Accept': 'text/html',
+		};
 		if (existing?.etag) {
 			headers['If-None-Match'] = existing.etag;
 		}
 
-		// Fetch template from server
-		const templateRes = await fetch(`${templatePath}?placeholder=${encodeURIComponent(placeholder)}`, {
+		// Fetch template from application
+		// fetch API automatically follows redirects (up to 20 by default)
+		const templateRes = await fetch(fetchPath, {
 			credentials: 'include',
 			headers,
 		});
@@ -103,17 +114,29 @@ export async function refreshOfflineTemplate(
 
 		// If response not successful, abort refresh
 		if (!templateRes.ok) {
-			logWarn('Failed to fetch offline template', templateRes.status, templateRes.statusText);
+			logWarn('Failed to fetch offline template', {
+				status: templateRes.status,
+				statusText: templateRes.statusText,
+				fetchPath,
+			});
 			return null;
 		}
 
 		// Parse template HTML and metadata
 		const html = await templateRes.text();
+		
+		// Clear any pre-existing page data before storing template
+		const cleanHtml = clearDataPageAttribute(html);
+		if (!cleanHtml) {
+			logWarn('Failed to clear existing page data from template', { fetchPath });
+			return null;
+		}
+		
 		const rec: OfflineTemplateRecord = {
-			html,
+			html: cleanHtml,
 			etag: getResponseEtag(templateRes),
-			templatePath,
-			placeholder,
+			fetchPath,
+			elementSelector,
 			savedAt: Date.now(),
 		};
 
@@ -122,12 +145,18 @@ export async function refreshOfflineTemplate(
 		logDebug('Offline template stored', {
 			systemKey,
 			hasEtag: !!rec.etag,
+			fetchPath,
+			elementSelector,
 			savedAt: rec.savedAt,
 		});
 
 		return rec;
 	} catch (err) {
-		logWarn('refreshOfflineTemplate failed', err);
+		logWarn('refreshOfflineTemplate failed', {
+			fetchPath,
+			elementSelector,
+			error: err,
+		});
 		return null;
 	}
 }

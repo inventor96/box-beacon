@@ -7,9 +7,8 @@ import {
 	REFRESH_CONCURRENCY,
 	REFRESH_STAGGER,
 	ROOT_REDIRECT_SOURCE_PATH,
-	OFFLINE_TEMPLATE_PATH,
-	OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
-	OFFLINE_TEMPLATE_SYSTEM_KEY,
+	OFFLINE_TEMPLATE_FETCH_PATH,
+	OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 } from './constants';
 import { getPage, storePage, touchPage } from './pages';
 import { getRouteList } from './routes';
@@ -24,12 +23,10 @@ import type { RouteMeta } from './types/db';
  * Options for the refresh process.
  */
 export interface RefreshOptions {
-	/** Path to fetch offline template from */
-	templatePath?: string;
-	/** Placeholder identifier in the template */
-	templatePlaceholder?: string;
-	/** System key for storing the template */
-	templateSystemKey?: string;
+	/** Path to fetch offline template from (default: '/') */
+	templateFetchPath?: string;
+	/** CSS selector for the Inertia page element in template (default: '[data-page]') */
+	templateElementSelector?: string;
 	/** Root path for handling redirects */
 	rootRedirectPath?: string;
 }
@@ -50,9 +47,8 @@ interface CachePageOptions {
  */
 export function getRefreshOptions(): RefreshOptions {
 	return {
-		templatePath: OFFLINE_TEMPLATE_PATH,
-		templatePlaceholder: OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
-		templateSystemKey: OFFLINE_TEMPLATE_SYSTEM_KEY,
+		templateFetchPath: OFFLINE_TEMPLATE_FETCH_PATH,
+		templateElementSelector: OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 		rootRedirectPath: ROOT_REDIRECT_SOURCE_PATH,
 	};
 }
@@ -64,22 +60,21 @@ export function getRefreshOptions(): RefreshOptions {
  */
 export async function refreshAllExpired(options: RefreshOptions = {}): Promise<void> {
 	try {
-		// Extract options
-		const { templatePath, templatePlaceholder, templateSystemKey, rootRedirectPath } = options;
-		logDebug('refreshAllExpired started. Options: ', options);
+		// Extract options with defaults
+		const {
+			templateFetchPath = OFFLINE_TEMPLATE_FETCH_PATH,
+			templateElementSelector = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
+			rootRedirectPath = ROOT_REDIRECT_SOURCE_PATH,
+		} = options;
+
+		logDebug('refreshAllExpired started. Options: ', { templateFetchPath, templateElementSelector, rootRedirectPath });
 
 		// Ensure current Inertia version
 		const inertiaVersion = await ensureInertiaVersion({ forceRefresh: true });
 		logDebug('refreshAllExpired using Inertia version', { inertiaVersion });
 
-		// Refresh offline template if configured
-		if (templatePath && templatePlaceholder && templateSystemKey) {
-			await refreshOfflineTemplate(
-				templatePath,
-				templatePlaceholder,
-				templateSystemKey,
-			);
-		}
+		// Refresh offline template from app
+		await refreshOfflineTemplate(templateFetchPath, templateElementSelector);
 
 		// Refresh root redirect if configured
 		if (rootRedirectPath) {

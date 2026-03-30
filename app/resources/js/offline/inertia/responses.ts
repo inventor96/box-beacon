@@ -4,14 +4,15 @@
  */
 
 import {
-	OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
-	OFFLINE_TEMPLATE_SYSTEM_KEY,
+	OFFLINE_TEMPLATE_FETCH_PATH,
+	OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 	ROOT_REDIRECT_SOURCE_PATH,
 } from './constants';
 import { getPage } from './pages';
-import { getOfflineTemplate } from './template';
+import { getOfflineTemplate, generateOfflineTemplateSystemKey } from './template';
 import { isCachable } from './routes';
 import { getRootRedirectResponse } from './redirects';
+import { injectPageDataToElement, validateSingleDataPageAttribute } from './dom-utils';
 import { logDebug, logWarn } from './utils';
 import type { InertiaPage } from './types/db';
 
@@ -19,50 +20,12 @@ import type { InertiaPage } from './types/db';
  * Options for offline navigation response generation.
  */
 interface OfflineNavigationResponseOptions {
-	/** System key for storing the offline template (for retrieval) */
-	templateSystemKey?: string;
-	/** Placeholder string in template to replace with page data */
-	templatePlaceholder?: string;
+	/** Path to fetch offline template from (for retrieving cache key) */
+	templateFetchPath?: string;
+	/** CSS selector for the Inertia page element in template */
+	templateElementSelector?: string;
 	/** Root path for redirect handling */
 	rootRedirectPath?: string;
-}
-
-/**
- * Escapes special characters in a string for safe use in HTML attributes.
- * @param value - The string to escape
- * @returns The escaped string safe for HTML attributes
- */
-function escapeHtmlAttribute(value: string): string {
-	return value
-		.replace(/&/g, '&amp;')
-		.replace(/"/g, '&quot;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/'/g, '&#39;');
-}
-
-/**
- * Replaces a single occurrence of a placeholder in template HTML.
- * Validates that exactly one instance exists before replacing.
- * @param templateHtml - The HTML template containing the placeholder
- * @param placeholder - The placeholder string to replace
- * @param replacement - The replacement value
- * @returns HTML with placeholder replaced, or null if validation fails
- */
-function replaceSinglePlaceholder(templateHtml: any, placeholder: string, replacement: string): string | null {
-	// Must be a string to work with
-	if (typeof templateHtml !== 'string') {
-		return null;
-	}
-
-	// Exactly one instance of placeholder must exist
-	const placeholderCount = templateHtml.split(placeholder).length - 1;
-	if (placeholderCount !== 1) {
-		return null;
-	}
-
-	// Replace the single instance
-	return templateHtml.replace(placeholder, replacement);
 }
 
 /**
@@ -120,12 +83,16 @@ export async function getOfflineNavigationResponse(
 ): Promise<Response | null> {
 	// Extract options with defaults
 	const {
-		templateSystemKey = OFFLINE_TEMPLATE_SYSTEM_KEY,
-		templatePlaceholder = OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
+		templateFetchPath = OFFLINE_TEMPLATE_FETCH_PATH,
+		templateElementSelector = OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 		rootRedirectPath = ROOT_REDIRECT_SOURCE_PATH,
 	} = options;
 
-	logDebug('Attempting offline navigation response', { path, templateSystemKey });
+	logDebug('Attempting offline navigation response', { 
+		path, 
+		templateFetchPath,
+		templateElementSelector,
+	});
 
 	// For root path, attempt to serve root redirect if available
 	if (path === rootRedirectPath) {
@@ -145,6 +112,9 @@ export async function getOfflineNavigationResponse(
 		return null;
 	}
 
+	// Generate system key for retrieving cached template
+	const templateSystemKey = generateOfflineTemplateSystemKey(templateFetchPath, templateElementSelector);
+
 	// Get offline template and cached page data in parallel
 	const [templateRec, pageRec] = await Promise.all([
 		getOfflineTemplate(templateSystemKey),
@@ -161,8 +131,16 @@ export async function getOfflineNavigationResponse(
 		return null;
 	}
 
-	// Assemble offline navigation response
-	const payload = JSON.stringify({
+	// Validate that template has exactly one matching data-page attribute for safety
+	if (!validateSingleDataPageAttribute(templateRec.html)) {
+		logWarn('Offline template data-page attribute validation failed', {
+			targetPath,
+		});
+		return null;
+	}
+
+	// Assemble page data payload
+	const pageData = {
 		url: pageRec.url,
 		component: pageRec.component,
 		props: {
@@ -171,12 +149,14 @@ export async function getOfflineNavigationResponse(
 			_savedAt: pageRec.savedAt,
 		},
 		version: pageRec.version,
-	});
+	};
 
-	// Escape payload and replace placeholder in template
-	const html = replaceSinglePlaceholder(templateRec.html, templatePlaceholder, escapeHtmlAttribute(payload));
+	// Inject page data into template via string manipulation
+	const html = injectPageDataToElement(templateRec.html, pageData);
 	if (!html) {
-		logWarn('Offline template placeholder validation failed');
+		logWarn('Failed to inject page data into offline template', {
+			targetPath,
+		});
 		return null;
 	}
 

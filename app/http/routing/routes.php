@@ -44,7 +44,6 @@ $routes->group([
 		$routes->get('/pwa/online-check', [PWA::class, 'onlineCheck'], 'pwa:onlineCheck');
 		$routes->get('/pwa/offline-routes', [PWA::class, 'offlineRoutes'], 'pwa:offlineRoutes');
 		$routes->get('/pwa/offline-version', [PWA::class, 'version'], 'pwa:version');
-		$routes->get('/pwa/offline-template', [PWA::class, 'offlineTemplate'], 'pwa:offlineTemplate');
 		#endregion
 
 		$routes->get('/assets/fonts/{font}', [Fonts::class, 'fonts'], 'fonts:fonts');

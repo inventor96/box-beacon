@@ -6,9 +6,8 @@
 // Constants
 export {
 	ROOT_REDIRECT_SOURCE_PATH,
-	OFFLINE_TEMPLATE_PATH,
-	OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
-	OFFLINE_TEMPLATE_SYSTEM_KEY,
+	OFFLINE_TEMPLATE_FETCH_PATH,
+	OFFLINE_TEMPLATE_ELEMENT_SELECTOR,
 } from './constants';
 
 // Refresh and caching
@@ -24,7 +23,7 @@ export { storePage, touchPage, getPage } from './pages';
 export { getLocalInertiaVersion, getRemoteInertiaVersion } from './version';
 
 // Template management
-export { getOfflineTemplate, refreshOfflineTemplate } from './template';
+export { getOfflineTemplate, refreshOfflineTemplate, generateOfflineTemplateSystemKey } from './template';
 
 // Root redirect handling
 export {
@@ -36,6 +35,12 @@ export {
 
 // Response generation
 export { getCachedPageResponse, getOfflineNavigationResponse } from './responses';
+
+// DOM utilities for offline template handling
+export {
+	injectPageDataToElement,
+	clearDataPageAttribute,
+} from './dom-utils';
 
 // Data management
 export { clearAllData } from './data';

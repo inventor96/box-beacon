@@ -30,8 +30,6 @@ const DEFAULT_PUSH_REFRESH_TYPE = 'refresh-offline';
  * Configuration options for offline maintenance handlers.
  */
 interface MaintenanceHandlerOptions extends RefreshOptions {
-	/** Whether to warm route list on handler creation (default: true) */
-	warmRouteListOnCreate?: boolean;
 	/** Tags for periodic sync events */
 	periodicSyncTags?: Set<string> | string[];
 	/** Push notification type for refresh events */
