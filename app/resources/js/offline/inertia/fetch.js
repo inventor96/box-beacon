@@ -80,7 +80,7 @@ function classifyRequest(event) {
 		|| (accept.includes('application/json') && !accept.includes('text/html'))
 	);
 	const cacheable = !inertia || isCachableSync(path);
-	const builtInInertia = sameOrigin && isGet && inertia && cacheable;
+	const builtInInertia = sameOrigin && isGet && inertia;
 	const builtInNavigation = sameOrigin && isGet && navigation;
 	const builtInXhrLike = sameOrigin && isGet && xhrLike;
 	const builtInEligible = builtInInertia || builtInNavigation || builtInXhrLike;
@@ -203,7 +203,7 @@ async function handleInertiaFetch(context, options) {
 		}
 
 		// if we got a successful response, update the cache in the background for next time
-		if (networkRes.status === 200) {
+		if (networkRes.status === 200 && context.cacheable) {
 			logDebug('Network response successful, updating cache in the background', { path });
 
 			event.waitUntil((async () => {
