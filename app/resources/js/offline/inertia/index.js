@@ -18,3 +18,4 @@ export {
 } from './redirects.js';
 export { getCachedPageResponse, getOfflineNavigationResponse } from './responses.js';
 export { clearAllData } from './data.js';
+export { createOfflineFetchHandler } from './fetch.js';
