@@ -56,6 +56,28 @@ class OfflineRoutes {
 			}
 			$attribute = $attributes[0]->newInstance();
 
+			// check access control
+			if (isset($attribute->access_control) && ActionTypeEnum::from($attribute->access_control) !== ActionTypeEnum::UNKNOWN) {
+				// call access control callback based on type
+				switch (ActionTypeEnum::from($attribute->access_control)) {
+					case ActionTypeEnum::METHOD:
+						// convert class to object if needed before calling
+						if (!is_object($attribute->access_control[0])) {
+							// likely a non-static method; instantiate class
+							$obj = $this->container->get($attribute->access_control[0]);
+							$attribute->access_control[0] = $obj;
+						}
+					case ActionTypeEnum::FUNCTION:
+						$has_access = (bool) $this->container->call($attribute->access_control);
+						break;
+				}
+			}
+
+			// skip route if access is denied
+			if (!$has_access) {
+				continue;
+			}
+
 			// get param combos from attribute's param generator
 			if (isset($attribute->param_generator) && ActionTypeEnum::from($attribute->param_generator) !== ActionTypeEnum::UNKNOWN) {
 				// call param generator based on type
