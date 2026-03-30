@@ -98,14 +98,15 @@ export async function getOfflineNavigationResponse(path, options = {}) {
 	const {
 		templateSystemKey = OFFLINE_TEMPLATE_SYSTEM_KEY,
 		templatePlaceholder = OFFLINE_TEMPLATE_PAGE_PLACEHOLDER,
+		rootRedirectPath = ROOT_REDIRECT_SOURCE_PATH,
 	} = options
 
 	logDebug('Attempting offline navigation response', { path, templateSystemKey })
 
 	// if the requested path is the root redirect source, we should attempt to serve
 	// the root redirect response if available
-	if (path === ROOT_REDIRECT_SOURCE_PATH) {
-		const redirectRes = await getRootRedirectResponse(path, false)
+	if (path === rootRedirectPath) {
+		const redirectRes = await getRootRedirectResponse(path, false, rootRedirectPath)
 		if (redirectRes) {
 			logDebug('Offline navigation using root redirect response')
 			return redirectRes

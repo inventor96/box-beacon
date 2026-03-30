@@ -19,7 +19,6 @@ export function getRefreshOptions() {
 		templateSystemKey: OFFLINE_TEMPLATE_SYSTEM_KEY,
 		rootRedirectPath: ROOT_REDIRECT_SOURCE_PATH,
 	}
-	logDebug('Built refresh options', options)
 	return options
 }
 

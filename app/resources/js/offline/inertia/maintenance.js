@@ -13,9 +13,10 @@ const DEFAULT_PUSH_REFRESH_TYPE = 'refresh-offline';
  */
 function resolveRefreshOptions(userOptions = {}) {
 	const defaults = getRefreshOptions();
+
 	const refreshOptions = {
 		...defaults,
-		...(userOptions.refreshOptions || {}),
+		...userOptions,
 	};
 	logDebug('Resolved refresh options', refreshOptions);
 	return refreshOptions;

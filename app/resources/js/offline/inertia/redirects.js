@@ -38,7 +38,7 @@ function toRelativeSameOriginPath(urlLike) {
  * @param {string} path - The source path for the root redirect.
  * @returns {string} The system key for the root redirect.
  */
-function getRootRedirectSystemKey(path = '/') {
+function getRootRedirectSystemKey(path = ROOT_REDIRECT_SOURCE_PATH) {
 	return `${ROOT_REDIRECT_KEY_PREFIX}${path}`;
 }
 
@@ -80,7 +80,7 @@ export async function setRootRedirect(sourcePath, targetPath) {
  * @param {string} sourcePath - The source path for the root redirect.
  * @returns {Promise<string|null>} A promise that resolves with the target path, or null if not found.
  */
-export async function getRootRedirect(sourcePath = '/') {
+export async function getRootRedirect(sourcePath = ROOT_REDIRECT_SOURCE_PATH) {
 	// ensure path is same-origin
 	const source = toRelativeSameOriginPath(sourcePath);
 
@@ -112,17 +112,17 @@ export async function getRootRedirect(sourcePath = '/') {
  * @param {boolean} inertiaRequest - Whether the request is an Inertia request.
  * @returns {Promise<Response|null>} A promise that resolves with the redirect response, or null if no redirect is needed.
  */
-export async function getRootRedirectResponse(path, inertiaRequest = false) {
+export async function getRootRedirectResponse(path, inertiaRequest = false, sourcePath = ROOT_REDIRECT_SOURCE_PATH) {
 	logDebug('Resolving root redirect response', { path, inertiaRequest })
 
 	// root redirects only apply to the defined source path
-	if (path !== ROOT_REDIRECT_SOURCE_PATH) {
+	if (path !== sourcePath) {
 		return null
 	}
 
 	// look up the target path for the root redirect and ensure it's valid
-	const targetPath = await getRootRedirect(ROOT_REDIRECT_SOURCE_PATH)
-	if (!targetPath || targetPath === ROOT_REDIRECT_SOURCE_PATH) {
+	const targetPath = await getRootRedirect(sourcePath)
+	if (!targetPath || targetPath === sourcePath) {
 		logDebug('No root redirect mapping found for response generation')
 		return null
 	}
@@ -185,9 +185,9 @@ async function extractTargetFromResponse(res, pageData = null) {
  * @param {Object|null} pageData - The page data to use as a fallback if the response does not contain a target.
  * @returns {Promise<void>} A promise that resolves when the root redirect has been recorded, if applicable.
  */
-export async function maybeRecordRootRedirect(path, networkRes, pageData = null) {
+export async function maybeRecordRootRedirect(path, networkRes, pageData = null, sourcePath = ROOT_REDIRECT_SOURCE_PATH) {
 	// root redirects only apply to the defined source path
-	if (path !== ROOT_REDIRECT_SOURCE_PATH) {
+	if (path !== sourcePath) {
 		return
 	}
 
@@ -204,10 +204,10 @@ export async function maybeRecordRootRedirect(path, networkRes, pageData = null)
 	const targetPath = await extractTargetFromResponse(networkRes, pageData);
 
 	// if we have a valid target path that is different from the source, record the root redirect mapping
-	if (targetPath && targetPath !== ROOT_REDIRECT_SOURCE_PATH) {
-		await setRootRedirect(ROOT_REDIRECT_SOURCE_PATH, targetPath)
+	if (targetPath && targetPath !== sourcePath) {
+		await setRootRedirect(sourcePath, targetPath)
 		logDebug('Root redirect mapping recorded from network response', {
-			source: ROOT_REDIRECT_SOURCE_PATH,
+			source: sourcePath,
 			targetPath,
 		})
 		return

@@ -2,6 +2,7 @@ import { getCachedPageResponse, getOfflineNavigationResponse } from './responses
 import { getRootRedirectResponse, maybeRecordRootRedirect } from './redirects.js';
 import { isCachableSync } from './routes.js';
 import { storePage } from './pages.js';
+import { ROOT_REDIRECT_SOURCE_PATH } from './constants.js';
 import { logDebug, logWarn } from './utils.js';
 
 const DEFAULT_OFFLINE_FALLBACK_STATUSES = new Set([502, 503, 504]);
@@ -133,14 +134,14 @@ function buildOfflineHtmlResponse(context, buildOfflineHtml) {
  */
 async function handleOfflineResponse(context, options) {
 	const { path } = context;
-	const { buildOfflineHtml } = options;
+	const { buildOfflineHtml, rootRedirectPath } = options;
 
 	// for the root path, first check if we have a cached root redirect
 	// response before falling back to the generic offline page
-	if (path === '/') {
+	if (path === rootRedirectPath) {
 		logDebug('Handling offline response for root path, checking for root redirect');
 		try {
-			const redirectRes = await getRootRedirectResponse(path, true);
+			const redirectRes = await getRootRedirectResponse(path, true, rootRedirectPath);
 			if (redirectRes) {
 				logDebug('Serving root redirect response for offline request', { target: redirectRes.headers.get('X-Inertia-Location') });
 				return redirectRes;
@@ -194,7 +195,7 @@ async function handleInertiaFetch(context, options) {
 		const networkRes = await fetch(request);
 
 		// record root redirect if applicable
-		event.waitUntil(maybeRecordRootRedirect(path, networkRes));
+		event.waitUntil(maybeRecordRootRedirect(path, networkRes, null, options.rootRedirectPath));
 
 		// handle HTTP errors that should trigger the offline fallback
 		if (offlineFallbackStatuses.has(networkRes.status)) {
@@ -287,7 +288,7 @@ async function handleNavigationFetch(context, options) {
 		// handle HTTP errors that should trigger the offline fallback
 		if (offlineFallbackStatuses.has(networkRes.status)) {
 			logDebug('Network response has offline fallback status, handling offline response', { status: networkRes.status, path });
-			const offlineHtmlRes = await getOfflineNavigationResponse(path);
+			const offlineHtmlRes = await getOfflineNavigationResponse(path, { rootRedirectPath: options.rootRedirectPath });
 			if (offlineHtmlRes) {
 				return offlineHtmlRes;
 			}
@@ -302,7 +303,7 @@ async function handleNavigationFetch(context, options) {
 
 		// try to serve a cached offline navigation response
 		logDebug('Attempting to serve cached offline navigation response', { path });
-		const offlineHtmlRes = await getOfflineNavigationResponse(path);
+		const offlineHtmlRes = await getOfflineNavigationResponse(path, { rootRedirectPath: options.rootRedirectPath });
 		if (offlineHtmlRes) {
 			return offlineHtmlRes;
 		}
@@ -346,6 +347,7 @@ async function handleXhrLikeFetch(context, options) {
  * @param {Set<number>} [userOptions.offlineFallbackStatuses]
  * @param {(context: object) => string} [userOptions.buildOfflineHtml]
  * @param {Array<(context: object) => Promise<Response|null>|Response|null>} [userOptions.customHandlers]
+ * @param {string} [userOptions.rootRedirectPath]
  * @returns {(event: FetchEvent) => boolean}
  */
 export function createOfflineFetchHandler(userOptions = {}) {
@@ -354,6 +356,7 @@ export function createOfflineFetchHandler(userOptions = {}) {
 		offlineFallbackStatuses: userOptions.offlineFallbackStatuses || DEFAULT_OFFLINE_FALLBACK_STATUSES,
 		buildOfflineHtml: userOptions.buildOfflineHtml || defaultBuildOfflineHtml,
 		customHandlers: userOptions.customHandlers || [],
+		rootRedirectPath: userOptions.rootRedirectPath || ROOT_REDIRECT_SOURCE_PATH,
 	};
 	logDebug('Offline fetch handler created with options', options);
 
