@@ -1,8 +1,13 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
-import { createOfflineFetchHandler, createOfflineMaintenanceHandlers } from './inertia/index.js';
+import { createOfflineFetchHandler, createOfflineMaintenanceHandlers } from './inertia/index.ts';
 
 const handleOfflineFetch = createOfflineFetchHandler();
-const { warmRouteCacheabilityIndex, handleMessageEvent, handlePeriodicSyncEvent, handlePushEvent } = createOfflineMaintenanceHandlers();
+const {
+	warmRouteCacheabilityIndex,
+	handleMessageEvent,
+	handlePeriodicSyncEvent,
+	handlePushEvent
+} = createOfflineMaintenanceHandlers();
 
 // clean up old precaches automatically
 cleanupOutdatedCaches()
