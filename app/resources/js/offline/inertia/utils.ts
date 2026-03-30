@@ -15,8 +15,16 @@ export function getResponseEtag(response: Response): string | null {
 	return response.headers.get('ETag');
 }
 
-/** Whether logging is enabled (only in development builds) */
-const SHOULD_LOG_DEV: boolean = (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development');
+/** Whether logging is enabled */
+let SHOULD_LOG_DEV: boolean = false;
+
+/**
+ * Enables or disables debug logging.
+ * @param enabled - Set to true to enable debug logging (intended for development builds)
+ */
+export function setDebugLogging(enabled: boolean): void {
+	SHOULD_LOG_DEV = enabled;
+}
 
 /**
  * Color map for console output styling by log level.

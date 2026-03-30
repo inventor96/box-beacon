@@ -46,6 +46,9 @@ export { createOfflineFetchHandler } from './fetch';
 // Maintenance handlers
 export { createOfflineMaintenanceHandlers } from './maintenance';
 
+// Logging utilities
+export { setDebugLogging } from './utils';
+
 // Re-export types
 export type {
 	InertiaPage,

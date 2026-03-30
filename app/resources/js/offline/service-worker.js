@@ -1,5 +1,8 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
-import { createOfflineFetchHandler, createOfflineMaintenanceHandlers } from './inertia/index.ts';
+import { createOfflineFetchHandler, createOfflineMaintenanceHandlers, setDebugLogging } from './inertia/index.ts';
+
+// enable debug logging in dev
+setDebugLogging(import.meta.env.DEV);
 
 const handleOfflineFetch = createOfflineFetchHandler();
 const {
