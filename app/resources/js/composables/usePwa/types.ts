@@ -20,8 +20,11 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 interface UsePwaOptions {
+    /** Interval in milliseconds for refreshing the PWA cache (default: 900000) */
     refreshIntervalMs?: number | null
+    /** Initial delay in milliseconds before the first refresh (default: 10000) */
     initialRefreshDelayMs?: number | null
+    /** Tag for periodic sync events (default: 'inertia-refresh') */
     periodicSyncTag?: string
 }
 

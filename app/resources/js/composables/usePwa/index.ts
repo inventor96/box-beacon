@@ -179,15 +179,18 @@ function registerPeriodicSync(
  * @returns void
  */
 function handleServiceWorkerRegistration(options: UsePwaOptions) {
-    const { refreshIntervalMs, periodicSyncTag } = options
+    const {
+        refreshIntervalMs = DEFAULT_REFRESH_INTERVAL_MS,
+        periodicSyncTag = DEFAULT_PERIODIC_SYNC_TAG,
+    } = options
     navigator.serviceWorker.ready
         .then(async (registration) => {
             // store the registration
             swRegistration.value = registration
 
             // early return if refreshIntervalMs is null (periodic refresh disabled)
-            if (refreshIntervalMs === null) {
-                logDebug('Periodic refresh disabled (refreshIntervalMs is null)')
+            if (refreshIntervalMs === null || refreshIntervalMs <= 0) {
+                logDebug('Periodic refresh disabled (refreshIntervalMs is null or non-positive)')
                 return
             }
 
@@ -216,6 +219,11 @@ function handleServiceWorkerRegistration(options: UsePwaOptions) {
         })
         .catch((error) => {
             // sw registration unavailable; start the fallback timer
+            if (refreshIntervalMs === null || refreshIntervalMs <= 0) {
+                logDebug('Periodic refresh disabled (refreshIntervalMs is null or non-positive)')
+                return
+            }
+
             logWarn('Failed to access service worker registration; fallback timer enabled:', error)
             startRefreshFallbackTimer(refreshIntervalMs)
         })
@@ -268,11 +276,15 @@ function queueInitialRefresh(options: UsePwaOptions) {
  * @param options.periodicSyncTag The tag to use for the periodic sync. Default is 'inertia-refresh:default'.
  * @returns An object containing the PWA functions and reactive state.
  */
-export function usePwa(options: UsePwaOptions = {
-    refreshIntervalMs: DEFAULT_REFRESH_INTERVAL_MS,
-    initialRefreshDelayMs: DEFAULT_INITIAL_REFRESH_DELAY_MS,
-    periodicSyncTag: DEFAULT_PERIODIC_SYNC_TAG,
-}) {
+export function usePwa(options: UsePwaOptions) {
+    // resolve options with defaults
+    options = {
+        refreshIntervalMs: DEFAULT_REFRESH_INTERVAL_MS,
+        initialRefreshDelayMs: DEFAULT_INITIAL_REFRESH_DELAY_MS,
+        periodicSyncTag: DEFAULT_PERIODIC_SYNC_TAG,
+        ...options,
+    };
+
     /**
      * Initializes the PWA functionality by setting up event listeners for the
      * beforeinstallprompt, online, and offline events, registering the service
