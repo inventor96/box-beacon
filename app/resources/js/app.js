@@ -6,7 +6,7 @@ import '../scss/styles.scss'
 import { usePwa } from './composables/usePwa';
 
 // PWA setup
-const { createPwa, postServiceWorkerMessage } = usePwa();
+const { createPwa, postServiceWorkerMessage } = usePwa({ onlineCheckUrl: '/pwa/online-check' });
 createPwa();
 
 createInertiaApp({

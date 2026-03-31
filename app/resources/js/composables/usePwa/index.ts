@@ -12,6 +12,7 @@ import type { BeforeInstallPromptEvent, UsePwaOptions } from './types'
 const DEFAULT_PERIODIC_SYNC_TAG = 'inertia-refresh:default'
 const DEFAULT_REFRESH_INTERVAL_MS = 900000
 const DEFAULT_INITIAL_REFRESH_DELAY_MS = 10000
+const DEFAULT_ONLINE_CHECK_URL = '/'
 
 /**
  * The timer ID for the fallback refresh timer.
@@ -50,8 +51,8 @@ function onOffline() {
  * (eg WiFi has dead gateway). We use the onlineAndConnected ref to track if
  * the user is both online AND connected.
  */
-function onOnline() {
-    getOnlineAndConnected()
+function onOnline(checkUrl: string = DEFAULT_ONLINE_CHECK_URL) {
+    getOnlineAndConnected(checkUrl)
 }
 
 /**
@@ -63,8 +64,8 @@ function onOnline() {
  * able to use the web (eg WiFi has dead gateway). We use the
  * onlineAndConnected ref to track if the user is both online AND connected.
  */
-function getOnlineAndConnected() {
-    fetch('/pwa/online-check', { cache: 'no-store' })
+function getOnlineAndConnected(checkUrl: string = DEFAULT_ONLINE_CHECK_URL) {
+    fetch(checkUrl, { cache: 'no-store' })
         .then((response) => {
             onlineAndConnected.value = navigator.onLine && response.status === 200
         })
@@ -282,6 +283,7 @@ export function usePwa(options: UsePwaOptions) {
         refreshIntervalMs: DEFAULT_REFRESH_INTERVAL_MS,
         initialRefreshDelayMs: DEFAULT_INITIAL_REFRESH_DELAY_MS,
         periodicSyncTag: DEFAULT_PERIODIC_SYNC_TAG,
+        onlineCheckUrl: DEFAULT_ONLINE_CHECK_URL,
         ...options,
     };
 
@@ -326,10 +328,10 @@ export function usePwa(options: UsePwaOptions) {
 
         // online/offline event handlers
         window.addEventListener('offline', onOffline)
-        window.addEventListener('online', onOnline)
+        window.addEventListener('online', () => onOnline(options.onlineCheckUrl))
 
         // initial check to see if we're online and connected
-        getOnlineAndConnected()
+        getOnlineAndConnected(options.onlineCheckUrl)
 
         // service worker setup
         if ('serviceWorker' in navigator) {

@@ -26,6 +26,8 @@ interface UsePwaOptions {
     initialRefreshDelayMs?: number | null
     /** Tag for periodic sync events (default: 'inertia-refresh') */
     periodicSyncTag?: string
+    /** URL for checking online status (default: '/') */
+    onlineCheckUrl?: string
 }
 
 export type { BeforeInstallPromptEvent, UsePwaOptions }
