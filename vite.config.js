@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
 			}),
 			VitePWA({
 				strategies: 'injectManifest',
-				srcDir: 'app/resources/js/offline',
+				srcDir: 'app/resources/js',
 				filename: 'service-worker.js',
 				outDir: 'public', // output the injected SW to public/ so it matches the /service-worker.js registration URL
 				injectRegister: false, // we'll register the service worker manually in our app.js

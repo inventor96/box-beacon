@@ -3,7 +3,7 @@ import { createInertiaApp, usePage } from '@inertiajs/vue3'
 import Default from '@/Layouts/Default.vue'
 import 'vue-color/style.css';
 import '../scss/styles.scss'
-import { usePwa } from './composables/usePwa';
+import { usePwa } from 'inertia-offline/vue';
 
 // PWA setup
 const { createPwa, postServiceWorkerMessage } = usePwa({ onlineCheckUrl: '/pwa/online-check' });

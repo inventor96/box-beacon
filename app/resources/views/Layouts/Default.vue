@@ -5,7 +5,7 @@ import Alert from '@/Components/Alert.vue';
 import UpdateAvailableModal from '@/Components/UpdateAvailableModal.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
-import { usePwa } from '@/../js/composables/usePwa';
+import { usePwa } from 'inertia-offline/vue';
 
 import { format } from 'timeago.js';
 

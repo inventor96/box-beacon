@@ -1,7 +1,7 @@
 <script setup>
 import { onBeforeUnmount, ref, watch } from 'vue';
 import Modal from '@/Components/Modal.vue';
-import { usePwa } from '@/../js/composables/usePwa';
+import { usePwa } from 'inertia-offline/vue';
 
 const SNOOZE_MS = 5 * 60 * 1000;
 
