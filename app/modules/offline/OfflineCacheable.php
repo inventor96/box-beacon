@@ -5,7 +5,7 @@ use Attribute;
 use Closure;
 
 #[Attribute(Attribute::TARGET_METHOD)]
-class OfflineCachable {
+class OfflineCacheable {
 	public $param_generator;
 	public $access_control;
 

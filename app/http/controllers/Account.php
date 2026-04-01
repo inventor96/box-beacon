@@ -1,12 +1,12 @@
 <?php
 namespace app\http\controllers;
 
-use app\modules\offline\OfflineCachable;
+use app\modules\offline\OfflineCacheable;
 use mako\validator\exceptions\ValidationException;
 
 class Account extends ControllerBase
 {
-	#[OfflineCachable]
+	#[OfflineCacheable]
 	public function home()
 	{
 		return $this->view->render('Pages/Account/Home', [

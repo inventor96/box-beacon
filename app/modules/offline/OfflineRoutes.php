@@ -49,8 +49,8 @@ class OfflineRoutes {
 					continue 2;
 			}
 
-			// if the OfflineCachable attribute is present, generate params and add to output
-			$attributes = $reflection->getAttributes(OfflineCachable::class);
+			// if the OfflineCacheable attribute is present, generate params and add to output
+			$attributes = $reflection->getAttributes(OfflineCacheable::class);
 			if (count($attributes) === 0) {
 				continue;
 			}
