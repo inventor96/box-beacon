@@ -14,7 +14,11 @@ class Boxes extends ControllerBase
 {
 	use MoveSwitcherTrait;
 
-	#[OfflineCacheable(3600, true, [ParamGenerator::class, 'userMovesParams'])]
+	#[OfflineCacheable(
+		ttl: 3600,
+		param_generator: [ParamGenerator::class, 'userMovesParams'],
+		pagination_resolver: [ParamGenerator::class, 'userMovesPagination'],
+	)]
 	public function home(Move $move, int $move_id)
 	{
 		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
@@ -78,7 +82,7 @@ class Boxes extends ControllerBase
 		return $this->safeRedirectResponse('printing:print', ['ids' => implode(',', $box_ids)]);
 	}
 
-	#[OfflineCacheable(3600, false, [ParamGenerator::class, 'userBoxParams'])]
+	#[OfflineCacheable(ttl: 3600, param_generator: [ParamGenerator::class, 'userBoxParams'])]
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		// get source

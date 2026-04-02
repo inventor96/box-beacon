@@ -1,7 +1,9 @@
 <?php
 namespace app\modules\offline;
 
+use app\models\Move;
 use mako\gatekeeper\Gatekeeper;
+use mako\pagination\PaginationInterface;
 
 class ParamGenerator {
 	public function __construct(protected Gatekeeper $gatekeeper) {}
@@ -26,5 +28,10 @@ class ParamGenerator {
 			}
 		}
 		return $params;
+	}
+
+	public static function userMovesPagination(Move $move, array $route_params = []): PaginationInterface {
+		$move_id = (int) ($route_params['move_id'] ?? 0);
+		return $move->getInstanceOrThrow($move_id)->boxes()->paginate()->getPagination();
 	}
 }

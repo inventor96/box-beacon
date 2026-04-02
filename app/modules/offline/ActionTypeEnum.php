@@ -33,4 +33,14 @@ enum ActionTypeEnum {
 			return static::UNKNOWN;
 		}
 	}
+
+	/**
+	 * Determine if the given action is of a supported type for offline caching.
+	 *
+	 * @param mixed $action The action to evaluate.
+	 * @return boolean True if the action is supported, false otherwise.
+	 */
+	public static function isSupported(mixed $action): bool {
+		return static::from($action) !== static::UNKNOWN;
+	}
 }
