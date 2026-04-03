@@ -1,6 +1,7 @@
 <?php
 
 use inventor96\Inertia\InertiaPackage;
+use inventor96\InertiaOfflineMako\InertiaOfflinePackage;
 
 return
 [
@@ -147,6 +148,7 @@ return
 		'web' =>
 		[
 			InertiaPackage::class,
+			InertiaOfflinePackage::class,
 		],
 		'cli' =>
 		[

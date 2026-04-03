@@ -42,8 +42,6 @@ $routes->group([
 				'version' => '[a-z\d]+'
 			]);
 		$routes->get('/pwa/online-check', [PWA::class, 'onlineCheck'], 'pwa:onlineCheck');
-		$routes->get('/pwa/offline-routes', [PWA::class, 'offlineRoutes'], 'pwa:offlineRoutes');
-		$routes->get('/pwa/offline-version', [PWA::class, 'version'], 'pwa:version');
 		#endregion
 
 		$routes->get('/assets/fonts/{font}', [Fonts::class, 'fonts'], 'fonts:fonts');

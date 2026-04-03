@@ -4,30 +4,30 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b6035e09107dff16b72812341ee4d52",
+    "content-hash": "98dbeaa654b58dcab4f1fdf329ecb062",
     "packages": [
         {
             "name": "doctrine/sql-formatter",
-            "version": "1.5.2",
+            "version": "1.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/sql-formatter.git",
-                "reference": "d6d00aba6fd2957fe5216fe2b7673e9985db20c8"
+                "reference": "9563949f5cd3bd12a17d12fb980528bc141c5806"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/sql-formatter/zipball/d6d00aba6fd2957fe5216fe2b7673e9985db20c8",
-                "reference": "d6d00aba6fd2957fe5216fe2b7673e9985db20c8",
+                "url": "https://api.github.com/repos/doctrine/sql-formatter/zipball/9563949f5cd3bd12a17d12fb980528bc141c5806",
+                "reference": "9563949f5cd3bd12a17d12fb980528bc141c5806",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.1"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^12",
-                "ergebnis/phpunit-slow-test-detector": "^2.14",
-                "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^10.5"
+                "doctrine/coding-standard": "^14",
+                "ergebnis/phpunit-slow-test-detector": "^2.20",
+                "phpstan/phpstan": "^2.1.31",
+                "phpunit/phpunit": "^10.5.58"
             },
             "bin": [
                 "bin/sql-formatter"
@@ -57,27 +57,27 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/sql-formatter/issues",
-                "source": "https://github.com/doctrine/sql-formatter/tree/1.5.2"
+                "source": "https://github.com/doctrine/sql-formatter/tree/1.5.4"
             },
-            "time": "2025-01-24T11:45:48+00:00"
+            "time": "2026-02-08T16:21:46+00:00"
         },
         {
             "name": "inventor96/inertia-mako",
-            "version": "v1.4.3",
+            "version": "v1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/inventor96/inertia-mako.git",
-                "reference": "19a667afba2da1c1cea2eca6d0f3df85f39a86a1"
+                "reference": "960a061a21fbfb8bf8df5b6a58063fa58e5700da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/inventor96/inertia-mako/zipball/19a667afba2da1c1cea2eca6d0f3df85f39a86a1",
-                "reference": "19a667afba2da1c1cea2eca6d0f3df85f39a86a1",
+                "url": "https://api.github.com/repos/inventor96/inertia-mako/zipball/960a061a21fbfb8bf8df5b6a58063fa58e5700da",
+                "reference": "960a061a21fbfb8bf8df5b6a58063fa58e5700da",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "mako/framework": "^10.0",
+                "mako/framework": "10.* || 11.* || 12.*",
                 "mindplay/php-vite": "^1.0",
                 "php": "~8.1.0|~8.2.0|~8.3.0"
             },
@@ -105,9 +105,94 @@
             ],
             "support": {
                 "issues": "https://github.com/inventor96/inertia-mako/issues",
-                "source": "https://github.com/inventor96/inertia-mako/tree/v1.4.3"
+                "source": "https://github.com/inventor96/inertia-mako/tree/v1.5.1"
             },
-            "time": "2025-09-15T09:01:22+00:00"
+            "time": "2026-04-03T02:15:34+00:00"
+        },
+        {
+            "name": "inventor96/inertia-offline",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/inventor96/inertia-offline-php.git",
+                "reference": "af7c06469a5f51949773c89a4825b89d99218410"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/inventor96/inertia-offline-php/zipball/af7c06469a5f51949773c89a4825b89d99218410",
+                "reference": "af7c06469a5f51949773c89a4825b89d99218410",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "inventor96\\InertiaOffline\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Framework-agnostic backend primitives for Inertia offline support.",
+            "keywords": [
+                "inertia",
+                "offline",
+                "php",
+                "precaching",
+                "service worker"
+            ],
+            "support": {
+                "issues": "https://github.com/inventor96/inertia-offline-php/issues",
+                "source": "https://github.com/inventor96/inertia-offline-php/tree/v0.2.0"
+            },
+            "time": "2026-04-03T02:55:17+00:00"
+        },
+        {
+            "name": "inventor96/inertia-offline-mako",
+            "version": "v0.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/inventor96/inertia-offline-mako.git",
+                "reference": "938dc40a6f46b4b72eddc8e6c79fc818a4624597"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/inventor96/inertia-offline-mako/zipball/938dc40a6f46b4b72eddc8e6c79fc818a4624597",
+                "reference": "938dc40a6f46b4b72eddc8e6c79fc818a4624597",
+                "shasum": ""
+            },
+            "require": {
+                "inventor96/inertia-mako": "^1.3",
+                "inventor96/inertia-offline": "^0.2.0",
+                "mako/framework": "10.* || 11.* || 12.*",
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "inventor96\\InertiaOfflineMako\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Mako framework adapter for inventor96/inertia-offline.",
+            "keywords": [
+                "inertia",
+                "mako",
+                "offline",
+                "php",
+                "service worker"
+            ],
+            "support": {
+                "issues": "https://github.com/inventor96/inertia-offline-mako/issues",
+                "source": "https://github.com/inventor96/inertia-offline-mako/tree/v0.1.1"
+            },
+            "time": "2026-04-03T04:34:29+00:00"
         },
         {
             "name": "mako/framework",
@@ -184,16 +269,16 @@
         },
         {
             "name": "mindplay/php-vite",
-            "version": "1.0.1",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mindplay-dk/php-vite.git",
-                "reference": "f9416949acd4652d322793055e2e7661648bd69c"
+                "reference": "4c41d9d14410e0bb44254def476e66e068205a9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mindplay-dk/php-vite/zipball/f9416949acd4652d322793055e2e7661648bd69c",
-                "reference": "f9416949acd4652d322793055e2e7661648bd69c",
+                "url": "https://api.github.com/repos/mindplay-dk/php-vite/zipball/4c41d9d14410e0bb44254def476e66e068205a9a",
+                "reference": "4c41d9d14410e0bb44254def476e66e068205a9a",
                 "shasum": ""
             },
             "require": {
@@ -216,22 +301,22 @@
             "description": "a lightweight PHP-backend integration for the Vite frontend build tool",
             "support": {
                 "issues": "https://github.com/mindplay-dk/php-vite/issues",
-                "source": "https://github.com/mindplay-dk/php-vite/tree/1.0.1"
+                "source": "https://github.com/mindplay-dk/php-vite/tree/1.1.0"
             },
-            "time": "2024-10-08T10:42:03+00:00"
+            "time": "2025-10-19T12:21:52+00:00"
         },
         {
             "name": "monolog/monolog",
-            "version": "3.9.0",
+            "version": "3.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6"
+                "reference": "b321dd6749f0bf7189444158a3ce785cc16d69b0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/10d85740180ecba7896c87e06a166e0c95a0e3b6",
-                "reference": "10d85740180ecba7896c87e06a166e0c95a0e3b6",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/b321dd6749f0bf7189444158a3ce785cc16d69b0",
+                "reference": "b321dd6749f0bf7189444158a3ce785cc16d69b0",
                 "shasum": ""
             },
             "require": {
@@ -249,7 +334,7 @@
                 "graylog2/gelf-php": "^1.4.2 || ^2.0",
                 "guzzlehttp/guzzle": "^7.4.5",
                 "guzzlehttp/psr7": "^2.2",
-                "mongodb/mongodb": "^1.8",
+                "mongodb/mongodb": "^1.8 || ^2.0",
                 "php-amqplib/php-amqplib": "~2.4 || ^3",
                 "php-console/php-console": "^3.1.8",
                 "phpstan/phpstan": "^2",
@@ -309,7 +394,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/3.9.0"
+                "source": "https://github.com/Seldaek/monolog/tree/3.10.0"
             },
             "funding": [
                 {
@@ -321,20 +406,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-24T10:02:05+00:00"
+            "time": "2026-01-02T08:56:05+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
-            "version": "v6.10.0",
+            "version": "v6.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPMailer/PHPMailer.git",
-                "reference": "bf74d75a1fde6beaa34a0ddae2ec5fce0f72a144"
+                "reference": "d1ac35d784bf9f5e61b424901d5a014967f15b12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/bf74d75a1fde6beaa34a0ddae2ec5fce0f72a144",
-                "reference": "bf74d75a1fde6beaa34a0ddae2ec5fce0f72a144",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/d1ac35d784bf9f5e61b424901d5a014967f15b12",
+                "reference": "d1ac35d784bf9f5e61b424901d5a014967f15b12",
                 "shasum": ""
             },
             "require": {
@@ -394,7 +479,7 @@
             "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
             "support": {
                 "issues": "https://github.com/PHPMailer/PHPMailer/issues",
-                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.10.0"
+                "source": "https://github.com/PHPMailer/PHPMailer/tree/v6.12.0"
             },
             "funding": [
                 {
@@ -402,7 +487,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-24T15:19:31+00:00"
+            "time": "2025-10-15T16:49:08+00:00"
         },
         {
             "name": "psr/log",
@@ -608,16 +693,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v7.3.2",
+            "version": "v7.4.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "53205bea27450dc5c65377518b3275e126d45e75"
+                "reference": "9510c3966f749a1d1ff0059e1eabef6cc621e7fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/53205bea27450dc5c65377518b3275e126d45e75",
-                "reference": "53205bea27450dc5c65377518b3275e126d45e75",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/9510c3966f749a1d1ff0059e1eabef6cc621e7fd",
+                "reference": "9510c3966f749a1d1ff0059e1eabef6cc621e7fd",
                 "shasum": ""
             },
             "require": {
@@ -629,10 +714,10 @@
                 "symfony/console": "<6.4"
             },
             "require-dev": {
-                "symfony/console": "^6.4|^7.0",
-                "symfony/http-kernel": "^6.4|^7.0",
-                "symfony/process": "^6.4|^7.0",
-                "symfony/uid": "^6.4|^7.0",
+                "symfony/console": "^6.4|^7.0|^8.0",
+                "symfony/http-kernel": "^6.4|^7.0|^8.0",
+                "symfony/process": "^6.4|^7.0|^8.0",
+                "symfony/uid": "^6.4|^7.0|^8.0",
                 "twig/twig": "^3.12"
             },
             "bin": [
@@ -671,7 +756,7 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v7.3.2"
+                "source": "https://github.com/symfony/var-dumper/tree/v7.4.8"
             },
             "funding": [
                 {
@@ -691,7 +776,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-07-29T20:02:46+00:00"
+            "time": "2026-03-30T13:44:50+00:00"
         }
     ],
     "packages-dev": [],

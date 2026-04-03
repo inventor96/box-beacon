@@ -6,9 +6,9 @@ use app\models\Item;
 use app\models\Move;
 use app\models\Room;
 use app\models\Tag;
-use app\modules\offline\OfflineCacheable;
 use app\modules\offline\ParamGenerator;
 use app\traits\MoveSwitcherTrait;
+use inventor96\InertiaOffline\OfflineCacheable;
 
 class Boxes extends ControllerBase
 {

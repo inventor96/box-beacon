@@ -1,7 +1,7 @@
 <?php
 namespace app\http\controllers;
 
-use app\modules\offline\OfflineCacheable;
+use inventor96\InertiaOffline\OfflineCacheable;
 use mako\validator\exceptions\ValidationException;
 
 class Account extends ControllerBase
