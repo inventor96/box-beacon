@@ -9,8 +9,6 @@
   "devDependencies": {
     "@inertiajs/inertia": "^0.11.1",
     "@inertiajs/vue3": "^2.0.2",
-    "@inventor96/inertia-offline": "^0.1.0",
-    "@vite-pwa/assets-generator": "^1.0.2",
     "@vitejs/plugin-vue": "^5.2.1",
     "laravel-vite-plugin": "^1.1.1",
     "sass": "^1.90.0",
@@ -26,6 +24,7 @@
     "bootstrap": "^5.3.7",
     "bootstrap-icons": "^1.13.1",
     "bootswatch": "^5.3.7",
+    "inertia-offline": "^0.1.2",
     "qrcode.vue": "^3.6.0",
     "timeago.js": "^4.0.2",
     "vue-color": "^3.3.1",
