@@ -1,6 +1,5 @@
 <?php
 
-use app\http\routing\middleware\AccessControl;
 use inventor96\InertiaOfflineMako\ConditionalEtag;
 use app\http\routing\middleware\RequireAuth;
 use inventor96\Inertia\InertiaCsrf;

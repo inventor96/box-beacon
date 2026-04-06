@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98dbeaa654b58dcab4f1fdf329ecb062",
+    "content-hash": "321197ce40f0387394b587c3fba3fbab",
     "packages": [
         {
             "name": "doctrine/sql-formatter",
@@ -63,16 +63,16 @@
         },
         {
             "name": "inventor96/inertia-mako",
-            "version": "v1.5.1",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/inventor96/inertia-mako.git",
-                "reference": "960a061a21fbfb8bf8df5b6a58063fa58e5700da"
+                "reference": "31ed399fa257258c828643f5c82165ccbddd39ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/inventor96/inertia-mako/zipball/960a061a21fbfb8bf8df5b6a58063fa58e5700da",
-                "reference": "960a061a21fbfb8bf8df5b6a58063fa58e5700da",
+                "url": "https://api.github.com/repos/inventor96/inertia-mako/zipball/31ed399fa257258c828643f5c82165ccbddd39ad",
+                "reference": "31ed399fa257258c828643f5c82165ccbddd39ad",
                 "shasum": ""
             },
             "require": {
@@ -105,9 +105,9 @@
             ],
             "support": {
                 "issues": "https://github.com/inventor96/inertia-mako/issues",
-                "source": "https://github.com/inventor96/inertia-mako/tree/v1.5.1"
+                "source": "https://github.com/inventor96/inertia-mako/tree/v2.0.0"
             },
-            "time": "2026-04-03T02:15:34+00:00"
+            "time": "2026-04-06T07:04:24+00:00"
         },
         {
             "name": "inventor96/inertia-offline",
@@ -152,20 +152,20 @@
         },
         {
             "name": "inventor96/inertia-offline-mako",
-            "version": "v0.1.1",
+            "version": "v0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/inventor96/inertia-offline-mako.git",
-                "reference": "938dc40a6f46b4b72eddc8e6c79fc818a4624597"
+                "reference": "28ab5f8278d05c2ed13e4d30514525f71a8b873b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/inventor96/inertia-offline-mako/zipball/938dc40a6f46b4b72eddc8e6c79fc818a4624597",
-                "reference": "938dc40a6f46b4b72eddc8e6c79fc818a4624597",
+                "url": "https://api.github.com/repos/inventor96/inertia-offline-mako/zipball/28ab5f8278d05c2ed13e4d30514525f71a8b873b",
+                "reference": "28ab5f8278d05c2ed13e4d30514525f71a8b873b",
                 "shasum": ""
             },
             "require": {
-                "inventor96/inertia-mako": "^1.3",
+                "inventor96/inertia-mako": "1.* || 2.*",
                 "inventor96/inertia-offline": "^0.2.0",
                 "mako/framework": "10.* || 11.* || 12.*",
                 "php": ">=8.1"
@@ -190,9 +190,9 @@
             ],
             "support": {
                 "issues": "https://github.com/inventor96/inertia-offline-mako/issues",
-                "source": "https://github.com/inventor96/inertia-offline-mako/tree/v0.1.1"
+                "source": "https://github.com/inventor96/inertia-offline-mako/tree/v0.2.1"
             },
-            "time": "2026-04-03T04:34:29+00:00"
+            "time": "2026-04-06T07:14:30+00:00"
         },
         {
             "name": "mako/framework",

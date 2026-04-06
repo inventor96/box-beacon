@@ -8,6 +8,8 @@
 composer.phar
 /node_modules
 /public/service-worker.js
+/public/manifest.webmanifest
+/public/manifest.json
 /public/hot
 /public/build/
 .vite/

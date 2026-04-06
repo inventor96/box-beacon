@@ -45,6 +45,7 @@ export default defineConfig(({ mode }) => {
 	const additionalImages = [];
 
 	return {
+		base: '/', // resolve fonts at build time correctly regardless of laravel's config
 		plugins: [
 			laravel({
 				input: 'app/resources/js/app.js',
@@ -108,8 +109,9 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		build: {
-			outDir: 'public/build',
-			assetsDir: 'assets',
+			outDir: 'public',
+			assetsDir: 'build',
+			emptyOutDir: false, // don't delete the entire public/ directory on build
 		},
 		css: {
 			preprocessorOptions: {

@@ -4,7 +4,6 @@ use app\http\controllers\Account;
 use app\http\controllers\Auth;
 use app\http\controllers\Boxes;
 use app\http\controllers\Dashboard;
-use app\http\controllers\Fonts;
 use app\http\controllers\Invites;
 use app\http\controllers\Items;
 use app\http\controllers\Moves;
@@ -35,16 +34,8 @@ $routes->group([
 		],
 	], function (Routes $routes) {
 		#region PWA
-		$routes->get('/manifest.webmanifest', [PWA::class, 'manifest'], 'pwa:manifest');
-		$routes->get('/sw.js', [PWA::class, 'serviceWorker'], 'pwa:serviceWorker');
-		$routes->get('/workbox-{version}.js', [PWA::class, 'workbox'], 'pwa:workbox')
-			->patterns([
-				'version' => '[a-z\d]+'
-			]);
 		$routes->get('/pwa/online-check', [PWA::class, 'onlineCheck'], 'pwa:onlineCheck');
 		#endregion
-
-		$routes->get('/assets/fonts/{font}', [Fonts::class, 'fonts'], 'fonts:fonts');
 
 		#region authentication
 		$routes->get('/login', [Auth::class, 'login'], 'auth:login');
