@@ -1,13 +1,16 @@
 import { createApp, h, watch } from 'vue'
 import { createInertiaApp, usePage } from '@inertiajs/vue3'
 import Default from '@/Layouts/Default.vue'
+import { registerSW } from 'virtual:pwa-register';
 import 'vue-color/style.css';
 import '../scss/styles.scss'
 import { usePwa } from 'inertia-offline/vue';
 
 // PWA setup
-const { createPwa, postServiceWorkerMessage } = usePwa({ onlineCheckUrl: '/pwa/online-check' });
-createPwa();
+const { createPwa, postServiceWorkerMessage } = usePwa({
+	onlineCheckUrl: '/pwa/online-check',
+});
+createPwa(registerSW);
 
 createInertiaApp({
 	resolve: (name) => {
