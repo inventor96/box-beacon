@@ -44,6 +44,7 @@ abstract class ControllerBase extends Controller {
 				'_container_success' => $success ? [$time => $success] : [],
 				'_container_warning' => $warning ? [$time => $warning] : [],
 				'_container_error' => $error ? [$time => $error] : [],
+				'_authed' => $this->getUser() !== null,
 			];
 		});
 	}

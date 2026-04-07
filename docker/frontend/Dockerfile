@@ -1,5 +1,5 @@
 # ------- Base stage -------
-FROM node:21.6 AS base
+FROM node:22 AS base
 WORKDIR /app
 COPY package.json package-lock.json* ./
 
@@ -15,6 +15,11 @@ RUN if ! getent group ${GID} >/dev/null; then \
 RUN if ! id -u ${UID} >/dev/null 2>&1; then \
       useradd -u ${UID} -g ${GID} -m devuser; \
     fi
+
+# Install dependencies
+COPY docker/frontend/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT [ "entrypoint.sh" ]
 
 # Fire in the hole!
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

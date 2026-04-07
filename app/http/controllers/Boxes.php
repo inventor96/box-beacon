@@ -6,12 +6,19 @@ use app\models\Item;
 use app\models\Move;
 use app\models\Room;
 use app\models\Tag;
+use app\modules\offline\ParamGenerator;
 use app\traits\MoveSwitcherTrait;
+use inventor96\InertiaOffline\OfflineCacheable;
 
 class Boxes extends ControllerBase
 {
 	use MoveSwitcherTrait;
 
+	#[OfflineCacheable(
+		ttl: 3600,
+		param_generator: [ParamGenerator::class, 'userMovesParams'],
+		pagination_resolver: [ParamGenerator::class, 'userMovesPagination'],
+	)]
 	public function home(Move $move, int $move_id)
 	{
 		if ($r = $this->checkMove($move, $move_id, $m)) return $r;
@@ -75,6 +82,7 @@ class Boxes extends ControllerBase
 		return $this->safeRedirectResponse('printing:print', ['ids' => implode(',', $box_ids)]);
 	}
 
+	#[OfflineCacheable(ttl: 3600, param_generator: [ParamGenerator::class, 'userBoxParams'])]
 	public function edit(Move $move, Box $box, int $move_id, int|string $id)
 	{
 		// get source

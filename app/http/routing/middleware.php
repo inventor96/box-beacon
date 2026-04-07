@@ -1,6 +1,6 @@
 <?php
 
-use app\http\routing\middleware\AccessControl;
+use inventor96\InertiaOfflineMako\ConditionalEtag;
 use app\http\routing\middleware\RequireAuth;
 use inventor96\Inertia\InertiaCsrf;
 use inventor96\Inertia\InertiaInputValidation;
@@ -20,4 +20,7 @@ $dispatcher
 
 	->registerGlobalMiddleware(InertiaMiddleware::class)
 	->setMiddlewarePriority(InertiaMiddleware::class, 70)
+
+	->registerGlobalMiddleware(ConditionalEtag::class)
+	->setMiddlewarePriority(ConditionalEtag::class, 80)
 ;
