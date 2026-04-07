@@ -13,15 +13,19 @@ services:
       args:
         UID: "${UID}"
         GID: "${GID}"
+    healthcheck:
+      test: []
     user: "${UID}:${GID}"
     environment:
       - UID=${UID}
       - GID=${GID}
       - LISTEN_DOMAIN=${LISTEN_DOMAIN}
+      - XDEBUG_PORT=${XDEBUG_PORT}
     volumes:
       - .:/var/www/html
       - ./docker/backend/php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini # enable xdebug
       - ./docker/backend/apache2/sites-available/dev.conf:/etc/apache2/sites-enabled/dev.conf # access db and mail via backend
+      - /etc/hosts:/tmp/hosts:ro # allow post-create-project to check existing host entries
     extra_hosts:
       - "host.docker.internal:host-gateway" # ensure xdebug can reach the host
 
@@ -38,19 +42,17 @@ services:
       - UID=${UID}
       - GID=${GID}
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     volumes:
       - .:/app
     ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - "${LISTEN_IP}:${FRONTEND_PORT}:${FRONTEND_PORT}"
 
   mailpit:
     image: axllent/mailpit:latest
     restart: unless-stopped
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - default
     environment:
@@ -64,8 +66,7 @@ services:
       dockerfile: ./Dockerfile
     restart: unless-stopped
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     networks:
       - default
     environment:
