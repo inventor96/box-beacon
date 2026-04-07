@@ -1,5 +1,5 @@
 # ------- Frontend build stage -------
-FROM node:21.6 AS frontend-build
+FROM node:22 AS frontend-build
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install
@@ -34,8 +34,10 @@ RUN composer install --no-dev --prefer-dist --no-scripts --no-autoloader --optim
 COPY . .
 
 # Copy frontend assets
-COPY --from=frontend-build /app/node_modules/bootstrap-icons/font/fonts /var/www/html/public/assets/fonts
 COPY --from=frontend-build /app/public/build /var/www/html/public/build
+COPY --from=frontend-build /app/public/service-worker.js /var/www/html/public/service-worker.js
+COPY --from=frontend-build /app/public/manifest.webmanifest /var/www/html/public/manifest.webmanifest
+COPY --from=frontend-build /app/public/manifest.json /var/www/html/public/manifest.json
 
 # Generate inertia version
 RUN echo "<?php return ['$(date +%Y%m%d%H%M%S)'];" \

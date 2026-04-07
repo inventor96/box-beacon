@@ -8,6 +8,10 @@ vendor/
 composer.phar
 node_modules/
 public/hot
+public/build/
+public/service-worker.js
+public/manifest.webmanifest
+public/manifest.json
 .vite/
 .vscode/
 .env
@@ -20,6 +24,7 @@ public/hot
 .php-cs-fixer.php
 .phpstorm.meta.php
 jsconfig.json
+tsconfig.json
 LICENSE
 phpstan.neon
 README.md
@@ -29,3 +34,4 @@ app/storage/cache/views/*
 app/storage/database/*
 app/storage/logs/*
 app/storage/sessions/*
+dev-dist/

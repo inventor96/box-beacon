@@ -1,6 +1,11 @@
 // bootstrap overrides
 $enable-negative-margins: true;
 
+// use locally bundled Lato files instead of Google Fonts so the service worker can cache them
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/400-italic.css";
+@import "@fontsource/lato/700.css";
+
 // bootswatch variables
 @import "bootswatch/dist/flatly/variables";
 
@@ -53,10 +58,16 @@ $enable-negative-margins: true;
 @import "bootstrap/scss/utilities/api";
 
 // bootswatch theme
+// prevent Flatly from importing Google Fonts at runtime
+$web-font-path: false;
 @import "bootswatch/dist/flatly/bootswatch";
 
-// bootstrap icons
-$bootstrap-icons-font-dir: "/assets/fonts";
+// bootstrap icons -- remove cache busting query string to allow for service worker caching
+$bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
+$bootstrap-icons-font: "bootstrap-icons";
+$bootstrap-icons-font-file: "#{$bootstrap-icons-font-dir}/#{$bootstrap-icons-font}";
+$bootstrap-icons-font-src: url("#{$bootstrap-icons-font-file}.woff2") format("woff2"),
+                           url("#{$bootstrap-icons-font-file}.woff") format("woff");
 @import "bootstrap-icons/font/bootstrap-icons";
 
 // inherit line-height utilities from $utilities map for bootstrap icons

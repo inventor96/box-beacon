@@ -2,8 +2,12 @@
 import { /* Dropdown, */ Collapse } from 'bootstrap'
 import NavLink from '@/Components/NavLink.vue';
 import Alert from '@/Components/Alert.vue';
+import UpdateAvailableModal from '@/Components/UpdateAvailableModal.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
+import { usePwa } from 'inertia-offline/vue';
+
+import { format } from 'timeago.js';
 
 const props = defineProps({
 	_env: {
@@ -29,7 +33,17 @@ const props = defineProps({
 	_container_success: {
 		type: [Array, Object],
 		default: () => []
-	}
+	},
+	_offline: {
+		type: Boolean,
+		required: false,
+		default: false
+	},
+	_savedAt: {
+		type: Number,
+		required: false,
+		default: null
+	},
 });
 
 const collapseRef = ref(null);
@@ -42,6 +56,7 @@ onMounted(() => {
 });
 
 const page = usePage();
+const { onlineAndConnected } = usePwa();
 watch(
 	() => page.url,
 	() => {
@@ -67,6 +82,17 @@ const mailLink = computed(
 		return null;
 	}
 );
+
+function cacheBust() {
+	if (navigator.serviceWorker?.controller) {
+		navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_OFFLINE' });
+	}
+	alert('Offline cache cleared.');
+}
+
+function refreshPage() {
+	window.location.reload();
+}
 </script>
 
 <template>
@@ -80,6 +106,9 @@ const mailLink = computed(
 		<a v-if="mailLink" :href="mailLink" target="_blank" class="icon-link">
 			Mailpit
 			<i class="bi bi-box-arrow-up-right"></i>
+		</a>
+		<a href="#" @click.prevent="cacheBust">
+			Clear Offline Cache
 		</a>
 	</div>
 
@@ -117,6 +146,21 @@ const mailLink = computed(
 		</div>
 	</nav>
 
+	<!-- offline alert -->
+	<div
+		v-if="props._offline"
+		:class="['alert', onlineAndConnected ? 'alert-info' : 'alert-warning', 'm-0', 'mt-n3', 'mb-3', 'p-1', 'text-center']"
+	>
+		<template v-if="onlineAndConnected">
+			Looks like you're back online.
+			<a href="#" @click.prevent="refreshPage">Click here</a>
+			to refresh the page.
+		</template>
+		<template v-else>
+			You appear to be offline. We're showing a page that was current as of {{ format(props._savedAt) }}. Changes will not be saved, and functionality may be limited.
+		</template>
+	</div>
+
 	<div id="container" class="container pb-5">
 		<!-- page alerts -->
 		<Alert
@@ -143,4 +187,6 @@ const mailLink = computed(
 		<!-- page content -->
 		<slot />
 	</div>
+
+	<UpdateAvailableModal />
 </template>

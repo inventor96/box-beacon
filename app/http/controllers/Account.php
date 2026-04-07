@@ -1,10 +1,12 @@
 <?php
 namespace app\http\controllers;
 
+use inventor96\InertiaOffline\OfflineCacheable;
 use mako\validator\exceptions\ValidationException;
 
 class Account extends ControllerBase
 {
+	#[OfflineCacheable]
 	public function home()
 	{
 		return $this->view->render('Pages/Account/Home', [

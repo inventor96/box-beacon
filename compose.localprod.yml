@@ -1,0 +1,20 @@
+volumes:
+  caddy_data:
+  caddy_config:
+
+services:
+  caddy:
+    image: caddy:latest
+    ports:
+      - "${LISTEN_IP}:80:80"
+      - "${LISTEN_IP}:443:443"
+      - "${LISTEN_IP}:5173:5173"
+    environment:
+      - LISTEN_DOMAIN=${LISTEN_DOMAIN}
+    volumes:
+      - ./docker/caddy/Caddyfile-localprod:/etc/caddy/Caddyfile
+      - ./docker/caddy/certs:/certs
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app
